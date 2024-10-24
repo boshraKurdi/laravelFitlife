@@ -12,6 +12,11 @@ class UserController extends Controller
         $users = User::get();
         return response()->json($users);
     }
+    public function index2()
+    {
+        $users = User::get();
+        return response()->json($users);
+    }
     public function coachs()
     {
         $coachs = User::role('coach')->with('media')->get();
