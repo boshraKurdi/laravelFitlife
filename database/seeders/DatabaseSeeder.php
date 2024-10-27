@@ -26,7 +26,8 @@ class DatabaseSeeder extends Seeder
             ExerciseSeeder::class,
             PlanLevelExerciseSeeder::class,
             ServiceSeeder::class,
-            UserServiceSeeder::class,
+            ChatSeeder::class,
+            MessageSeeder::class,
             RolesAndPermissionsSeeder::class,
             MideaSeeder::class
         ]);

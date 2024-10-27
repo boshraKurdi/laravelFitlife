@@ -19,9 +19,19 @@ class UserServiceController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreUserServiceRequest $request)
+    public function store(StoreUserServiceRequest $request, $id)
     {
-        //
+        $store = UserService::query()->create([
+            'user_id' => auth()->id(),
+            'service_id' => $id,
+            'price' => $request->price,
+            'type' => $request->type,
+            'cvc' => $request->cvc,
+            'number' => $request->number,
+            'month' => $request->month,
+            'year' => $request->year
+        ]);
+        return response()->json($store);
     }
 
     /**

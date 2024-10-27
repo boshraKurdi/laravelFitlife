@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Service;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -13,16 +12,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_services', function (Blueprint $table) {
+        Schema::create('chats', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(User::class);
-            $table->foreignIdFor(Service::class);
-            $table->integer('month');
-            $table->integer('year');
-            $table->integer('cvc');
-            $table->integer('number');
-            $table->float('price');
-            $table->string('type');
+            $table->foreignId('coach_id')->constrained('users', 'id');
+            $table->string('lastMessage');
             $table->timestamps();
         });
     }
@@ -32,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_services');
+        Schema::dropIfExists('chats');
     }
 };

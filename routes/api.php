@@ -1,16 +1,19 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ExerciseController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\GoalPlanLevelController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\GymController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\PlanLevelController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\TargetController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserServiceController;
 use App\Models\GoalPlanLevel;
 use App\Models\Plan;
 use App\Models\PlanLevel;
@@ -37,6 +40,18 @@ Route::group(['prefix' => 'user'], function () {
 });
 Route::group(['prefix' => 'service'], function () {
     Route::get('index', [ServiceController::class, 'index']);
+});
+Route::group(['prefix' => 'userService'], function () {
+    Route::group(['middleware' => 'auth:api'], function () {
+        Route::post('store/{id}', [UserServiceController::class, 'store']);
+    });
+});
+Route::group(['prefix' => 'chat'], function () {
+    Route::group(['middleware' => 'auth:api'], function () {
+        Route::get('index', [ChatController::class, 'index']);
+        Route::post('store', [ChatController::class, 'store']);
+        Route::get('messages/{id}', [MessageController::class, 'index']);
+    });
 });
 Route::group(['prefix' => 'goal'], function () {
     Route::get('index', [GoalController::class, 'index']);

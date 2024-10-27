@@ -35,6 +35,25 @@ class User extends Authenticatable implements JWTSubject, HasMedia
         'lon'
     ];
 
+    public function coachs()
+    {
+        return $this->belongsToMany(
+            __CLASS__,
+            'chats',
+            'user_id',
+            'coach_id'
+        );
+    }
+    public function users()
+    {
+        return $this->belongsToMany(
+            __CLASS__,
+            'chats',
+            'coach_id',
+            'user_id'
+        );
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
