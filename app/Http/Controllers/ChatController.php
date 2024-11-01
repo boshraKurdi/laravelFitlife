@@ -22,11 +22,17 @@ class ChatController extends Controller
      */
     public function store(StoreChatRequest $request)
     {
-        $chat = Chat::create([
-            'user_id' => auth()->id(),
-            'coach_id' => $request->id,
-            'lastMessage' => ''
-        ]);
+        $check = Chat::query()->where('coach_id', $request->id)->where('user_id', auth()->id())->first();
+
+        if ($check) {
+            $chat = $check;
+        } else {
+            $chat = Chat::create([
+                'user_id' => auth()->id(),
+                'coach_id' => $request->id,
+                'lastMessage' => ''
+            ]);
+        }
         return response()->json($chat);
     }
 
@@ -35,7 +41,7 @@ class ChatController extends Controller
      */
     public function show(Chat $chat)
     {
-        //
+        return response()->json($chat->load(['user', 'coach', 'coach.media']));
     }
 
     /**

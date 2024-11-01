@@ -38,8 +38,11 @@ class PlanController extends Controller
             'title' => $request->title,
             'description' => $request->description,
             'muscle' => $request->muscle,
-            'duration' => "1 month"
+            'duration' => $request->duration
         ]);
+        if ($request->levels) {
+            $plan->levels()->attach($request->levels);
+        }
         if ($request->media) {
             $plan->addMediaFromRequest('media')->toMediaCollection('plans');
         }

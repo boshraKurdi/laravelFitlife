@@ -20,9 +20,16 @@ class MessageController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreMessageRequest $request)
+    public function sendMessage(StoreMessageRequest $request)
     {
-        //
+        $store = Message::create([
+            'text' => $request->text,
+            'chat_id' => $request->id,
+            'user_id' => auth()->id(),
+            'isCoach' => 0,
+            'isSeen' => 0
+        ]);
+        return response()->json($store);
     }
 
     /**

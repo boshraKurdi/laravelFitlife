@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\GoalPlanLevel;
 use App\Http\Requests\StoreGoalPlanLevelRequest;
 use App\Http\Requests\UpdateGoalPlanLevelRequest;
+use Illuminate\Http\Request;
 
 class GoalPlanLevelController extends Controller
 {
@@ -24,19 +25,21 @@ class GoalPlanLevelController extends Controller
     }
 
 
-    public function getPlanForGoalsWithMuscle($ids)
+    public function getPlanForGoalsWithMuscle(Request $request)
     {
-        $idsArray = explode(',', $ids);
         $muscleGroups = ['arm', 'pectoral', 'belly', 'thigh'];
         $targets = array();
-
-        foreach ($muscleGroups as $muscle) {
-            $r = GoalPlanLevel::query()->whereIn('goal_id', $idsArray)->whereHas('planLevels.plan', function ($q) use ($muscle) {
-                $q->where('muscle', $muscle);
-            })
-                ->with(['planLevels.plan', 'planLevels.level', 'planLevels.plan.media', 'goals'])->get();
-            array_push($targets, $r);
+        if ($request->ids) {
+            $idsArray = explode(',', $request->ids);
+            foreach ($muscleGroups as $muscle) {
+                $r = GoalPlanLevel::query()->whereIn('goal_id', $idsArray)->whereHas('planLevels.plan', function ($q) use ($muscle) {
+                    $q->where('muscle', $muscle);
+                })
+                    ->with(['planLevels.plan', 'planLevels.level', 'planLevels.plan.media', 'goals'])->get();
+                array_push($targets, $r);
+            }
         }
+
         return response()->json($targets);
     }
 

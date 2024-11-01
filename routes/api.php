@@ -49,8 +49,10 @@ Route::group(['prefix' => 'userService'], function () {
 Route::group(['prefix' => 'chat'], function () {
     Route::group(['middleware' => 'auth:api'], function () {
         Route::get('index', [ChatController::class, 'index']);
+        Route::get('show/{chat}', [ChatController::class, 'show']);
         Route::post('store', [ChatController::class, 'store']);
         Route::get('messages/{id}', [MessageController::class, 'index']);
+        Route::post('sendMessage', [MessageController::class, 'sendMessage']);
     });
 });
 Route::group(['prefix' => 'goal'], function () {
@@ -71,10 +73,15 @@ Route::group(['prefix' => 'plan'], function () {
         Route::get('{plan}/show', [PlanController::class, 'show']);
     });
 });
+Route::group(['prefix' => 'exercise'], function () {
+    Route::group(['middleware' => 'auth:api'], function () {
+        Route::get('index', [ExerciseController::class, 'index']);
+    });
+});
 Route::group(['middleware' => 'auth:api'], function () {
     Route::group(['prefix' => 'target'], function () {
         Route::get('index', [GoalController::class, 'getUserGoals']);
-        Route::get('plans/{ids}', [GoalPlanLevelController::class, 'getPlanForGoalsWithMuscle']);
+        Route::post('plans/{ids?}', [GoalPlanLevelController::class, 'getPlanForGoalsWithMuscle']);
     });
     Route::group(['prefix' => 'gym'], function () {
         Route::get('index', [GymController::class, 'index']);
