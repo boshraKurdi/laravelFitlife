@@ -14,7 +14,7 @@ class ExerciseController extends Controller
     public function index()
     {
         $index = Exercise::query()->with('planLevel')->get();
-        return response()->json($index);
+        return response()->json(['data' => $index]);
     }
 
     /**

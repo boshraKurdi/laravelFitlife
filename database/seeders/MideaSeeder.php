@@ -18,7 +18,7 @@ class MideaSeeder extends Seeder
     public function run(): void
     {
         $image_1 = storage_path('images\blog-two.jpg');
-        $image_2 = storage_path('images\class-one.jpg');
+        // $image_2 = storage_path('images\class-one.jpg');
         $image_3 = storage_path('images\class-two.jpg');
         $image_4 = storage_path('images\image.png');
         $image_5 = storage_path('images\about-coach.jpg');
@@ -29,10 +29,16 @@ class MideaSeeder extends Seeder
                 ->preservingOriginal()
                 ->toMediaCollection('plans');
         }
-        for ($i = 1; $i <= 10; $i++) {
+        $image_goal_1 = storage_path('images\goal_1.jpg');
+        $image_goal_2 = storage_path('images\goal_2.jpg');
+        $image_goal_3 = storage_path('images\goal_3.jpg');
+        $image_goal_4 = storage_path('images\goal_4.jpg');
+        $image_goal_5 = storage_path('images\goal_5.jpg');
+        $image = [$image_goal_1, $image_goal_2, $image_goal_3, $image_goal_4, $image_goal_5];
+        for ($i = 1; $i <= 5; $i++) {
             $goal = Goal::find($i);
             $goal
-                ->addMedia($image_2)
+                ->addMedia($image[$i - 1])
                 ->preservingOriginal()
                 ->toMediaCollection('goals');
         }

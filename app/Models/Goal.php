@@ -20,7 +20,12 @@ class Goal extends Model implements HasMedia
 
     public function PlanLevel()
     {
-        return $this->belongsToMany(PlanLevel::class, 'goal_plan_levels');
+        return $this->belongsToMany(
+            PlanLevel::class,
+            'goal_plan_levels',
+            'goal_id',
+            'plan_level_id'
+        );
     }
 
     public function targets()

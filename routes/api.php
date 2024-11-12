@@ -69,7 +69,6 @@ Route::group(['prefix' => 'plan'], function () {
     Route::get('plansForGoal/{ids}', [GoalPlanLevelController::class, 'getPlanForGoals']);
     Route::group(['middleware' => 'auth:api'], function () {
         Route::post('{plan}/update', [PlanController::class, 'update']);
-        Route::post('store', [PlanController::class, 'store']);
         Route::get('{plan}/show', [PlanController::class, 'show']);
     });
 });
@@ -94,5 +93,15 @@ Route::group(['prefix' => 'dashboard'], function () {
     });
     Route::group(['prefix' => 'goal'], function () {
         Route::get('index', [GoalController::class, 'index']);
+        Route::get('{goal}/show', [GoalController::class, 'show']);
+        Route::post('store', [GoalController::class, 'store']);
+        Route::delete('{goal}/destroy', [GoalController::class, 'destroy']);
+    });
+    Route::group(['prefix' => 'plan'], function () {
+        Route::get('{PlanLevel}/exercises', [PlanLevelController::class, 'exercise']);
+        Route::get('index', [PlanLevelController::class, 'getPlans']);
+        Route::get('{plan}/show', [PlanController::class, 'show']);
+        Route::get('plansForGoal/{ids}', [GoalPlanLevelController::class, 'getPlanForGoals']);
+        Route::post('store', [PlanController::class, 'store']);
     });
 });

@@ -20,7 +20,7 @@ class GymController extends Controller
             $i->distance = $result;
             return $i;
         })->sortBy('distance');
-        return response()->json($newIndex->values());
+        return response()->json(['data' => $newIndex->values()]);
     }
 
 

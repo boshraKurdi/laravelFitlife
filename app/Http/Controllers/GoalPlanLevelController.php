@@ -20,8 +20,8 @@ class GoalPlanLevelController extends Controller
     public function getPlanForGoals($ids)
     {
         $idsArray = explode(',', $ids);
-        $targets = GoalPlanLevel::query()->whereIn('goal_id', $idsArray)->with(['planLevels.plan', 'planLevels.level', 'planLevels.plan.media', 'goals', 'users'])->get();
-        return response()->json($targets);
+        $targets = GoalPlanLevel::query()->whereIn('goal_id', $idsArray)->with(['planLevels.plan', 'planLevels.level', 'planLevels.plan.media', 'goals'])->get();
+        return response()->json(['data' => $targets]);
     }
 
 
@@ -40,7 +40,7 @@ class GoalPlanLevelController extends Controller
             }
         }
 
-        return response()->json($targets);
+        return response()->json(['data' => $targets]);
     }
 
 

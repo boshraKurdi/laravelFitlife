@@ -14,7 +14,7 @@ class GoalController extends Controller
     public function index()
     {
         $goals = Goal::query()->with('media')->get();
-        return response()->json($goals);
+        return response()->json(['data' => $goals]);
     }
 
     /**
@@ -26,10 +26,13 @@ class GoalController extends Controller
             'title' => $request->title,
             'description' => $request->description,
             'calories' => $request->calories,
-            'duration' => "1 month"
+            'duration' => $request->duration
         ]);
         if ($request->media) {
             $goal->addMediaFromRequest('media')->toMediaCollection('goals');
+        }
+        if ($request->PlanLevel) {
+            $goal->PlanLevel()->attach($request->PlanLevel);
         }
         return response()->json($goal);
     }
@@ -67,7 +70,7 @@ class GoalController extends Controller
                 $query->where('user_id', auth()->id());
             }, 'media'])
             ->get();
-        return response()->json($goals);
+        return response()->json(['data' => $goals]);
     }
 
     public function getPlanForGoal(Goal $goal)
@@ -82,6 +85,7 @@ class GoalController extends Controller
      */
     public function destroy(Goal $goal)
     {
-        //
+        $goal->delete();
+        return response()->json('Goal been deleted successfully');
     }
 }

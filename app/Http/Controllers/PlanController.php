@@ -54,7 +54,8 @@ class PlanController extends Controller
      */
     public function show(Plan $plan)
     {
-        //
+        $show = $plan->load(['media', 'levels']);
+        return response()->json($show);
     }
 
     /**

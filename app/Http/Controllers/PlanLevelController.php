@@ -25,13 +25,18 @@ class PlanLevelController extends Controller
             array_push($results, $r);
         }
 
-        return response()->json($results);
+        return response()->json(['data' => $results]);
+    }
+    public function getPlans()
+    {
+        $data = PlanLevel::with(['plan', 'level', 'plan.media'])->get();
+        return response()->json($data);
     }
 
     public function exercise($planLevel)
     {
         $exe =  PlanLevel::where('id', $planLevel)->with('exercise')->get();
-        return response()->json($exe);
+        return response()->json(['data' => $exe]);
     }
 
 
