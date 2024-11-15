@@ -35,7 +35,7 @@ class PlanLevelController extends Controller
 
     public function exercise($planLevel)
     {
-        $exe =  PlanLevel::where('id', $planLevel)->with('exercise')->get();
+        $exe =  PlanLevel::where('id', $planLevel)->with(['exercise', 'exercise.media'])->get();
         return response()->json(['data' => $exe]);
     }
 
