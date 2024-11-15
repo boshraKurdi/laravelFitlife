@@ -13,8 +13,13 @@ class Plan extends Model implements HasMedia
     protected $fillable = [
         'title',
         'description',
+        'title_ar',
+        'description_ar',
         'duration',
         'muscle',
+        'muscle_ar',
+        'type',
+        'type_ar'
     ];
 
     public function levels()
@@ -29,6 +34,10 @@ class Plan extends Model implements HasMedia
     public function goalPlanLevel()
     {
         return $this->hasManyThrough(GoalPlanLevel::class, PlanLevel::class);
+    }
+    public function PlanLevelExercises()
+    {
+        return $this->hasManyThrough(PlanLevelExercise::class, PlanLevel::class);
     }
     public function registerMediaCollections(): void
     {

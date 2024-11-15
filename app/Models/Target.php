@@ -20,4 +20,8 @@ class Target extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+    public function goalPlanLevel()
+    {
+        return $this->belongsTo(GoalPlanLevel::class, 'goal_plan_level_id');
+    }
 }

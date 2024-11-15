@@ -27,13 +27,13 @@ class GoalPlanLevelController extends Controller
 
     public function getPlanForGoalsWithMuscle(Request $request)
     {
-        $muscleGroups = ['arm', 'pectoral', 'belly', 'thigh'];
+        $muscleGroups = ['thigh exercises', 'Abdominal exercises', 'Stretching exercises', 'Sculpting exercises'];
         $targets = array();
         if ($request->ids) {
             $idsArray = explode(',', $request->ids);
             foreach ($muscleGroups as $muscle) {
                 $r = GoalPlanLevel::query()->whereIn('goal_id', $idsArray)->whereHas('planLevels.plan', function ($q) use ($muscle) {
-                    $q->where('muscle', $muscle);
+                    $q->where('type', $muscle);
                 })
                     ->with(['planLevels.plan', 'planLevels.level', 'planLevels.plan.media', 'goals'])->get();
                 array_push($targets, $r);

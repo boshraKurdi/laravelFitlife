@@ -39,6 +39,19 @@ class PlanLevelController extends Controller
         return response()->json(['data' => $exe]);
     }
 
+    public function getUserPlans()
+    {
+        $plans = PlanLevel::query()
+            ->whereHas('targets', function ($q) {
+                $q->where('user_id', auth()->id());
+            })
+            ->with(['targets' => function ($query) {
+                $query->where('user_id', auth()->id());
+            }, 'plan', 'plan.media', 'level', 'targets.goalPlanLevel'])
+            ->get();
+        return response()->json(['data' => $plans]);
+    }
+
 
     /**
      * Store a newly created resource in storage.
@@ -53,7 +66,8 @@ class PlanLevelController extends Controller
      */
     public function show(PlanLevel $planLevel)
     {
-        //
+        $show = $planLevel->load(['plan.media', 'exercise', 'exercise.media',  'plan', 'level']);
+        return response()->json($show);
     }
 
     /**

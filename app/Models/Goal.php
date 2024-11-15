@@ -14,7 +14,10 @@ class Goal extends Model implements HasMedia
     protected $fillable = [
         'title',
         'description',
-        'calories',
+        'title_ar',
+        'description_ar',
+        'calories_max',
+        'calories_min',
         'duration',
     ];
 

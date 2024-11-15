@@ -36,4 +36,8 @@ class PlanLevel extends Model
             'exercise_id'
         )->withPivot(['day', 'week']);
     }
+    public function targets()
+    {
+        return $this->hasManyThrough(Target::class, GoalPlanLevel::class);
+    }
 }

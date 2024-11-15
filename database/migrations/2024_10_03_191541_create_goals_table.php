@@ -17,8 +17,9 @@ return new class extends Migration
             $table->string('title_ar');
             $table->text('description');
             $table->text('description_ar');
-            $table->integer('calories');
-            $table->string('duration');
+            $table->integer('calories_max');
+            $table->integer('calories_min');
+            $table->integer('duration');
             $table->timestamps();
         });
     }

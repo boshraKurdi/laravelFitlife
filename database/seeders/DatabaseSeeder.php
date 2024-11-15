@@ -28,6 +28,8 @@ class DatabaseSeeder extends Seeder
             ServiceSeeder::class,
             ChatSeeder::class,
             MessageSeeder::class,
+            SectionSeeder::class,
+            GymSectionSeeder::class,
             RolesAndPermissionsSeeder::class,
             MideaSeeder::class
         ]);
