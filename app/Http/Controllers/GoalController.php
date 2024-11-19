@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Goal;
 use App\Http\Requests\StoreGoalRequest;
 use App\Http\Requests\UpdateGoalRequest;
+use App\Models\Target;
 
 class GoalController extends Controller
 {
@@ -40,9 +41,16 @@ class GoalController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Goal $goal)
+    public function show(Goal $goal,  $id)
     {
         $show = $goal->load('media');
+        $g = $goal->id;
+        $d = Target::where('user_id', $id)->whereHas('goalPlanLevel', function ($q) use ($g) {
+            $q->where('goal_id', $g);
+        })->count();
+        $e = Target::where('user_id', $id)->count();
+        $show->count = $d;
+        $show->countAll = $e;
         return response()->json($show);
     }
 

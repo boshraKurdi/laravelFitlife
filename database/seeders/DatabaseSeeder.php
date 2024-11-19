@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             PlanLevelExerciseSeeder::class,
             ServiceSeeder::class,
             ChatSeeder::class,
+            GroupSeeder::class,
             MessageSeeder::class,
             SectionSeeder::class,
             GymSectionSeeder::class,

@@ -18,6 +18,7 @@ class MideaSeeder extends Seeder
      */
     public function run(): void
     {
+        $video = storage_path('videos\video.mp4');
         $image_4 = storage_path('images\image.png');
         $image_5 = storage_path('images\about-coach.jpg');
         $image_plan_1 = storage_path('images\thigh.png');
@@ -178,7 +179,13 @@ class MideaSeeder extends Seeder
                 ->addMedia($image_4)
                 ->preservingOriginal()
                 ->toMediaCollection('exercises');
+            $exercise_v = Exercise::find($i);
+            $exercise_v
+                ->addMedia($video)
+                ->preservingOriginal()
+                ->toMediaCollection('exercises');
         }
+
         for ($i = 2; $i < 11; $i++) {
             $coach = User::find($i);
             $coach

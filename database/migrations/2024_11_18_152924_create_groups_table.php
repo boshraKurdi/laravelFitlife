@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\GoalPlanLevel;
+use App\Models\Chat;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -13,13 +13,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('targets', function (Blueprint $table) {
+        Schema::create('groups', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class);
-            $table->foreignIdFor(GoalPlanLevel::class);
-            $table->integer('calories')->nullable();
-            $table->string('duration')->nullable();
-            $table->string('rate')->nullable();
+            $table->foreignIdFor(User::class)->constrained();;
+            $table->foreignIdFor(Chat::class)->constrained();;
             $table->timestamps();
         });
     }
@@ -29,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('targets');
+        Schema::dropIfExists('groups');
     }
 };

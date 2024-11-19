@@ -57,7 +57,7 @@ Route::group(['prefix' => 'chat'], function () {
 });
 Route::group(['prefix' => 'goal'], function () {
     Route::get('index', [GoalController::class, 'index']);
-    Route::get('{goal}/show', [GoalController::class, 'show']);
+    Route::get('{goal}/show/{id?}', [GoalController::class, 'show']);
     Route::group(['middleware' => 'auth:api'], function () {
         Route::post('{goal}/update', [GoalController::class, 'update']);
         Route::post('store', [GoalController::class, 'store']);
@@ -65,22 +65,24 @@ Route::group(['prefix' => 'goal'], function () {
 });
 Route::group(['prefix' => 'plan'], function () {
     Route::get('index', [PlanLevelController::class, 'index']);
-    Route::get('{PlanLevel}/exercises', [PlanLevelController::class, 'exercise']);
+    Route::get('{PlanLevel}/{day}/{week}/exercises', [PlanLevelController::class, 'exercise']);
     Route::get('plansForGoal/{ids}', [GoalPlanLevelController::class, 'getPlanForGoals']);
     Route::group(['middleware' => 'auth:api'], function () {
         Route::post('{plan}/update', [PlanController::class, 'update']);
-        Route::get('{planLevel}/show', [PlanLevelController::class, 'show']);
+        Route::get('{id}/show', [PlanLevelController::class, 'show']);
     });
 });
 Route::group(['prefix' => 'exercise'], function () {
     Route::group(['middleware' => 'auth:api'], function () {
         Route::get('index', [ExerciseController::class, 'index']);
+        Route::get('{exercise}/show', [ExerciseController::class, 'show']);
     });
 });
 Route::group(['middleware' => 'auth:api'], function () {
     Route::group(['prefix' => 'target'], function () {
         Route::get('index', [PlanLevelController::class, 'getUserPlans']);
         Route::post('plans/{ids?}', [GoalPlanLevelController::class, 'getPlanForGoalsWithMuscle']);
+        Route::get('insert/{id}', [GoalPlanLevelController::class, 'insert']);
     });
     Route::group(['prefix' => 'gym'], function () {
         Route::get('index', [GymController::class, 'index']);

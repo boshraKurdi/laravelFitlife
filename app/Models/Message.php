@@ -12,6 +12,10 @@ class Message extends Model
         'text',
         'isCoach',
         'isSeen',
-        'chat_id'
+        'group_id'
     ];
+    public function group()
+    {
+        return $this->belongsTo(Group::class);
+    }
 }

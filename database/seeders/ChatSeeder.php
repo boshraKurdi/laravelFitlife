@@ -13,6 +13,30 @@ class ChatSeeder extends Seeder
      */
     public function run(): void
     {
-        Chat::factory(10)->create();
+        Chat::create([
+            'name' => '',
+            'type' => 'private',
+            'lastMessage' => 'hello'
+        ]);
+        Chat::create([
+            'name' => '',
+            'type' => 'private',
+            'lastMessage' => 'hi'
+        ]);
+        Chat::create([
+            'name' => '',
+            'type' => 'private',
+            'lastMessage' => 'bye'
+        ]);
+        Chat::create([
+            'name' => 'group calores',
+            'type' => 'public',
+            'lastMessage' => 'no'
+        ]);
+        Chat::create([
+            'name' => '',
+            'type' => 'private',
+            'lastMessage' => 'yes'
+        ]);
     }
 }

@@ -13,7 +13,9 @@ class MessageController extends Controller
      */
     public function index($id)
     {
-        $messages = Message::query()->where('chat_id', $id)->get();
+        $messages = Message::query()->whereHas('group', function ($q) use ($id) {
+            $q->where('chat_id', $id);
+        })->with('group.user')->get();
         return response()->json($messages);
     }
 
@@ -24,8 +26,7 @@ class MessageController extends Controller
     {
         $store = Message::create([
             'text' => $request->text,
-            'chat_id' => $request->id,
-            'user_id' => auth()->id(),
+            'group_id' => $request->id,
             'isCoach' => 0,
             'isSeen' => 0
         ]);

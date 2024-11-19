@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Chat;
+use App\Models\Group;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,10 +18,10 @@ class MessageFactory extends Factory
      */
     public function definition(): array
     {
-        $chat = Chat::query()->inRandomOrder()->first();
+        $group = Group::query()->inRandomOrder()->first();
         return [
             'text' => $this->faker->text,
-            'chat_id' => $chat->id,
+            'group_id' => $group->id,
             'isCoach' => rand(0, 1),
             'isSeen' => 0
         ];

@@ -14,8 +14,8 @@ return new class extends Migration
     {
         Schema::create('chats', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class);
-            $table->foreignId('coach_id')->constrained('users', 'id');
+            $table->string('name')->nullable();
+            $table->string('type');
             $table->string('lastMessage');
             $table->timestamps();
         });

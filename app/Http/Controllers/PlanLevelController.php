@@ -33,9 +33,11 @@ class PlanLevelController extends Controller
         return response()->json($data);
     }
 
-    public function exercise($planLevel)
+    public function exercise($planLevel, $day, $week)
     {
-        $exe =  PlanLevel::where('id', $planLevel)->with(['exercise', 'exercise.media'])->get();
+        $exe =  PlanLevel::where('id', $planLevel)->with(['exercise' => function ($q) use ($day, $week) {
+            $q->where('day', $day)->where('week', $week);
+        }, 'exercise.media'])->get();
         return response()->json(['data' => $exe]);
     }
 
@@ -64,9 +66,15 @@ class PlanLevelController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(PlanLevel $planLevel)
+    public function show($id)
     {
-        $show = $planLevel->load(['plan.media', 'exercise', 'exercise.media',  'plan', 'level']);
+        $show = PlanLevel::where('id', $id)->whereHas('targets', function ($q) {
+            $q->where('user_id', auth()->id());
+        })
+            ->with(['targets' => function ($query) {
+                $query->where('user_id', auth()->id());
+            }, 'plan', 'plan.media'])
+            ->get();
         return response()->json($show);
     }
 

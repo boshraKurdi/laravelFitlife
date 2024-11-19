@@ -9,17 +9,17 @@ class Chat extends Model
 {
     use HasFactory;
     protected $fillable =  [
-        'user_id',
-        'coach_id',
+        'name',
+        'type',
         'lastMessage',
     ];
-
     public function user()
     {
-        return $this->belongsTo(User::class);
-    }
-    public function coach()
-    {
-        return $this->belongsTo(User::class, 'coach_id');
+        return $this->belongsToMany(
+            User::class,
+            'groups',
+            'chat_id',
+            'user_id'
+        );
     }
 }

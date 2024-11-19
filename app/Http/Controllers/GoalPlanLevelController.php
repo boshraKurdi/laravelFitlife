@@ -51,6 +51,14 @@ class GoalPlanLevelController extends Controller
     {
         return response()->json('s');
     }
+    public function insert($id)
+    {
+        $goalPlanLevel = GoalPlanLevel::where('goal_id', $id)->get();
+        foreach ($goalPlanLevel as $goal) {
+            $goal->users()->attach(auth()->id());
+        }
+        return response()->json(['data' => 'succ']);
+    }
 
     /**
      * Display the specified resource.

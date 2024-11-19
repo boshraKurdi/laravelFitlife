@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Chat;
 use App\Http\Requests\StoreChatRequest;
 use App\Http\Requests\UpdateChatRequest;
+use App\Models\Group;
 
 class ChatController extends Controller
 {
@@ -13,7 +14,14 @@ class ChatController extends Controller
      */
     public function index()
     {
-        $chats = Chat::query()->where('user_id', auth()->id())->with(['user', 'coach.media', 'coach'])->get();
+        $ids = Group::query()->where('user_id', auth()->id())->with(['user', 'user.media'])->get('chat_id');
+        $arr = [];
+        foreach ($ids as $id) {
+            array_push($arr, $id->chat_id);
+        }
+        $chats = Chat::query()->whereIn('id', $arr)->with(['user'  => function ($q) {
+            $q->where('user_id', '!=', auth()->id());
+        }, 'user.media'])->get();
         return response()->json($chats);
     }
 
@@ -22,18 +30,33 @@ class ChatController extends Controller
      */
     public function store(StoreChatRequest $request)
     {
-        $check = Chat::query()->where('coach_id', $request->id)->where('user_id', auth()->id())->first();
+        $ids = Group::query()->where('user_id', auth()->id())->get('chat_id');
+        $arr = [];
+        foreach ($ids as $id) {
+            array_push($arr, $id->chat_id);
+        }
+        $count = Group::query()->whereIn('chat_id', $arr)->where('user_id', $request->id)->count();
+        if ($count > 0) {
+            $check = Chat::query()->whereIn('id', $arr)->with(['user', 'user.media'])->first();
+        } else {
+            $check = 0;
+        }
 
         if ($check) {
             $chat = $check;
         } else {
             $chat = Chat::create([
-                'user_id' => auth()->id(),
-                'coach_id' => $request->id,
+                'name' => '',
+                'type' => 'private',
                 'lastMessage' => ''
             ]);
+            if ($request->id) {
+                $chat->user()->attach($request->id);
+                $chat->user()->attach(auth()->id());
+            }
         }
-        return response()->json($chat);
+
+        return response()->json($chat->load(['user', 'user.media']));
     }
 
     /**
