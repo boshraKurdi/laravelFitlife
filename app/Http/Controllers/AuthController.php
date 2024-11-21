@@ -95,6 +95,8 @@ class AuthController extends Controller
             'height' => $request->height,
             'address' => $request->address,
             'gender' => $request->gender,
+            'illness' => $request->illness,
+            'age' => $request->age,
             'lat' => $request->lat,
             'lon' => $request->lon
         ]);

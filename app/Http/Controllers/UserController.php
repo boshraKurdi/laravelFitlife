@@ -34,6 +34,9 @@ class UserController extends Controller
             'width' => $request->width,
             'height' => $request->height,
             'address' => $request->address,
+            'illness' => $request->illness,
+            'gender' => $request->gender,
+            'age' => $request->age,
             'lat' => $request->lat,
             'lon' => $request->lon
         ]);

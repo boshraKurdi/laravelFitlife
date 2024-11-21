@@ -19,6 +19,8 @@ return new class extends Migration
             $table->integer('height')->nullable();
             $table->double('lat')->nullable();
             $table->double('lon')->nullable();
+            $table->string('illness')->nullable();
+            $table->integer('age')->nullable();
             $table->string('address')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();

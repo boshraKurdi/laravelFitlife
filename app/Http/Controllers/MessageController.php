@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Message;
 use App\Http\Requests\StoreMessageRequest;
 use App\Http\Requests\UpdateMessageRequest;
+use App\Models\Chat;
+use App\Models\Group;
 
 class MessageController extends Controller
 {
@@ -24,13 +26,20 @@ class MessageController extends Controller
      */
     public function sendMessage(StoreMessageRequest $request)
     {
+        $group = Group::where('user_id', auth()->id())->where('chat_id', $request->chat_id)->get('id');
         $store = Message::create([
             'text' => $request->text,
-            'group_id' => $request->id,
+            'group_id' => $group[0]->id,
             'isCoach' => 0,
             'isSeen' => 0
         ]);
-        return response()->json($store);
+        Chat::where('id', $request->chat_id)->update([
+            'lastMessage' => $request->text,
+        ]);
+        return response()->json([
+            'message' => $store->load(['group.user']),
+            'chat' => $request->text
+        ]);
     }
 
     /**

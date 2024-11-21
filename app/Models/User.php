@@ -27,6 +27,8 @@ class User extends Authenticatable implements JWTSubject, HasMedia
         'password',
         'height',
         'width',
+        'illness',
+        'age',
         'gender',
         'address',
         'google_id',

@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('plan_level_exercises', function (Blueprint $table) {
             $table->id();
-            $table->string('day');
-            $table->string('week');
+            $table->integer('day');
+            $table->integer('week');
             $table->foreignIdFor(PlanLevel::class);
             $table->foreignIdFor(Exercise::class);
             $table->timestamps();

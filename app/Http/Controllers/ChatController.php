@@ -62,9 +62,12 @@ class ChatController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Chat $chat)
+    public function show($chat)
     {
-        return response()->json($chat->load(['user', 'coach', 'coach.media']));
+
+        return response()->json(Chat::where('id', $chat)->with(['user' => function ($q) {
+            $q->where('user_id', '!=', auth()->id());
+        }, 'user.media'])->get());
     }
 
     /**

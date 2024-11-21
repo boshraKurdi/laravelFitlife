@@ -32,6 +32,8 @@ class UserFactory extends Factory
             'lat' => 36.18553835,
             'lon' => 37.120130659655516,
             'address' => 'حلب حي الحمدانية',
+            'illness' => '',
+            'age' => 30,
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
