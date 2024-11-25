@@ -20,7 +20,8 @@ class ExerciseFactory extends Factory
             'title' => $this->faker->title,
             'description' => $this->faker->text,
             'duration' =>  rand(10, 15) . ' minute',
-            'counter' => '25'
+            'counter' => '25',
+            'calories' => rand(10, 100)
         ];
     }
 }

@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('user_services', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class);
-            $table->foreignIdFor(Service::class);
+            $table->foreignIdFor(User::class)->constrained();;
+            $table->foreignIdFor(Service::class)->constrained();;
             $table->integer('month');
             $table->integer('year');
             $table->integer('cvc');

@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('gyms', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Location::class);
+            $table->foreignIdFor(Location::class)->constrained();;
             $table->string('open');
             $table->string('close');
             $table->string('type');

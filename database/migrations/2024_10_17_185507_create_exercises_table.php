@@ -14,8 +14,11 @@ return new class extends Migration
         Schema::create('exercises', function (Blueprint $table) {
             $table->id();
             $table->string('title');
+            $table->string('title_ar');
             $table->text('description');
-            $table->string('duration');
+            $table->text('description_ar');
+            $table->integer('duration');
+            $table->integer('calories');
             $table->integer('counter');
             $table->timestamps();
         });

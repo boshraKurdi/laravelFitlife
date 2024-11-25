@@ -13,6 +13,31 @@ class GoalPlanLevelSeeder extends Seeder
      */
     public function run(): void
     {
-        GoalPlanLevel::factory(30)->create();
+        //22
+        //19 20 21 22
+        for ($i = 1; $i <= 6; $i++) {
+            GoalPlanLevel::create([
+                'goal_id' => 1,
+                'plan_level_id' => $i == 6 ? 28 : $i,
+            ]);
+        }
+        for ($i = 6; $i <= 12; $i++) {
+            GoalPlanLevel::create([
+                'goal_id' => 2,
+                'plan_level_id' => $i == 12 ? 29 : $i,
+            ]);
+        }
+        for ($i = 12; $i <= 19; $i++) {
+            GoalPlanLevel::create([
+                'goal_id' => 3,
+                'plan_level_id' => $i == 19 ? 30 : $i,
+            ]);
+        }
+        for ($i = 1; $i <= 7; $i++) {
+            GoalPlanLevel::create([
+                'goal_id' => 4,
+                'plan_level_id' => $i == 7 ? 31 : $i,
+            ]);
+        }
     }
 }

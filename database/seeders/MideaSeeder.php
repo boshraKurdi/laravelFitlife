@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Exercise;
 use App\Models\Goal;
 use App\Models\Gym;
+use App\Models\Meal;
 use App\Models\Plan;
 use App\Models\Section;
 use App\Models\User;
@@ -19,7 +20,6 @@ class MideaSeeder extends Seeder
     public function run(): void
     {
         $video = storage_path('videos\video.mp4');
-        $image_4 = storage_path('images\image.png');
         $image_5 = storage_path('images\about-coach.jpg');
         $image_plan_1 = storage_path('images\thigh.png');
         $image_plan_2 = storage_path('images\lower.png');
@@ -173,12 +173,67 @@ class MideaSeeder extends Seeder
             ->addMedia($image_gym_6)
             ->preservingOriginal()
             ->toMediaCollection('gyms');
-        for ($i = 1; $i <= 20; $i++) {
-            $exercise = Exercise::find($i);
-            $exercise
-                ->addMedia($image_4)
-                ->preservingOriginal()
-                ->toMediaCollection('exercises');
+        $image_exe_1 = storage_path('images\exe_1.png');
+        $image_exe_2 = storage_path('images\exe_2.png');
+        $image_exe_3 = storage_path('images\exe_3.png');
+        $image_exe_4 = storage_path('images\exe_4.jpg');
+        $image_exe_5 = storage_path('images\exe_5.jpeg');
+        $image_exe_6 = storage_path('images\exe_6.jpg');
+        $image_exe_7 = storage_path('images\exe_7.jpg');
+        $image_exe_8 = storage_path('images\exe_8.png');
+        $image_exe_9 = storage_path('images\exe_9.jpg');
+        $image_exe_10 = storage_path('images\exe_10.webp');
+        $exercise_1 = Exercise::find(1);
+        $exercise_1
+            ->addMedia($image_exe_1)
+            ->preservingOriginal()
+            ->toMediaCollection('exercises');
+        $exercise_2 = Exercise::find(2);
+        $exercise_2
+            ->addMedia($image_exe_2)
+            ->preservingOriginal()
+            ->toMediaCollection('exercises');
+        $exercise_3 = Exercise::find(3);
+        $exercise_3
+            ->addMedia($image_exe_3)
+            ->preservingOriginal()
+            ->toMediaCollection('exercises');
+        $exercise_4 = Exercise::find(4);
+        $exercise_4
+            ->addMedia($image_exe_4)
+            ->preservingOriginal()
+            ->toMediaCollection('exercises');
+        $exercise_5 = Exercise::find(5);
+        $exercise_5
+            ->addMedia($image_exe_5)
+            ->preservingOriginal()
+            ->toMediaCollection('exercises');
+        $exercise_6 = Exercise::find(6);
+        $exercise_6
+            ->addMedia($image_exe_6)
+            ->preservingOriginal()
+            ->toMediaCollection('exercises');
+        $exercise_7 = Exercise::find(7);
+        $exercise_7
+            ->addMedia($image_exe_7)
+            ->preservingOriginal()
+            ->toMediaCollection('exercises');
+        $exercise_8 = Exercise::find(8);
+        $exercise_8
+            ->addMedia($image_exe_8)
+            ->preservingOriginal()
+            ->toMediaCollection('exercises');
+        $exercise_9 = Exercise::find(9);
+        $exercise_9
+            ->addMedia($image_exe_9)
+            ->preservingOriginal()
+            ->toMediaCollection('exercises');
+        $exercise_10 = Exercise::find(10);
+        $exercise_10
+            ->addMedia($image_exe_10)
+            ->preservingOriginal()
+            ->toMediaCollection('exercises');
+        for ($i = 1; $i <= 10; $i++) {
             $exercise_v = Exercise::find($i);
             $exercise_v
                 ->addMedia($video)
@@ -193,5 +248,47 @@ class MideaSeeder extends Seeder
                 ->preservingOriginal()
                 ->toMediaCollection('users');
         }
+        $image_meal_1 = storage_path('images\meal_1.jpg');
+        $image_meal_2 = storage_path('images\meal_2.jpg');
+        $image_meal_4 = storage_path('images\meal_3.jpg');
+        $image_meal_3 = storage_path('images\meal_4.jpg');
+        $image_meal_5 = storage_path('images\meal_5.jpg');
+        $image_meal_6 = storage_path('images\meal_6.jpg');
+        $image_meal_7 = storage_path('images\meal_7.jpg');
+        $meal_1 = Meal::find(1);
+        $meal_1
+            ->addMedia($image_meal_1)
+            ->preservingOriginal()
+            ->toMediaCollection('meals');
+        $meal_2 = Meal::find(2);
+        $meal_2
+            ->addMedia($image_meal_2)
+            ->preservingOriginal()
+            ->toMediaCollection('meals');
+        $meal_3 = Meal::find(3);
+        $meal_3
+            ->addMedia($image_meal_3)
+            ->preservingOriginal()
+            ->toMediaCollection('meals');
+        $meal_4 = Meal::find(4);
+        $meal_4
+            ->addMedia($image_meal_4)
+            ->preservingOriginal()
+            ->toMediaCollection('meals');
+        $meal_5 = Meal::find(5);
+        $meal_5
+            ->addMedia($image_meal_5)
+            ->preservingOriginal()
+            ->toMediaCollection('meals');
+        $meal_6 = Meal::find(6);
+        $meal_6
+            ->addMedia($image_meal_6)
+            ->preservingOriginal()
+            ->toMediaCollection('meals');
+        $meal_7 = Meal::find(7);
+        $meal_7
+            ->addMedia($image_meal_7)
+            ->preservingOriginal()
+            ->toMediaCollection('meals');
     }
 }

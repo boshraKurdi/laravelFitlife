@@ -31,6 +31,9 @@ class DatabaseSeeder extends Seeder
             MessageSeeder::class,
             SectionSeeder::class,
             GymSectionSeeder::class,
+            CategorySeeder::class,
+            MealSeeder::class,
+            PlanLevelMealSeeder::class,
             RolesAndPermissionsSeeder::class,
             MideaSeeder::class
         ]);

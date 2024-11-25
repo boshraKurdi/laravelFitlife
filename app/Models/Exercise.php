@@ -13,9 +13,12 @@ class Exercise extends Model implements HasMedia
 
     protected $fillable =  [
         'title',
+        'title_ar',
         'description',
+        'description_ar',
         'duration',
         'counter',
+        'calories'
     ];
     public function planLevel()
     {

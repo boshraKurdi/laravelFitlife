@@ -15,8 +15,8 @@ class PlanSeeder extends Seeder
      */
     public function run(): void
     {
-        $title = ['thigh muscles', 'Abdominal muscles', 'flat stomach', 'Chest muscles', 'forearm muscles', 'Arm muscles', 'shoulder muscles', 'waistline', 'Strengthen and slim the thigh gap'];
-        $title_ar = ['عضلات الفخذين', 'عضلات البطن ', 'بطن مسطحة', 'عضلات الصدر', 'عضلات الساعدين', 'عضلات الذراعين', 'عضلات الكتفين', 'محيط الخصر', 'تقوية وتنحيف فجوة الفخذين'];
+        $title = ['thigh muscles', 'Abdominal muscles', 'flat stomach', 'Chest muscles', 'forearm muscles', 'Arm muscles', 'shoulder muscles', 'waistline', 'Strengthen and slim the thigh gap', 'healthy food for Burn fat', 'healthy food for building muscle', 'healthy food for improve physical fitness', 'healthy food for Improve athletic performance'];
+        $title_ar = ['عضلات الفخذين', 'عضلات البطن ', 'بطن مسطحة', 'عضلات الصدر', 'عضلات الساعدين', 'عضلات الذراعين', 'عضلات الكتفين', 'محيط الخصر', 'تقوية وتنحيف فجوة الفخذين', 'غذاء صحي ', 'غذاء صحي', 'غذاء صحي ', 'غذاء صحي'];
         $description = [
             'This plan targets the thigh muscles in a variety of ways, which helps to strengthen the muscles and improve athletic performance. Don"t forget to warm up and stretch before and after the workout to help strengthen the thigh muscles and avoid injuries.',
             "This plan aims to strengthen the lower abdominal muscles and improve their strength and flexibility. Don't forget to include adequate rest periods between exercises to maintain the health of the abdominal muscles. It is also recommended to eat a healthy diet and maintain a focus on protein intake to support the muscle building process.",
@@ -26,7 +26,11 @@ class PlanSeeder extends Seeder
             "This plan targets the arm muscles comprehensively, helping to strengthen them and improve their strength and shape. It is also recommended to include warm-up and stretching exercises for the arm muscles before starting the exercises to avoid injuries.",
             "This plan aims to strengthen and develop the shoulder muscles in a comprehensive manner, which helps improve body alignment and increase strength and fitness in this area. It is also recommended to include stretching and warm-up exercises for the shoulder muscles before starting the exercises to prevent injuries.",
             "This plan aims to strengthen and slim the thigh gap area, which helps in achieving a slim and toned figure. Regular exercise and maintaining a healthy diet are recommended for best results.",
-            "This plan aims to strengthen and slim the thigh gap area, which helps in achieving a slim and toned figure. Regular exercise and maintaining a healthy diet are recommended for best results."
+            "This plan aims to strengthen and slim the thigh gap area, which helps in achieving a slim and toned figure. Regular exercise and maintaining a healthy diet are recommended for best results.",
+            'A balanced eating plan that includes eating a variety of foods, including fruits, vegetables, whole grains, and healthy proteins such as fish and poultry, while reducing saturated fats and added sugar to maintain a healthy body and energy.',
+            'A balanced eating plan that includes eating a variety of foods, including fruits, vegetables, whole grains, and healthy proteins such as fish and poultry, while reducing saturated fats and added sugar to maintain a healthy body and energy.',
+            'A balanced eating plan that includes eating a variety of foods, including fruits, vegetables, whole grains, and healthy proteins such as fish and poultry, while reducing saturated fats and added sugar to maintain a healthy body and energy.',
+            'A balanced eating plan that includes eating a variety of foods, including fruits, vegetables, whole grains, and healthy proteins such as fish and poultry, while reducing saturated fats and added sugar to maintain a healthy body and energy.'
 
         ];
         $description_ar = [
@@ -38,14 +42,18 @@ class PlanSeeder extends Seeder
             'هذه الخطة تستهدف عضلات الذراعين بشكل شامل، مما يساعد في تقويتها وتحسين قوتهما وشكلهما. يُنصح أيضًا بتضمين تمارين تسخين وتمدد لعضلات الذراعين قبل بدء التمرينات لتجنب الإصابات.',
             'هذه الخطة تهدف إلى تقوية وتنمية عضلات الكتفين بشكل شامل، مما يساعد على تحسين استقامة الجسم وزيادة القوة واللياقة في هذه المنطقة. يُنصح أيضًا بتضمين تمارين تمدد وتسخين لعضلات الكتفين قبل بدء التمرينات لمنع الإصابات.',
             'هذه الخطة تهدف إلى تقوية وتنحيف منطقة فجوة الفخذين، مما يساعد في تحقيق الشكل الممشوق والمشدود. يُنصح بممارسة الرياضة بانتظام والحفاظ على نظام غذائي صحي للحصول على أفضل النتائج.',
-            'هذه الخطة تهدف إلى تقوية وتنحيف منطقة فجوة الفخذين، مما يساعد في تحقيق الشكل الممشوق والمشدود. يُنصح بممارسة الرياضة بانتظام والحفاظ على نظام غذائي صحي للحصول على أفضل النتائج.'
+            'هذه الخطة تهدف إلى تقوية وتنحيف منطقة فجوة الفخذين، مما يساعد في تحقيق الشكل الممشوق والمشدود. يُنصح بممارسة الرياضة بانتظام والحفاظ على نظام غذائي صحي للحصول على أفضل النتائج.',
+            'خطة غذائية متوازنة تتضمن تناول مجموعة متنوعة من الأطعمة، تشمل الفواكه والخضروات والحبوب الكاملة والبروتينات الصحية مثل الأسماك والدواجن، مع تقليل الدهون المشبعة والسكر المضاف للحفاظ على صحة الجسم والطاقة.',
+            'خطة غذائية متوازنة تتضمن تناول مجموعة متنوعة من الأطعمة، تشمل الفواكه والخضروات والحبوب الكاملة والبروتينات الصحية مثل الأسماك والدواجن، مع تقليل الدهون المشبعة والسكر المضاف للحفاظ على صحة الجسم والطاقة.',
+            'خطة غذائية متوازنة تتضمن تناول مجموعة متنوعة من الأطعمة، تشمل الفواكه والخضروات والحبوب الكاملة والبروتينات الصحية مثل الأسماك والدواجن، مع تقليل الدهون المشبعة والسكر المضاف للحفاظ على صحة الجسم والطاقة.',
+            'خطة غذائية متوازنة تتضمن تناول مجموعة متنوعة من الأطعمة، تشمل الفواكه والخضروات والحبوب الكاملة والبروتينات الصحية مثل الأسماك والدواجن، مع تقليل الدهون المشبعة والسكر المضاف للحفاظ على صحة الجسم والطاقة.'
         ];
-        $type = ['thigh exercises', 'Abdominal exercises', 'Abdominal exercises', 'Stretching exercises', 'Stretching exercises', 'Stretching exercises', 'Stretching exercises', 'Sculpting exercises', 'thigh exercises'];
-        $type_ar = ['تمارين الفخذ', 'تمارين البطن', 'تمارين البطن', 'تمارين الشد', 'تمارين الشد', 'تمارين الشد', 'تمارين الشد', 'تمارين النحت', 'تمارين الفخذ',];
-        $duration = [5, 5, 5, 5, 5, 5, 5, 5, 5];
-        $muscle = ['thigh', 'Upper abdomen', 'lower abdomen', 'chest', 'forearm', 'arm', 'shoulder', 'Waist', 'thigh'];
-        $muscle_ar = ['فخذين', 'البطن', 'البطن', 'الصدر', 'الساعدين', 'الذراعين', 'الكتفين', 'الخصر', 'فخذين'];
-        for ($i = 0; $i < 9; $i++) {
+        $type = ['thigh exercises', 'Abdominal exercises', 'Abdominal exercises', 'Stretching exercises', 'Stretching exercises', 'Stretching exercises', 'Stretching exercises', 'Sculpting exercises', 'thigh exercises', 'food', 'food', 'food', 'food'];
+        $type_ar = ['تمارين الفخذ', 'تمارين البطن', 'تمارين البطن', 'تمارين الشد', 'تمارين الشد', 'تمارين الشد', 'تمارين الشد', 'تمارين النحت', 'تمارين الفخذ', 'غذاء', 'غذاء', 'غذاء', 'غذاء'];
+        $duration = [5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4];
+        $muscle = ['thigh', 'Upper abdomen', 'lower abdomen', 'chest', 'forearm', 'arm', 'shoulder', 'Waist', 'thigh', '', '', '', ''];
+        $muscle_ar = ['فخذين', 'البطن', 'البطن', 'الصدر', 'الساعدين', 'الذراعين', 'الكتفين', 'الخصر', 'فخذين', '', '', '', ''];
+        for ($i = 0; $i < 13; $i++) {
             Plan::create([
                 'title' => $title[$i],
                 'title_ar' => $title_ar[$i],

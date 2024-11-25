@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Level;
 use App\Models\Plan;
+use App\Models\PlanLevel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,8 +19,9 @@ class PlanLevelFactory extends Factory
      */
     public function definition(): array
     {
+
         return [
-            'plan_id' => Plan::inRandomOrder()->first()->id,
+            'plan_id' => '',
             'level_id' => Level::inRandomOrder()->first()->id,
         ];
     }

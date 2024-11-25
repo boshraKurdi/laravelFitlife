@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\PlanLevel;
 use App\Http\Requests\StorePlanLevelRequest;
 use App\Http\Requests\UpdatePlanLevelRequest;
+use App\Models\GoalPlanLevel;
+use App\Models\Target;
 use Illuminate\Http\Request;
 
 class PlanLevelController extends Controller
@@ -39,6 +41,24 @@ class PlanLevelController extends Controller
             $q->where('day', $day)->where('week', $week);
         }, 'exercise.media'])->get();
         return response()->json(['data' => $exe]);
+    }
+
+    public function meal($day, $week)
+    {
+        $target = GoalPlanLevel::whereHas('users', function ($q) {
+            $q->where('user_id', auth()->id());
+        })->get();
+        $plan_id = PlanLevel::whereHas('goals', function ($q) use ($target) {
+            $q->where('goals.id', $target[0]->goal_id);
+        })->whereHas('plan', function ($q) {
+            $q->where('type', 'food');
+        })->get();
+        $exe =  PlanLevel::where('id', $plan_id[0]->id)->with(['meal' => function ($q) use ($day, $week) {
+            $q->where('day', $day)->where('week', $week);
+        }, 'meal.media'])->get();
+        return response()->json([
+            'data' => $exe,
+        ]);
     }
 
     public function getUserPlans()

@@ -16,8 +16,8 @@ return new class extends Migration
         Schema::create('gym_sections', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->foreignIdFor(Gym::class);
-            $table->foreignIdFor(Section::class);
+            $table->foreignIdFor(Gym::class)->constrained();;
+            $table->foreignIdFor(Section::class)->constrained();;
             $table->double('price');
         });
     }

@@ -36,6 +36,15 @@ class PlanLevel extends Model
             'exercise_id'
         )->withPivot(['day', 'week']);
     }
+    public function meal()
+    {
+        return $this->belongsToMany(
+            Meal::class,
+            'plan_level_meals',
+            'plan_level_id',
+            'meal_id'
+        );
+    }
     public function targets()
     {
         return $this->hasManyThrough(Target::class, GoalPlanLevel::class);

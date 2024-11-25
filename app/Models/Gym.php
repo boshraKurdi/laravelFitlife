@@ -24,6 +24,15 @@ class Gym extends Model implements HasMedia
     {
         return $this->belongsTo(Location::class);
     }
+    public function section()
+    {
+        return $this->belongsToMany(
+            Section::class,
+            'gym_sections',
+            'gym_id',
+            'section_id'
+        );
+    }
 
     public function registerMediaCollections(): void
     {

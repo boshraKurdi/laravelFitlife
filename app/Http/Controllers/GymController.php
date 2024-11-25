@@ -37,7 +37,7 @@ class GymController extends Controller
      */
     public function show(Gym $gym)
     {
-        $show = $gym->load(['media', 'location']);
+        $show = $gym->load(['media', 'location', 'section', 'section.media']);
 
         $result = Distance::haversineGreatCircleDistance($show->location->lat, $show->location->lon, auth()->user()->lat, auth()->user()->lon);
         $show->distance = $result;
