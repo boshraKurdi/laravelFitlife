@@ -19,6 +19,7 @@ use App\Models\Plan;
 use App\Models\PlanLevel;
 use Illuminate\Support\Facades\Route;
 
+Route::get('getLastTimeUpdateDatabase', [UserController::class, 'getLastTimeUpdateDatabase']);
 Route::group(['prefix' => 'auth'], function () {
     Route::post('login', [AuthController::class, 'login']);
     Route::post('register', [AuthController::class, 'register']);

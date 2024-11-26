@@ -47,4 +47,12 @@ class UserController extends Controller
         $check = User::where('email', $email)->get();
         return response()->json($check);
     }
+
+    public function getLastTimeUpdateDatabase()
+    {
+        $user = User::query()->first();
+        return response()->json([
+            'lastTime' => $user->updated_at
+        ]);
+    }
 }

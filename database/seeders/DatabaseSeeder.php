@@ -34,6 +34,7 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             MealSeeder::class,
             PlanLevelMealSeeder::class,
+            StepSeeder::class,
             RolesAndPermissionsSeeder::class,
             MideaSeeder::class
         ]);
