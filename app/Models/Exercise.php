@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -28,6 +29,10 @@ class Exercise extends Model implements HasMedia
             'exercise_id',
             'plan_level_id'
         );
+    }
+    public function steps(): HasMany
+    {
+        return $this->hasMany(Step::class);
     }
 
     public function registerMediaCollections(): void

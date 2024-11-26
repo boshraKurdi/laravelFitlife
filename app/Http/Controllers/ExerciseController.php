@@ -30,7 +30,7 @@ class ExerciseController extends Controller
      */
     public function show(Exercise $exercise)
     {
-        $exe = $exercise->load(['media']);
+        $exe = $exercise->load(['media', 'steps']);
         return response()->json($exe);
     }
 

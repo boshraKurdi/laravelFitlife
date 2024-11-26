@@ -14,4 +14,9 @@ class Step extends Model
         'content_ar',
         'exercise_id'
     ];
+
+    public function exercise()
+    {
+        return $this->belongsTo(Exercise::class);
+    }
 }
