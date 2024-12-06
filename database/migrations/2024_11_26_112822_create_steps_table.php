@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('content');
             $table->string('content_ar');
-            $table->foreignIdFor(Exercise::class)->constrained();
+            $table->foreignIdFor(Exercise::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

@@ -64,12 +64,15 @@ class PlanController extends Controller
     public function update(UpdatePlanRequest $request, Plan $plan)
     {
         $update = $plan->update([
-            'title' => $request->title
+            'title' => $request->title,
+            'description' => $request->description,
+            'muscle' => $request->muscle,
+            'duration' => $request->duration
         ]);
         if ($request->media) {
             $plan->addMediaFromRequest('media')->toMediaCollection('plans');
         }
-        return response()->json($update);
+        return response()->json(['data' => 'update successfully!']);
     }
 
     /**

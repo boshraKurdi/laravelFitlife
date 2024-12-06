@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('user_services', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class)->constrained();;
-            $table->foreignIdFor(Service::class)->constrained();;
+            $table->foreignIdFor(User::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignIdFor(Service::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->integer('month');
             $table->integer('year');
             $table->integer('cvc');

@@ -13,7 +13,7 @@ class SectionController extends Controller
      */
     public function index()
     {
-        //
+        return response()->json(['data' => Section::with('media')->get()]);
     }
 
     /**

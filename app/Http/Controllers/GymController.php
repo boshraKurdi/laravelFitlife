@@ -22,6 +22,11 @@ class GymController extends Controller
         })->sortBy('distance');
         return response()->json(['data' => $newIndex->values()]);
     }
+    public function getIndex()
+    {
+        $index = Gym::query()->with('location', 'media', 'section')->get();
+        return response()->json(['data' => $index]);
+    }
 
 
     /**
@@ -29,7 +34,23 @@ class GymController extends Controller
      */
     public function store(StoreGymRequest $request)
     {
-        //
+        $store = Gym::query()->create([
+            'name' => $request->name,
+            'location_id' => 1,
+            'description_ar' => $request->description_ar,
+            'description' => $request->description,
+            'type' => $request->type,
+            'open' => $request->open,
+            'price' => $request->price,
+            'close' => $request->close
+        ]);
+        if ($request->media) {
+            $store->addMediaFromRequest('media')->toMediaCollection('gyms');
+        }
+        if ($request->section) {
+            $store->section()->attach($request->section);
+        }
+        return response()->json($store);
     }
 
     /**
@@ -57,6 +78,7 @@ class GymController extends Controller
      */
     public function destroy(Gym $gym)
     {
-        //
+        $gym->delete();
+        return response()->json('gym been deleted successfully');
     }
 }

@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('messages', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Group::class)->constrained();
+            $table->foreignIdFor(Group::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->string('text');
             $table->boolean('isCoach');
             $table->boolean('isSeen');

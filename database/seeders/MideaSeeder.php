@@ -20,7 +20,6 @@ class MideaSeeder extends Seeder
     public function run(): void
     {
         $video = storage_path('videos\video.mp4');
-        $image_5 = storage_path('images\about-coach.jpg');
         $image_plan_1 = storage_path('images\thigh.png');
         $image_plan_2 = storage_path('images\lower.png');
         $image_plan_3 = storage_path('images\upper.png');
@@ -240,14 +239,38 @@ class MideaSeeder extends Seeder
                 ->preservingOriginal()
                 ->toMediaCollection('exercises');
         }
+        $image_coach_1 = storage_path('images\coach_1.jpg');
+        $image_coach_2 = storage_path('images\coach_2.jpg');
+        $image_coach_3 = storage_path('images\coach_3.jpg');
+        $image_coach_4 = storage_path('images\coach_4.jpg');
+        $image_coach_5 = storage_path('images\coach_5.jpg');
 
-        for ($i = 2; $i < 11; $i++) {
-            $coach = User::find($i);
-            $coach
-                ->addMedia($image_5)
-                ->preservingOriginal()
-                ->toMediaCollection('users');
-        }
+        $coach_1 = User::find(2);
+        $coach_1
+            ->addMedia($image_coach_1)
+            ->preservingOriginal()
+            ->toMediaCollection('users');
+        $coach_2 = User::find(2);
+        $coach_2
+            ->addMedia($image_coach_2)
+            ->preservingOriginal()
+            ->toMediaCollection('users');
+        $coach_3 = User::find(3);
+        $coach_3
+            ->addMedia($image_coach_3)
+            ->preservingOriginal()
+            ->toMediaCollection('users');
+        $coach_4 = User::find(4);
+        $coach_4
+            ->addMedia($image_coach_4)
+            ->preservingOriginal()
+            ->toMediaCollection('users');
+        $coach_5 = User::find(5);
+        $coach_5
+            ->addMedia($image_coach_5)
+            ->preservingOriginal()
+            ->toMediaCollection('users');
+
         $image_meal_1 = storage_path('images\meal_1.jpg');
         $image_meal_2 = storage_path('images\meal_2.jpg');
         $image_meal_4 = storage_path('images\meal_3.jpg');

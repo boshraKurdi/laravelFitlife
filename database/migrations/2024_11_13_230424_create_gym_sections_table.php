@@ -16,9 +16,8 @@ return new class extends Migration
         Schema::create('gym_sections', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->foreignIdFor(Gym::class)->constrained();;
-            $table->foreignIdFor(Section::class)->constrained();;
-            $table->double('price');
+            $table->foreignIdFor(Gym::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignIdFor(Section::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

@@ -22,7 +22,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $user = User::find(1);
         $user->assignRole('admin');
-        for ($i = 2; $i < 11; $i++) {
+        for ($i = 2; $i < 6; $i++) {
             $coach = User::find($i);
             $coach->assignRole('coach');
         }

@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('targets', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class)->constrained();;
-            $table->foreignIdFor(GoalPlanLevel::class)->constrained();;
+            $table->foreignIdFor(User::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignIdFor(GoalPlanLevel::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->integer('calories')->nullable();
             $table->string('duration')->nullable();
             $table->string('rate')->nullable();

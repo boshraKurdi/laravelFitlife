@@ -20,7 +20,7 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        return response()->json($user);
+        return response()->json($user->load(['media']));
     }
     public function destroy(User $user)
     {

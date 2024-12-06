@@ -23,7 +23,7 @@ return new class extends Migration
             $table->integer('calories');
             $table->text('prepare')->nullable();
             $table->text('prepare_ar')->nullable();
-            $table->foreignIdFor(Category::class)->constrained();
+            $table->foreignIdFor(Category::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

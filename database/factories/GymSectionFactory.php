@@ -21,7 +21,6 @@ class GymSectionFactory extends Factory
         return [
             'gym_id' => Gym::inRandomOrder()->first()->id,
             'section_id' =>  Section::inRandomOrder()->first()->id,
-            'price' => rand('100', '10000')
         ];
     }
 }

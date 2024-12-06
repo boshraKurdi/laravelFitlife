@@ -32,7 +32,7 @@ class PlanLevelController extends Controller
     public function getPlans()
     {
         $data = PlanLevel::with(['plan', 'level', 'plan.media'])->get();
-        return response()->json($data);
+        return response()->json(['data' => $data]);
     }
 
     public function exercise($planLevel, $day, $week)
@@ -42,8 +42,13 @@ class PlanLevelController extends Controller
         }, 'exercise.media'])->get();
         return response()->json(['data' => $exe]);
     }
+    public function getExerciseForPlan($planLevel)
+    {
+        $exe =  PlanLevel::where('id', $planLevel)->with(['exercise', 'exercise.media'])->get();
+        return response()->json(['data' => $exe]);
+    }
 
-    public function meal($day, $week)
+    public function meal($day, $week, Request $request)
     {
         $target = GoalPlanLevel::whereHas('users', function ($q) {
             $q->where('user_id', auth()->id());
@@ -53,9 +58,19 @@ class PlanLevelController extends Controller
         })->whereHas('plan', function ($q) {
             $q->where('type', 'food');
         })->get();
-        $exe =  PlanLevel::where('id', $plan_id[0]->id)->with(['meal' => function ($q) use ($day, $week) {
-            $q->where('day', $day)->where('week', $week);
-        }, 'meal.media'])->get();
+        if ($request->breakfast) {
+            $exe =  PlanLevel::where('id', $plan_id[0]->id)->with(['meal' => function ($q) use ($day, $week) {
+                $q->where('day', $day)->where('week', $week)->where('breakfast', 1);
+            }, 'meal.media'])->get();
+        } else if ($request->lunch) {
+            $exe =  PlanLevel::where('id', $plan_id[0]->id)->with(['meal' => function ($q) use ($day, $week) {
+                $q->where('day', $day)->where('week', $week)->where('lunch', 1);
+            }, 'meal.media'])->get();
+        } else {
+            $exe =  PlanLevel::where('id', $plan_id[0]->id)->with(['meal' => function ($q) use ($day, $week) {
+                $q->where('day', $day)->where('week', $week)->where('dinner', 1);
+            }, 'meal.media'])->get();
+        }
         return response()->json([
             'data' => $exe,
         ]);
@@ -98,6 +113,11 @@ class PlanLevelController extends Controller
         return response()->json($show);
     }
 
+    public function showPlan(PlanLevel $planLevel)
+    {
+        return response()->json($planLevel->load(['plan',  'level']));
+    }
+
     /**
      * Update the specified resource in storage.
      */
@@ -111,6 +131,7 @@ class PlanLevelController extends Controller
      */
     public function destroy(PlanLevel $planLevel)
     {
-        //
+        $planLevel->delete();
+        return response()->json('planLevel been deleted successfully');
     }
 }

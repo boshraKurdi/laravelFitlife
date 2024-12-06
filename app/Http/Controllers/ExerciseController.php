@@ -47,6 +47,7 @@ class ExerciseController extends Controller
      */
     public function destroy(Exercise $exercise)
     {
-        //
+        $exercise->delete();
+        return response()->json('exercise been deleted successfully');
     }
 }

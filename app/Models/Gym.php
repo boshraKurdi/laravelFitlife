@@ -14,10 +14,12 @@ class Gym extends Model implements HasMedia
     protected $fillable = [
         'name',
         'description',
+        'description_ar',
         'location_id',
         'open',
         'close',
-        'type'
+        'type',
+        'price'
     ];
 
     public function location()

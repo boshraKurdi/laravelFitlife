@@ -56,7 +56,7 @@ class GroupSeeder extends Seeder
         ]);
         Group::create([
             'chat_id' => 5,
-            'user_id' => 6
+            'user_id' => 5
         ]);
     }
 }

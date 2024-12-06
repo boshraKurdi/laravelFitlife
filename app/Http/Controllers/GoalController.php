@@ -26,7 +26,8 @@ class GoalController extends Controller
         $goal = Goal::query()->create([
             'title' => $request->title,
             'description' => $request->description,
-            'calories' => $request->calories,
+            'calories_min' => $request->calories_min,
+            'calories_max' => $request->calories_max,
             'duration' => $request->duration
         ]);
         if ($request->media) {
@@ -54,18 +55,27 @@ class GoalController extends Controller
         return response()->json($show);
     }
 
+    public function showGoal(Goal $goal, $id)
+    {
+        return response()->json(['data' => Goal::where('id', $id)->get()]);
+    }
+
     /**
      * Update the specified resource in storage.
      */
     public function update(UpdateGoalRequest $request, Goal $goal)
     {
-        $goals = $goal->update([
-            'title' => $request->title
+        $goal->update([
+            'title' => $request->title,
+            'description' => $request->description,
+            'calories_min' => $request->calories_min,
+            'calories_max' => $request->calories_max,
+            'duration' => $request->duration
         ]);
         if ($request->media) {
             $goal->addMediaFromRequest('media')->toMediaCollection('goals');
         }
-        return response()->json($goals);
+        return response()->json(['data' => 'update successfully!']);
     }
 
     public function getUserGoals()

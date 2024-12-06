@@ -17,8 +17,8 @@ return new class extends Migration
             $table->id();
             $table->integer('day');
             $table->integer('week');
-            $table->foreignIdFor(PlanLevel::class)->constrained();;
-            $table->foreignIdFor(Exercise::class)->constrained();;
+            $table->foreignIdFor(PlanLevel::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignIdFor(Exercise::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

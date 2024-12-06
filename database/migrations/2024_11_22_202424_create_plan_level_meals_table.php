@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('plan_level_meals', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(PlanLevel::class)->constrained();
-            $table->foreignIdFor(Meal::class)->constrained();
+            $table->foreignIdFor(PlanLevel::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignIdFor(Meal::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->integer('day');
             $table->integer('week');
             $table->boolean('breakfast');

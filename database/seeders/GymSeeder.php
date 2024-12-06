@@ -23,9 +23,11 @@ class GymSeeder extends Seeder
             Gym::create([
                 'name' => $title[$i],
                 'description' => $description[$i],
+                'description_ar' => $description[$i],
                 'open' => $open[$i],
                 'close' => $close[$i],
                 'type' => $type[$i],
+                'price' => 20,
                 'location_id' => Location::find($i + 1)->id
             ]);
         }

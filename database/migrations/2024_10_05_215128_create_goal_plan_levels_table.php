@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('goal_plan_levels', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Goal::class)->constrained();
-            $table->foreignIdFor(PlanLevel::class)->constrained();
+            $table->foreignIdFor(Goal::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignIdFor(PlanLevel::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }
