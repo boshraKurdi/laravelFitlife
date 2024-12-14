@@ -14,6 +14,9 @@ class GymSeeder extends Seeder
      */
     public function run(): void
     {
+        $lat = [36.1706322, 36.21035775, 36.2144375, 36.2191255, 36.2016368, 36.2299807];
+        $lon = [37.1240719, 37.15440634055355, 37.1593884, 37.1648102, 37.1610728, 37.144195];
+        $address = ['حلب حي الشهباء ', 'حلب حي العزيزية', 'حلب حي السليمانية', 'حلب حي الميدان', 'حلب حي الفرافرة', 'حلب حي الأشرفية'];
         $title = [' نادي الاتحاد الرياضي', 'نادي الحرية الرياضي', 'نادي الجلاء الرياضي', 'نادي الكرامة الرياضي', 'نادي السلام الرياضي', 'نادي النصر الرياضي'];
         $description = ['Aut est qui ab et. Nihil et molestiae nam incidunt earum quibusdam. Rem quia magni repellendus exercitationem dolorum pariatur. Et non eaque explicabo mollitia.', 'Aut est qui ab et. Nihil et molestiae nam incidunt earum quibusdam. Rem quia magni repellendus exercitationem dolorum pariatur. Et non eaque explicabo mollitia.', 'Aut est qui ab et. Nihil et molestiae nam incidunt earum quibusdam. Rem quia magni repellendus exercitationem dolorum pariatur. Et non eaque explicabo mollitia.', 'Aut est qui ab et. Nihil et molestiae nam incidunt earum quibusdam. Rem quia magni repellendus exercitationem dolorum pariatur. Et non eaque explicabo mollitia.', 'Aut est qui ab et. Nihil et molestiae nam incidunt earum quibusdam. Rem quia magni repellendus exercitationem dolorum pariatur. Et non eaque explicabo mollitia.', 'Aut est qui ab et. Nihil et molestiae nam incidunt earum quibusdam. Rem quia magni repellendus exercitationem dolorum pariatur. Et non eaque explicabo mollitia.'];
         $open = ['09:00', '10:00', '10:00', '08:00', '09:00', '10:00'];
@@ -27,8 +30,10 @@ class GymSeeder extends Seeder
                 'open' => $open[$i],
                 'close' => $close[$i],
                 'type' => $type[$i],
+                'lat' => $lat[$i],
+                'lon' => $lon[$i],
+                'address' => $address[$i],
                 'price' => 20,
-                'location_id' => Location::find($i + 1)->id
             ]);
         }
     }

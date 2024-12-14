@@ -115,7 +115,8 @@ class PlanLevelController extends Controller
 
     public function showPlan(PlanLevel $planLevel)
     {
-        return response()->json($planLevel->load(['plan',  'level']));
+        $i = $planLevel->load(['plan', 'plan.media',  'level', 'exercise', 'exercise.media']);
+        return response()->json($i);
     }
 
     /**

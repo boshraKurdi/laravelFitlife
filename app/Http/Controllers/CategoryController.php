@@ -13,7 +13,8 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
+        $index = Category::get();
+        return response()->json(['data' => $index]);
     }
 
     /**
@@ -21,7 +22,11 @@ class CategoryController extends Controller
      */
     public function store(StoreCategoryRequest $request)
     {
-        //
+        $store = Category::create([
+            'title' => $request->title,
+            'title_ar' => $request->title_ar,
+        ]);
+        return response()->json($store);
     }
 
     /**
@@ -29,7 +34,7 @@ class CategoryController extends Controller
      */
     public function show(Category $category)
     {
-        //
+        return response()->json(['data' => $category]);
     }
 
     /**
@@ -37,7 +42,11 @@ class CategoryController extends Controller
      */
     public function update(UpdateCategoryRequest $request, Category $category)
     {
-        //
+        $category->update([
+            'title' => $request->title,
+            'title_ar' => $request->title_ar,
+        ]);
+        return response()->json(['data' => 'update category successfully!']);
     }
 
     /**
@@ -45,6 +54,7 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        //
+        $category->delete();
+        return response()->json(['data' => 'delete category successfully!']);
     }
 }

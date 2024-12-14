@@ -15,17 +15,15 @@ class Gym extends Model implements HasMedia
         'name',
         'description',
         'description_ar',
-        'location_id',
         'open',
         'close',
         'type',
-        'price'
+        'price',
+        'lat',
+        'lon',
+        'address'
     ];
 
-    public function location()
-    {
-        return $this->belongsTo(Location::class);
-    }
     public function section()
     {
         return $this->belongsToMany(

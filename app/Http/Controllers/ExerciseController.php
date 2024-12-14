@@ -22,7 +22,28 @@ class ExerciseController extends Controller
      */
     public function store(StoreExerciseRequest $request)
     {
-        //
+        $store = Exercise::create([
+            'title' => $request->title,
+            'title_ar' => $request->title_ar,
+            'description' => $request->description,
+            'description_ar' => $request->description_ar,
+            'duration' => $request->duration,
+            'counter' => $request->counter,
+            'calories' => $request->calories
+        ]);
+        if ($request->media) {
+            $store->addMediaFromRequest('media')->toMediaCollection('exercises');
+        }
+        if ($request->steps) {
+            foreach ($request->steps as $step) {
+                $store->steps()->create([
+                    'content' => $step['content'],
+                    'content_ar' => $step['content_ar']
+                ]);
+            }
+        }
+
+        return response()->json($store);
     }
 
     /**
@@ -39,7 +60,28 @@ class ExerciseController extends Controller
      */
     public function update(UpdateExerciseRequest $request, Exercise $exercise)
     {
-        //
+        $exercise->update([
+            'title' => $request->title,
+            'title_ar' => $request->title_ar,
+            'description' => $request->description,
+            'description_ar' => $request->description_ar,
+            'duration' => $request->duration,
+            'counter' => $request->counter,
+            'calories' => $request->calories
+        ]);
+        if ($request->media) {
+            $exercise->addMediaFromRequest('media')->toMediaCollection('exercises');
+        }
+        if ($request->steps) {
+            $exercise->steps()->delete();
+            foreach ($request->steps as $step) {
+                $exercise->steps()->create([
+                    'content' => $step['content'],
+                    'content_ar' => $step['content_ar']
+                ]);
+            }
+        }
+        return response()->json(['data' => 'update exercise successfully!']);
     }
 
     /**

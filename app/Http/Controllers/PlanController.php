@@ -13,7 +13,8 @@ class PlanController extends Controller
      */
     public function index()
     {
-        //
+        $index = Plan::with(['media'])->get();
+        return response()->json(['data' => $index]);
     }
 
     public function getPlanForGoals($ids)
@@ -65,10 +66,16 @@ class PlanController extends Controller
     {
         $update = $plan->update([
             'title' => $request->title,
+            'title_ar' => $request->title_ar,
             'description' => $request->description,
+            'description_ar' => $request->description_ar,
             'muscle' => $request->muscle,
+            'muscle_ar' => $request->muscle_ar,
             'duration' => $request->duration
         ]);
+        if ($request->levels) {
+            $plan->levels()->sync($request->levels);
+        }
         if ($request->media) {
             $plan->addMediaFromRequest('media')->toMediaCollection('plans');
         }

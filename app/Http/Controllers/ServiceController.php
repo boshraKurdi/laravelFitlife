@@ -14,7 +14,7 @@ class ServiceController extends Controller
     public function index()
     {
         $index = Service::get();
-        return response()->json($index);
+        return response()->json(['data' => $index]);
     }
 
     /**
@@ -22,7 +22,12 @@ class ServiceController extends Controller
      */
     public function store(StoreServiceRequest $request)
     {
-        //
+        $store = Service::create([
+            'service' => $request->service,
+            'price' => $request->price,
+            'duration' => $request->duration
+        ]);
+        return response()->json($store);
     }
 
     /**
@@ -30,7 +35,7 @@ class ServiceController extends Controller
      */
     public function show(Service $service)
     {
-        //
+        return response()->json(['data' => $service]);
     }
 
     /**
@@ -38,7 +43,12 @@ class ServiceController extends Controller
      */
     public function update(UpdateServiceRequest $request, Service $service)
     {
-        //
+        $service->update([
+            'service' => $request->service,
+            'price' => $request->price,
+            'duration' => $request->duration
+        ]);
+        return response()->json(['data' => 'update service successfully!']);
     }
 
     /**
@@ -46,6 +56,7 @@ class ServiceController extends Controller
      */
     public function destroy(Service $service)
     {
-        //
+        $service->delete();
+        return response()->json(['data' => 'delete service successfully!']);
     }
 }

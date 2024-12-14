@@ -1,12 +1,14 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ExerciseController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\GoalPlanLevelController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\GymController;
+use App\Http\Controllers\MealController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\PlanLevelController;
@@ -107,9 +109,9 @@ Route::group(['prefix' => 'dashboard'], function () {
     });
     Route::group(['prefix' => 'plan'], function () {
         Route::get('{PlanLevel}/exercises', [PlanLevelController::class, 'getExerciseForPlan']);
-        Route::get('index', [PlanLevelController::class, 'getPlans']);
-        Route::get('{planLevel}/show', [PlanLevelController::class, 'show']);
-        Route::get('{planLevel}/showPlan', [PlanLevelController::class, 'showPlan']);
+        Route::get('index', [PlanController::class, 'index']);
+        Route::get('{planLevel}/show', [PlanLevelController::class, 'showPlan']);
+        Route::get('{plan}/showPlan', [PlanController::class, 'show']);
         Route::post('{plan}/update', [PlanController::class, 'update']);
         Route::get('plansForGoal/{ids}', [GoalPlanLevelController::class, 'getPlanForGoals']);
         Route::post('store', [PlanController::class, 'store']);
@@ -117,12 +119,41 @@ Route::group(['prefix' => 'dashboard'], function () {
     });
     Route::group(['prefix' => 'exercise'], function () {
         Route::get('index', [ExerciseController::class, 'index']);
+        Route::post('store', [ExerciseController::class, 'store']);
+        Route::post('{exercise}/update', [ExerciseController::class, 'update']);
+        Route::get('{exercise}/show', [ExerciseController::class, 'show']);
         Route::delete('{exercise}/destroy', [ExerciseController::class, 'destroy']);
+    });
+    Route::group(['prefix' => 'category'], function () {
+        Route::get('index', [CategoryController::class, 'index']);
+        Route::post('store', [CategoryController::class, 'store']);
+        Route::post('{category}/update', [CategoryController::class, 'update']);
+        Route::get('{category}/show', [CategoryController::class, 'show']);
+        Route::delete('{category}/destroy', [CategoryController::class, 'destroy']);
+    });
+    Route::group(['prefix' => 'service'], function () {
+        Route::get('index', [ServiceController::class, 'index']);
+        Route::post('store', [ServiceController::class, 'store']);
+        Route::post('{service}/update', [ServiceController::class, 'update']);
+        Route::get('{service}/show', [ServiceController::class, 'show']);
+        Route::delete('{service}/destroy', [ServiceController::class, 'destroy']);
+    });
+    Route::group(['prefix' => 'meal'], function () {
+        Route::get('index', [MealController::class, 'index']);
+        Route::post('store', [MealController::class, 'store']);
+        Route::post('{meal}/update', [MealController::class, 'update']);
+        Route::get('{meal}/show', [MealController::class, 'show']);
+        Route::delete('{meal}/destroy', [MealController::class, 'destroy']);
     });
     Route::group(['prefix' => 'gym'], function () {
         Route::get('index', [GymController::class, 'getIndex']);
         Route::post('store', [GymController::class, 'store']);
+        Route::post('{gym}/update', [GymController::class, 'update']);
+        Route::get('{gym}/show', [GymController::class, 'showGym']);
         Route::delete('{gym}/destroy', [GymController::class, 'destroy']);
         Route::get('section', [SectionController::class, 'index']);
+    });
+    Route::group(['prefix' => 'section'], function () {
+        Route::get('index', [SectionController::class, 'index']);
     });
 });

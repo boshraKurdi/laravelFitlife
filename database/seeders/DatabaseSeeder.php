@@ -20,8 +20,6 @@ class DatabaseSeeder extends Seeder
             LevelSeeder::class,
             PlanLevelSeeder::class,
             GoalPlanLevelSeeder::class,
-            TargetSeeder::class,
-            LocationSeeder::class,
             GymSeeder::class,
             ExerciseSeeder::class,
             PlanLevelExerciseSeeder::class,

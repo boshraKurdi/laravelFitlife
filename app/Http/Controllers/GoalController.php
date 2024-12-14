@@ -25,7 +25,9 @@ class GoalController extends Controller
     {
         $goal = Goal::query()->create([
             'title' => $request->title,
+            'title_ar' => $request->title_ar,
             'description' => $request->description,
+            'description_ar' => $request->description_ar,
             'calories_min' => $request->calories_min,
             'calories_max' => $request->calories_max,
             'duration' => $request->duration
@@ -57,7 +59,7 @@ class GoalController extends Controller
 
     public function showGoal(Goal $goal, $id)
     {
-        return response()->json(['data' => Goal::where('id', $id)->get()]);
+        return response()->json(['data' => Goal::with(['media',  'PlanLevel', 'PlanLevel.plan.media', 'PlanLevel.plan', 'PlanLevel.level'])->where('id', $id)->get()]);
     }
 
     /**
@@ -68,10 +70,16 @@ class GoalController extends Controller
         $goal->update([
             'title' => $request->title,
             'description' => $request->description,
+            'title_ar' => $request->title_ar,
+            'description_ar' => $request->description_ar,
             'calories_min' => $request->calories_min,
             'calories_max' => $request->calories_max,
             'duration' => $request->duration
         ]);
+
+        if ($request->PlanLevel) {
+            $goal->PlanLevel()->sync($request->PlanLevel);
+        }
         if ($request->media) {
             $goal->addMediaFromRequest('media')->toMediaCollection('goals');
         }

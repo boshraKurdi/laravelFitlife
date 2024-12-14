@@ -65,12 +65,35 @@ class GymController extends Controller
         return response()->json($show);
     }
 
+    public function showGym(Gym $gym)
+    {
+        $show = $gym->load(['media', 'section', 'section.media']);
+        return response()->json(['data' => $show]);
+    }
+
     /**
      * Update the specified resource in storage.
      */
     public function update(UpdateGymRequest $request, Gym $gym)
     {
-        //
+        $gym->update([
+            'name' => $request->name,
+            'location_id' => 1,
+            'description_ar' => $request->description_ar,
+            'description' => $request->description,
+            'address' => $request->address,
+            'type' => $request->type,
+            'open' => $request->open,
+            'price' => $request->price,
+            'close' => $request->close
+        ]);
+        if ($request->media) {
+            $gym->addMediaFromRequest('media')->toMediaCollection('gyms');
+        }
+        if ($request->section) {
+            $gym->section()->sync($request->section);
+        }
+        return response()->json(['data' => 'update gym successfully!']);
     }
 
     /**

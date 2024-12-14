@@ -30,7 +30,7 @@ class Exercise extends Model implements HasMedia
             'plan_level_id'
         );
     }
-    public function steps(): HasMany
+    public function steps()
     {
         return $this->hasMany(Step::class);
     }

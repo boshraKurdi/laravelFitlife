@@ -31,6 +31,10 @@ class Meal extends Model implements HasMedia
             'plan_level_id',
         );
     }
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 
     public function registerMediaCollections(): void
     {

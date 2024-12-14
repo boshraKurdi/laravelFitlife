@@ -15,10 +15,12 @@ return new class extends Migration
     {
         Schema::create('gyms', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Location::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->string('open');
             $table->string('close');
             $table->string('type');
+            $table->string('address');
+            $table->double('lat')->nullable();
+            $table->double('lon')->nullable();
             $table->string('name');
             $table->string('price');
             $table->text('description');
