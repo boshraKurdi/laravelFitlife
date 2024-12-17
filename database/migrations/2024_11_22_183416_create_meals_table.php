@@ -18,9 +18,12 @@ return new class extends Migration
             $table->string('title_ar');
             $table->text('description');
             $table->text('description_ar');
-            $table->string('components');
-            $table->string('components_ar');
+            $table->text('components');
+            $table->text('components_ar');
             $table->integer('calories');
+            $table->float('carbohydrates');
+            $table->float('fats');
+            $table->float('proteins');
             $table->text('prepare')->nullable();
             $table->text('prepare_ar')->nullable();
             $table->foreignIdFor(Category::class)->constrained()->onDelete('cascade')->onUpdate('cascade');

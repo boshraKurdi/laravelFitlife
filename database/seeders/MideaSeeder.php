@@ -278,6 +278,12 @@ class MideaSeeder extends Seeder
         $image_meal_5 = storage_path('images\meal_5.jpg');
         $image_meal_6 = storage_path('images\meal_6.jpg');
         $image_meal_7 = storage_path('images\meal_7.jpg');
+        $image_meal_8 = storage_path('images\meal_8.png');
+        $image_meal_9 = storage_path('images\meal_9.png');
+        $image_meal_10 = storage_path('images\meal_10.png');
+        $image_meal_11 = storage_path('images\meal_11.png');
+        $image_meal_12 = storage_path('images\meal_12.png');
+        $image_meal_13 = storage_path('images\meal_13.png');
         $meal_1 = Meal::find(1);
         $meal_1
             ->addMedia($image_meal_1)
@@ -311,6 +317,36 @@ class MideaSeeder extends Seeder
         $meal_7 = Meal::find(7);
         $meal_7
             ->addMedia($image_meal_7)
+            ->preservingOriginal()
+            ->toMediaCollection('meals');
+        $meal_8 = Meal::find(8);
+        $meal_8
+            ->addMedia($image_meal_8)
+            ->preservingOriginal()
+            ->toMediaCollection('meals');
+        $meal_9 = Meal::find(9);
+        $meal_9
+            ->addMedia($image_meal_9)
+            ->preservingOriginal()
+            ->toMediaCollection('meals');
+        $meal_10 = Meal::find(10);
+        $meal_10
+            ->addMedia($image_meal_10)
+            ->preservingOriginal()
+            ->toMediaCollection('meals');
+        $meal_11 = Meal::find(11);
+        $meal_11
+            ->addMedia($image_meal_11)
+            ->preservingOriginal()
+            ->toMediaCollection('meals');
+        $meal_12 = Meal::find(12);
+        $meal_12
+            ->addMedia($image_meal_12)
+            ->preservingOriginal()
+            ->toMediaCollection('meals');
+        $meal_13 = Meal::find(13);
+        $meal_13
+            ->addMedia($image_meal_13)
             ->preservingOriginal()
             ->toMediaCollection('meals');
     }

@@ -13,8 +13,8 @@ class Target extends Model
         'user_id',
         'goal_plan_level_id',
         'calories',
-        'duration',
-        'rate'
+        'active',
+        'rate',
     ];
     public function users()
     {

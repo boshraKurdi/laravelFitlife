@@ -19,6 +19,9 @@ class Meal extends Model implements HasMedia
         'components_ar',
         'prepare',
         'calories',
+        'carbohydrates',
+        'fats',
+        'proteins',
         'prepare_ar',
         'category_id'
     ];

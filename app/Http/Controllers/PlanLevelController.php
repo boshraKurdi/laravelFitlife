@@ -50,27 +50,35 @@ class PlanLevelController extends Controller
 
     public function meal($day, $week, Request $request)
     {
+        $exe = '';
         $target = GoalPlanLevel::whereHas('users', function ($q) {
             $q->where('user_id', auth()->id());
+        })->whereHas('targets', function ($q) {
+            $q->where('active', true);
         })->get();
-        $plan_id = PlanLevel::whereHas('goals', function ($q) use ($target) {
-            $q->where('goals.id', $target[0]->goal_id);
-        })->whereHas('plan', function ($q) {
-            $q->where('type', 'food');
-        })->get();
-        if ($request->breakfast) {
-            $exe =  PlanLevel::where('id', $plan_id[0]->id)->with(['meal' => function ($q) use ($day, $week) {
-                $q->where('day', $day)->where('week', $week)->where('breakfast', 1);
-            }, 'meal.media'])->get();
-        } else if ($request->lunch) {
-            $exe =  PlanLevel::where('id', $plan_id[0]->id)->with(['meal' => function ($q) use ($day, $week) {
-                $q->where('day', $day)->where('week', $week)->where('lunch', 1);
-            }, 'meal.media'])->get();
+        if (count($target)) {
+            $plan_id = PlanLevel::whereHas('goals', function ($q) use ($target) {
+                $q->where('goals.id', $target[0]->goal_id);
+            })->whereHas('plan', function ($q) {
+                $q->where('type', 'food');
+            })->get();
+            if ($request->breakfast) {
+                $exe =  PlanLevel::where('id', $plan_id[0]->id)->with(['meal' => function ($q) use ($day, $week) {
+                    $q->where('day', $day)->where('week', $week)->where('breakfast', 1);
+                }, 'meal.media'])->get();
+            } else if ($request->lunch) {
+                $exe =  PlanLevel::where('id', $plan_id[0]->id)->with(['meal' => function ($q) use ($day, $week) {
+                    $q->where('day', $day)->where('week', $week)->where('lunch', 1);
+                }, 'meal.media'])->get();
+            } else {
+                $exe =  PlanLevel::where('id', $plan_id[0]->id)->with(['meal' => function ($q) use ($day, $week) {
+                    $q->where('day', $day)->where('week', $week)->where('dinner', 1);
+                }, 'meal.media'])->get();
+            }
         } else {
-            $exe =  PlanLevel::where('id', $plan_id[0]->id)->with(['meal' => function ($q) use ($day, $week) {
-                $q->where('day', $day)->where('week', $week)->where('dinner', 1);
-            }, 'meal.media'])->get();
+            $exe = 'please wait to processing the goal';
         }
+
         return response()->json([
             'data' => $exe,
         ]);

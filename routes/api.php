@@ -84,11 +84,17 @@ Route::group(['prefix' => 'exercise'], function () {
         Route::get('{exercise}/show', [ExerciseController::class, 'show']);
     });
 });
+Route::group(['prefix' => 'meal'], function () {
+    Route::group(['middleware' => 'auth:api'], function () {
+        Route::get('{meal}/show', [MealController::class, 'show']);
+    });
+});
 Route::group(['middleware' => 'auth:api'], function () {
     Route::group(['prefix' => 'target'], function () {
         Route::get('index', [PlanLevelController::class, 'getUserPlans']);
         Route::post('plans/{ids?}', [GoalPlanLevelController::class, 'getPlanForGoalsWithMuscle']);
         Route::get('insert/{id}', [GoalPlanLevelController::class, 'insert']);
+        Route::post('store', [TargetController::class, 'store']);
     });
     Route::group(['prefix' => 'gym'], function () {
         Route::get('index', [GymController::class, 'index']);

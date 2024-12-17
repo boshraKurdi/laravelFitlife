@@ -23,6 +23,10 @@ class GoalPlanLevel extends Model
             'targets',
         );
     }
+    public function targets()
+    {
+        return $this->hasMany(Target::class);
+    }
     public function goals()
     {
         return $this->belongsTo(Goal::class, 'goal_id');

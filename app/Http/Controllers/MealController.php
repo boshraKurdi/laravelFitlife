@@ -43,6 +43,10 @@ class MealController extends Controller
     public function show(Meal $meal)
     {
         $show = $meal->load(['media', 'category']);
+        $other = Meal::whereHas('category', function ($q) use ($meal) {
+            $q->where('id', $meal->category->id);
+        })->with('media')->get();
+        $show->other = $other;
         return response()->json($show);
     }
 

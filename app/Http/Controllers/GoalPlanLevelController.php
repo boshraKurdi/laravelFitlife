@@ -17,10 +17,11 @@ class GoalPlanLevelController extends Controller
         //
     }
 
-    public function getPlanForGoals($ids)
+    public function getPlanForGoals($id)
     {
-        $idsArray = explode(',', $ids);
-        $targets = GoalPlanLevel::query()->whereIn('goal_id', $idsArray)->with(['planLevels.plan', 'planLevels.level', 'planLevels.plan.media', 'goals'])->get();
+        $targets = GoalPlanLevel::query()->where('goal_id', $id)->whereHas('planLevels.plan', function ($q) {
+            $q->where('type', '!=', 'food');
+        })->with(['planLevels.plan', 'planLevels.level', 'planLevels.plan.media', 'goals'])->get();
         return response()->json(['data' => $targets]);
     }
 
@@ -29,16 +30,25 @@ class GoalPlanLevelController extends Controller
     {
         $muscleGroups = ['thigh exercises', 'Abdominal exercises', 'Stretching exercises', 'Sculpting exercises'];
         $targets = array();
-        if ($request->ids) {
-            $idsArray = explode(',', $request->ids);
-            foreach ($muscleGroups as $muscle) {
-                $r = GoalPlanLevel::query()->whereIn('goal_id', $idsArray)->whereHas('planLevels.plan', function ($q) use ($muscle) {
-                    $q->where('type', $muscle);
-                })
-                    ->with(['planLevels.plan', 'planLevels.level', 'planLevels.plan.media', 'goals'])->get();
-                array_push($targets, $r);
+        $target = GoalPlanLevel::whereHas('users', function ($q) {
+            $q->where('user_id', auth()->id());
+        })->whereHas('targets', function ($q) {
+            $q->where('active', true);
+        })->count();
+        if ($target) {
+            if ($request->id) {
+                foreach ($muscleGroups as $muscle) {
+                    $r = GoalPlanLevel::query()->where('goal_id', $request->id)->whereHas('planLevels.plan', function ($q) use ($muscle) {
+                        $q->where('type', $muscle);
+                    })
+                        ->with(['planLevels.plan', 'planLevels.level', 'planLevels.plan.media', 'goals'])->get();
+                    array_push($targets, $r);
+                }
             }
+        } else {
+            $targets = 'please wait to processing the goal';
         }
+
 
         return response()->json(['data' => $targets]);
     }

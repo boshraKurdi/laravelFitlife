@@ -14,15 +14,15 @@ class PlanLevelMealSeeder extends Seeder
      */
     public function run(): void
     {
-        $array = [1, 2, 3, 4, 5, 6, 7];
-        $b = [1, 1, 1, 1, 0, 0, 0];
-        $l = [0, 1, 0, 1, 0, 1, 1];
-        $dd = [1, 0, 1, 0, 1, 0, 1];
+        $array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+        $b = [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1];
+        $l = [0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0];
+        $dd = [0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0];
         // 28 / 29/ 30/ 31
         for ($i = 1; $i <= 4; $i++) {
             for ($j = 1; $j <= 7; $j++) {
                 $excludedNumbers = [];
-                for ($d = 0; $d < 7; $d++) {
+                for ($d = 0; $d < 6; $d++) {
                     do {
                         $randomNumber = $array[array_rand($array)];
                     } while (in_array($randomNumber, $excludedNumbers));
@@ -43,7 +43,7 @@ class PlanLevelMealSeeder extends Seeder
         for ($i = 1; $i <= 4; $i++) {
             for ($j = 1; $j <= 7; $j++) {
                 $excludedNumbers = [];
-                for ($d = 0; $d < 7; $d++) {
+                for ($d = 6; $d < 13; $d++) {
                     do {
                         $randomNumber = $array[array_rand($array)];
                     } while (in_array($randomNumber, $excludedNumbers));
@@ -64,7 +64,7 @@ class PlanLevelMealSeeder extends Seeder
         for ($i = 1; $i <= 4; $i++) {
             for ($j = 1; $j <= 7; $j++) {
                 $excludedNumbers = [];
-                for ($d = 0; $d < 7; $d++) {
+                for ($d = 4; $d < 10; $d++) {
                     do {
                         $randomNumber = $array[array_rand($array)];
                     } while (in_array($randomNumber, $excludedNumbers));
@@ -85,7 +85,7 @@ class PlanLevelMealSeeder extends Seeder
         for ($i = 1; $i <= 4; $i++) {
             for ($j = 1; $j <= 7; $j++) {
                 $excludedNumbers = [];
-                for ($d = 0; $d < 7; $d++) {
+                for ($d = 3; $d < 9; $d++) {
                     do {
                         $randomNumber = $array[array_rand($array)];
                     } while (in_array($randomNumber, $excludedNumbers));
