@@ -21,11 +21,15 @@ class GoalPlanLevel extends Model
         return $this->belongsToMany(
             User::class,
             'targets',
+            'goal_plan_level_id',
+            'user_id'
         )->withTimestamps();
     }
     public function targets()
     {
-        return $this->hasMany(Target::class);
+        return $this->hasMany(
+            Target::class,
+        );
     }
     public function goals()
     {

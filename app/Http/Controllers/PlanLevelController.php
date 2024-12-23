@@ -123,7 +123,7 @@ class PlanLevelController extends Controller
         })
             ->with(['targets' => function ($query) {
                 $query->where('user_id', auth()->id());
-            }, 'targets.check', 'plan', 'plan.media', 'level'])
+            }, 'targets.check', 'targets.users', 'targets.users.date', 'plan', 'plan.media', 'level'])
             ->first();
         $show->Mytargets = $show->targets->last();
         return response()->json($show);

@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\GoalPlanLevel;
 use App\Http\Requests\StoreGoalPlanLevelRequest;
 use App\Http\Requests\UpdateGoalPlanLevelRequest;
+use App\Models\Date;
 use App\Models\Target;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class GoalPlanLevelController extends Controller
@@ -22,7 +24,7 @@ class GoalPlanLevelController extends Controller
     {
         $targets = GoalPlanLevel::query()->where('goal_id', $id)->whereHas('planLevels.plan', function ($q) {
             $q->where('type', '!=', 'food');
-        })->with(['planLevels.plan', 'planLevels.level', 'planLevels.plan.media', 'goals'])->get();
+        })->with(['users', 'planLevels.plan', 'planLevels.level', 'planLevels.plan.media', 'goals'])->get();
         return response()->json(['data' => $targets]);
     }
 
@@ -70,6 +72,11 @@ class GoalPlanLevelController extends Controller
     public function insert($id)
     {
         $ids = [];
+        $dates = [];
+        $currentDate = Carbon::now();
+        for ($i = 0; $i <= 14; $i++) {
+            $dates[] = $currentDate->copy()->addDays($i)->format('Y-m-d');
+        }
         $goalPlanLevel = GoalPlanLevel::where('goal_id', $id)->get();
         foreach ($goalPlanLevel as $g) {
             array_push($ids, $g->id);
@@ -78,6 +85,12 @@ class GoalPlanLevelController extends Controller
         if (!$check) {
             foreach ($goalPlanLevel as $goal) {
                 $goal->users()->attach(auth()->id());
+            }
+            foreach ($dates as $d) {
+                Date::create([
+                    'user_id' => auth()->id(),
+                    'date' => $d
+                ]);
             }
         }
 

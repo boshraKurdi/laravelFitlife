@@ -46,6 +46,10 @@ class User extends Authenticatable implements JWTSubject, HasMedia
             'coach_id'
         );
     }
+    public function date()
+    {
+        return $this->hasMany(Date::class);
+    }
     public function users()
     {
         return $this->belongsToMany(
