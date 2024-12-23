@@ -24,7 +24,12 @@ class GoalPlanLevelController extends Controller
     {
         $targets = GoalPlanLevel::query()->where('goal_id', $id)->whereHas('planLevels.plan', function ($q) {
             $q->where('type', '!=', 'food');
-        })->with(['users', 'planLevels.plan', 'planLevels.level', 'planLevels.plan.media', 'goals'])->get();
+        })->with(['users' => function ($q) {
+            $q->where('user_id', auth()->id());
+        }, 'users.date', 'planLevels.plan', 'planLevels.level', 'planLevels.plan.media', 'goals'])->get();
+        foreach ($targets as $t) {
+            $t->myTarget = $t->users->last();
+        }
         return response()->json(['data' => $targets]);
     }
 

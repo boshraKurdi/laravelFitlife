@@ -23,14 +23,14 @@ class GoalPlanLevel extends Model
             'targets',
             'goal_plan_level_id',
             'user_id'
-        )->withTimestamps();
+        )->withTimestamps()->withPivot(['rate', 'calories']);
     }
-    public function targets()
-    {
-        return $this->hasMany(
-            Target::class,
-        );
-    }
+    // public function targets()
+    // {
+    //     return $this->hasMany(
+    //         Target::class,
+    //     );
+    // }
     public function goals()
     {
         return $this->belongsTo(Goal::class, 'goal_id');
