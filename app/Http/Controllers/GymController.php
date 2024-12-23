@@ -14,9 +14,9 @@ class GymController extends Controller
      */
     public function index()
     {
-        $index = Gym::query()->with('location', 'media')->get();
+        $index = Gym::query()->with('media')->get();
         $newIndex = $index->map(function ($i) {
-            $result = Distance::haversineGreatCircleDistance($i->location->lat, $i->location->lon, auth()->user()->lat, auth()->user()->lon);
+            $result = Distance::haversineGreatCircleDistance($i->lat, $i->lon, auth()->user()->lat, auth()->user()->lon);
             $i->distance = $result;
             return $i;
         })->sortBy('distance');
@@ -24,7 +24,7 @@ class GymController extends Controller
     }
     public function getIndex()
     {
-        $index = Gym::query()->with('location', 'media', 'section')->get();
+        $index = Gym::query()->with('media', 'section')->get();
         return response()->json(['data' => $index]);
     }
 
@@ -58,9 +58,9 @@ class GymController extends Controller
      */
     public function show(Gym $gym)
     {
-        $show = $gym->load(['media', 'location', 'section', 'section.media']);
+        $show = $gym->load(['media', 'section', 'section.media']);
 
-        $result = Distance::haversineGreatCircleDistance($show->location->lat, $show->location->lon, auth()->user()->lat, auth()->user()->lon);
+        $result = Distance::haversineGreatCircleDistance($show->lat, $show->lon, auth()->user()->lat, auth()->user()->lon);
         $show->distance = $result;
         return response()->json($show);
     }

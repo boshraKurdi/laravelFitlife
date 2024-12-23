@@ -81,6 +81,7 @@ class PlanLevelController extends Controller
 
         return response()->json([
             'data' => $exe,
+            'id' => $plan_id[0]->id
         ]);
     }
 
@@ -89,12 +90,18 @@ class PlanLevelController extends Controller
         $plans = PlanLevel::query()
             ->whereHas('targets', function ($q) {
                 $q->where('user_id', auth()->id());
+            })->whereHas('plan', function ($q) {
+                $q->where('type', '!=', 'food');
             })
             ->with(['targets' => function ($query) {
                 $query->where('user_id', auth()->id());
             }, 'plan', 'plan.media', 'level', 'targets.goalPlanLevel'])
             ->get();
-        return response()->json(['data' => $plans]);
+        $newIndex = $plans->map(function ($i) {
+            $i->myTarget = $i->targets->last();
+            return $i;
+        });
+        return response()->json(['data' => $newIndex]);
     }
 
 
@@ -116,8 +123,9 @@ class PlanLevelController extends Controller
         })
             ->with(['targets' => function ($query) {
                 $query->where('user_id', auth()->id());
-            }, 'plan', 'plan.media', 'level'])
-            ->get();
+            }, 'targets.check', 'plan', 'plan.media', 'level'])
+            ->first();
+        $show->Mytargets = $show->targets->last();
         return response()->json($show);
     }
 

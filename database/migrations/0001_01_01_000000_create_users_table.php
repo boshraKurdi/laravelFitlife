@@ -21,6 +21,12 @@ return new class extends Migration
             $table->double('lon')->nullable();
             $table->string('illness')->nullable();
             $table->integer('age')->nullable();
+            $table->integer('analysis')->nullable();
+            $table->text('description')->nullable();
+            $table->text('description_ar')->nullable();
+            $table->integer('communication')->nullable();
+            $table->integer('education')->nullable();
+            $table->integer('development')->nullable();
             $table->string('address')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();

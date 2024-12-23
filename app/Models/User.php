@@ -70,7 +70,7 @@ class User extends Authenticatable implements JWTSubject, HasMedia
         return $this->belongsToMany(
             GoalPlanLevel::class,
             'targets',
-        );
+        )->withPivot(['calories', 'updated_at']);
     }
     /**
      * Get the attributes that should be cast.

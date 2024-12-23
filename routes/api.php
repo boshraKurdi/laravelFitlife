@@ -39,6 +39,7 @@ Route::group(['prefix' => 'auth'], function () {
 Route::group(['prefix' => 'user'], function () {
     Route::get('coachs', [UserController::class, 'coachs']);
     Route::group(['middleware' => 'auth:api'], function () {
+        Route::get('profile', [UserController::class, 'profile']);
         Route::post('update', [UserController::class, 'update']);
         Route::get('show/{user}', [UserController::class, 'show']);
     });
@@ -94,7 +95,9 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::get('index', [PlanLevelController::class, 'getUserPlans']);
         Route::post('plans/{ids?}', [GoalPlanLevelController::class, 'getPlanForGoalsWithMuscle']);
         Route::get('insert/{id}', [GoalPlanLevelController::class, 'insert']);
+        Route::get('getDateGoal', [GoalPlanLevelController::class, 'getDateGoal']);
         Route::post('store', [TargetController::class, 'store']);
+        Route::post('storeExersice', [TargetController::class, 'storeE']);
     });
     Route::group(['prefix' => 'gym'], function () {
         Route::get('index', [GymController::class, 'index']);

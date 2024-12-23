@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\GoalPlanLevel;
 use App\Http\Requests\StoreGoalPlanLevelRequest;
 use App\Http\Requests\UpdateGoalPlanLevelRequest;
+use App\Models\Target;
 use Illuminate\Http\Request;
 
 class GoalPlanLevelController extends Controller
@@ -30,24 +31,29 @@ class GoalPlanLevelController extends Controller
     {
         $muscleGroups = ['thigh exercises', 'Abdominal exercises', 'Stretching exercises', 'Sculpting exercises'];
         $targets = array();
-        $target = GoalPlanLevel::whereHas('users', function ($q) {
+        $check = GoalPlanLevel::whereHas('users', function ($q) {
             $q->where('user_id', auth()->id());
-        })->whereHas('targets', function ($q) {
-            $q->where('active', true);
         })->count();
-        if ($target) {
-            if ($request->id) {
-                foreach ($muscleGroups as $muscle) {
-                    $r = GoalPlanLevel::query()->where('goal_id', $request->id)->whereHas('planLevels.plan', function ($q) use ($muscle) {
-                        $q->where('type', $muscle);
-                    })
-                        ->with(['planLevels.plan', 'planLevels.level', 'planLevels.plan.media', 'goals'])->get();
-                    array_push($targets, $r);
+        $target = GoalPlanLevel::whereHas('targets', function ($q) {
+            $q->where('active', 1)->where('user_id', auth()->id());
+        })
+            ->count();
+        if ($check) {
+            if ($target) {
+                if ($request->id) {
+                    foreach ($muscleGroups as $muscle) {
+                        $r = GoalPlanLevel::query()->where('goal_id', $request->id)->whereHas('planLevels.plan', function ($q) use ($muscle) {
+                            $q->where('type', $muscle);
+                        })
+                            ->with(['planLevels.plan', 'planLevels.level', 'planLevels.plan.media', 'goals'])->get();
+                        array_push($targets, $r);
+                    }
                 }
+            } else {
+                $targets = 'please wait to processing the goal';
             }
-        } else {
-            $targets = 'please wait to processing the goal';
         }
+
 
 
         return response()->json(['data' => $targets]);
@@ -63,11 +69,35 @@ class GoalPlanLevelController extends Controller
     }
     public function insert($id)
     {
+        $ids = [];
         $goalPlanLevel = GoalPlanLevel::where('goal_id', $id)->get();
-        foreach ($goalPlanLevel as $goal) {
-            $goal->users()->attach(auth()->id());
+        foreach ($goalPlanLevel as $g) {
+            array_push($ids, $g->id);
         }
-        return response()->json(['data' => 'succ']);
+        $check = Target::where('user_id', auth()->id())->whereIn('goal_plan_level_id', $ids)->count();
+        if (!$check) {
+            foreach ($goalPlanLevel as $goal) {
+                $goal->users()->attach(auth()->id());
+            }
+        }
+
+        return response()->json([
+            'data' => 'succ',
+        ]);
+    }
+
+    public function getDateGoal()
+    {
+        $date = '';
+        $check = Target::where('user_id', auth()->id())->get();
+        if (count($check)) {
+            $date = $check[0]->created_at;
+        }
+
+        return response()->json([
+            'data' => $date,
+            'count' => count($check)
+        ]);
     }
 
     /**

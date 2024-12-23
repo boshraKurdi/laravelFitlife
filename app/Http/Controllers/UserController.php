@@ -55,4 +55,9 @@ class UserController extends Controller
             'lastTime' => $user->updated_at
         ]);
     }
+    public function profile()
+    {
+        $profile = User::where('id', auth()->id())->with(['goalPlanLevel'])->get();
+        return response()->json($profile);
+    }
 }
