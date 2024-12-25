@@ -23,12 +23,15 @@ class GoalPlanLevelController extends Controller
 
     public function getPlanForGoals($id)
     {
+        $Getdate = Target::where('user_id', auth()->id())->with('users.date')->first();
+        $date = $Getdate->users->date;
         $targets = GoalPlanLevel::query()->where('goal_id', $id)->whereHas('planLevels.plan', function ($q) {
             $q->where('type', '!=', 'food');
         })->whereHas('users', function ($q) {
             $q->where('user_id', auth()->id());
         })->with(['planLevels', 'planLevels.plan', 'planLevels.level', 'planLevels.plan.media', 'goals'])->get();
-        return response()->json(['data' => $targets]);
+
+        return response()->json(['data' => $targets, 'date' => $date]);
     }
 
 
