@@ -36,8 +36,10 @@ class PlanLevelController extends Controller
         return response()->json(['data' => $data]);
     }
 
-    public function exercise($planLevel, $day, $week)
+    public function exercise(Request $request, $planLevel, $day, $week)
     {
+        $arr = [];
+
         $arrDay = [];
         $Getdate = Target::where('user_id', auth()->id())->with('users.date')->first();
         $date = $Getdate->users->date;
@@ -76,13 +78,25 @@ class PlanLevelController extends Controller
             ->count();
 
         $totalRateDay = intval(($countDay / 3) * 100);
-        foreach ($date as $d) {
-            $countDayTotal = Target::whereDate('updated_at', $d->date)->where('user_id', auth()->id())->whereHas('goalPlanLevel', function ($q) use ($planLevel) {
-                $q->where('plan_level_id', $planLevel);
-            })->where('check', '!=', 0)
-                ->count();
-            $totalRateDayTotal = intval(($countDayTotal / 3) * 100);
-            array_push($arrDay, ["$d->date" => $totalRateDayTotal]);
+        if ($request->type) {
+            if ($request->type === 'day') {
+                if ($request->number_week === 'one') {
+                    $arr = $firstWeek;
+                } else if ($request->number_week === 'two') {
+                    $arr = $secondWeek;
+                }
+                foreach ($arr as $d) {
+                    $countDayTotal = Target::whereDate('updated_at', $d->date)->where('user_id', auth()->id())->whereHas('goalPlanLevel', function ($q) use ($planLevel) {
+                        $q->where('plan_level_id', $planLevel);
+                    })->where('check', '!=', 0)
+                        ->count();
+                    $totalRateDayTotal = intval(($countDayTotal / 3) * 100);
+                    array_push($arrDay, ["$d->date" => $totalRateDayTotal]);
+                }
+            } else {
+                array_push($arrDay, ["first week" => $totalRateWeekOne]);
+                array_push($arrDay, ["scound week" => $totalRateWeekTwo]);
+            }
         }
         //get exe
         $exe =  PlanLevel::where('id', $planLevel)->with(['exercise' => function ($q) use ($day, $week) {
@@ -94,7 +108,7 @@ class PlanLevelController extends Controller
         $exe->totalRateDay =   $totalRateDay;
         $exe->totalRateWeekOne =   $totalRateWeekOne;
         $exe->totalRateWeekTwo =   $totalRateWeekTwo;
-        $exe->date =   $exe->targets[0]->users->date;
+        $exe->date =   $date;
         $exe->arrDay = $arrDay;
 
         return response()->json(['data' => $exe]);
@@ -155,7 +169,13 @@ class PlanLevelController extends Controller
             }, 'plan', 'plan.media', 'level', 'targets.goalPlanLevel'])
             ->get();
         $newIndex = $plans->map(function ($i) {
-            $i->myTarget = $i->targets->last();
+            $count = Target::where('user_id', auth()->id())
+                ->whereHas('goalPlanLevel', function ($q) use ($i) {
+                    $q->where('plan_level_id', $i->id);
+                })->where('check', '!=', 0)
+                ->count();
+            $totalRate = intval(($count / 42) * 100);
+            $i->totalRate = $totalRate;
             return $i;
         });
         return response()->json(['data' => $newIndex]);
@@ -173,8 +193,11 @@ class PlanLevelController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
+        $arr = [];
+
+        $arrDay = [];
         $Getdate = Target::where('user_id', auth()->id())->with('users.date')->first();
         $date = $Getdate->users->date;
         $firstWeek = [$date[0], $date[1], $date[2], $date[3], $date[4], $date[5], $date[6]];
@@ -212,15 +235,37 @@ class PlanLevelController extends Controller
             ->count();
 
         $totalRateDay = intval(($countDay / 3) * 100);
+        if ($request->type) {
+            if ($request->type === 'day') {
+                if ($request->number_week === 'one') {
+                    $arr = $firstWeek;
+                } else if ($request->number_week === 'two') {
+                    $arr = $secondWeek;
+                }
+                foreach ($arr as $d) {
+                    $countDayTotal = Target::whereDate('updated_at', $d->date)->where('user_id', auth()->id())->whereHas('goalPlanLevel', function ($q) use ($id) {
+                        $q->where('plan_level_id', $id);
+                    })->where('check', '!=', 0)
+                        ->count();
+                    $totalRateDayTotal = intval(($countDayTotal / 3) * 100);
+                    array_push($arrDay, ["$d->date" => $totalRateDayTotal]);
+                }
+            } else {
+                array_push($arrDay, ["first week" => $totalRateWeekOne]);
+                array_push($arrDay, ["scound week" => $totalRateWeekTwo]);
+            }
+        }
         $show = PlanLevel::where('id', $id)
             ->with(['targets.users' => function ($q) use ($today) {
                 $q->where('id', auth()->id())->whereDate('updated_at', $today);
             }, 'targets.users.date', 'plan', 'plan.media', 'level'])
             ->first();
+        $show->date =   $date;
         $show->totalRate =   $totalRate;
         $show->totalRateDay =   $totalRateDay;
         $show->totalRateWeekOne =   $totalRateWeekOne;
         $show->totalRateWeekTwo =   $totalRateWeekTwo;
+        $show->arrDay = $arrDay;
         return response()->json($show);
     }
 

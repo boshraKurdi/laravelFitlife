@@ -39,18 +39,36 @@ class TargetController extends Controller
     }
     public function storeE(StoreTargetRequest $request)
     {
+        $currentDate = Carbon::now();
         $goal_plan_level_id = Target::whereHas('goalPlanLevel', function ($q) use ($request) {
             $q->where('goal_plan_levels.plan_level_id', $request->plan_level_id);
         })->where('user_id', auth()->id())->first();
 
         if ($goal_plan_level_id) {
-            $target = Target::create([
-                'user_id' => auth()->id(),
-                'goal_plan_level_id' => $goal_plan_level_id->goal_plan_level_id,
-                'calories' => $request->calories,
-                'check' > $request->check,
-                'active' => true
-            ]);
+            $check = Target::where('user_id', auth()->id())
+                ->where('goal_plan_level_id', $goal_plan_level_id->goal_plan_level_id)
+                ->whereDate('created_at', $currentDate)
+                ->where('check', $request->check)
+                ->first();
+            if ($check) {
+                $target =
+                    $check
+                    ->update([
+                        'user_id' => auth()->id(),
+                        'goal_plan_level_id' => $goal_plan_level_id->goal_plan_level_id,
+                        'calories' => $request->calories + $check->calories,
+                        'check' > $check->check,
+                        'active' => true
+                    ]);
+            } else {
+                $target = Target::create([
+                    'user_id' => auth()->id(),
+                    'goal_plan_level_id' => $goal_plan_level_id->goal_plan_level_id,
+                    'calories' => $request->calories,
+                    'check' => $request->check,
+                    'active' => true
+                ]);
+            }
         } else {
             $target = 'the user is not shear in this plan';
         }

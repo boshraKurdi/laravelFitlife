@@ -73,10 +73,10 @@ Route::group(['prefix' => 'plan'], function () {
     Route::get('index', [PlanLevelController::class, 'index']);
     Route::get('plansForGoal/{ids}', [GoalPlanLevelController::class, 'getPlanForGoals']);
     Route::group(['middleware' => 'auth:api'], function () {
-        Route::get('{PlanLevel}/{day}/{week}/exercises', [PlanLevelController::class, 'exercise']);
+        Route::post('{PlanLevel}/{day}/{week}/exercises', [PlanLevelController::class, 'exercise']);
         Route::post('{day}/{week}/meals', [PlanLevelController::class, 'meal']);
         Route::post('{plan}/update', [PlanController::class, 'update']);
-        Route::get('{id}/show', [PlanLevelController::class, 'show']);
+        Route::post('{id}/show', [PlanLevelController::class, 'show']);
     });
 });
 Route::group(['prefix' => 'exercise'], function () {
