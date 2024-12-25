@@ -18,8 +18,8 @@ return new class extends Migration
             $table->foreignIdFor(User::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->foreignIdFor(GoalPlanLevel::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->integer('calories')->nullable();
-            $table->string('rate')->nullable();
             $table->boolean('active')->default(false);
+            $table->integer('check')->default(0);
             $table->timestamps();
         });
     }

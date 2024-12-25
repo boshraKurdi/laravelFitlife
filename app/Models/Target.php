@@ -14,10 +14,7 @@ class Target extends Model
         'goal_plan_level_id',
         'calories',
         'active',
-        'rate',
-        'check_1',
-        'check_2',
-        'check_3',
+        'check',
     ];
     public function users()
     {
@@ -26,9 +23,5 @@ class Target extends Model
     public function goalPlanLevel()
     {
         return $this->belongsTo(GoalPlanLevel::class, 'goal_plan_level_id');
-    }
-    public function check()
-    {
-        return $this->hasMany(Checkexercise::class);
     }
 }

@@ -34,7 +34,7 @@ class PlanLevel extends Model
             'plan_level_exercises',
             'plan_level_id',
             'exercise_id'
-        )->withPivot(['day', 'week']);
+        )->withPivot(['day', 'week', 'id']);
     }
     public function meal()
     {

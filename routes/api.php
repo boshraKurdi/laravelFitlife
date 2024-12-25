@@ -108,6 +108,9 @@ Route::group(['prefix' => 'dashboard'], function () {
     Route::group(['prefix' => 'user'], function () {
         Route::get('index', [UserController::class, 'index']);
     });
+    Route::group(['prefix' => 'admin'], function () {
+        Route::post('active_goal', [TargetController::class, 'update']);
+    });
     Route::group(['prefix' => 'goal'], function () {
         Route::get('index', [GoalController::class, 'index']);
         Route::get('{goal}/show', [GoalController::class, 'show']);

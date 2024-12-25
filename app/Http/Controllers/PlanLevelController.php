@@ -7,6 +7,7 @@ use App\Http\Requests\StorePlanLevelRequest;
 use App\Http\Requests\UpdatePlanLevelRequest;
 use App\Models\GoalPlanLevel;
 use App\Models\Target;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class PlanLevelController extends Controller
@@ -37,9 +38,65 @@ class PlanLevelController extends Controller
 
     public function exercise($planLevel, $day, $week)
     {
+        $arrDay = [];
+        $Getdate = Target::where('user_id', auth()->id())->with('users.date')->first();
+        $date = $Getdate->users->date;
+        $firstWeek = [$date[0], $date[1], $date[2], $date[3], $date[4], $date[5], $date[6]];
+        $secondWeek = [$date[7], $date[8], $date[9], $date[10], $date[11], $date[12], $date[13]];
+        $today = Carbon::today();
+        $count = Target::where('user_id', auth()->id())
+            ->whereHas('goalPlanLevel', function ($q) use ($planLevel) {
+                $q->where('plan_level_id', $planLevel);
+            })->where('check', '!=', 0)
+            ->count();
+        $totalRate = intval(($count / 42) * 100);
+        $countWeekOne = Target::where(function ($query) use ($firstWeek) {
+            foreach ($firstWeek as $d) {
+                $query->orWhereDate('updated_at', '=', Carbon::parse($d->date));
+            }
+        })->where('user_id', auth()->id())->whereHas('goalPlanLevel', function ($q) use ($planLevel) {
+            $q->where('plan_level_id', $planLevel);
+        })->where('check', '!=', 0)
+            ->count();
+
+        $totalRateWeekOne = intval(($countWeekOne / 21) * 100);
+        $countWeekTwo = Target::where(function ($query) use ($secondWeek) {
+            foreach ($secondWeek as $d) {
+                $query->WhereDate('updated_at', '=', Carbon::parse($d->date));
+            }
+        })->where('user_id', auth()->id())->whereHas('goalPlanLevel', function ($q) use ($planLevel) {
+            $q->where('plan_level_id', $planLevel);
+        })->where('check', '!=', 0)
+            ->count();
+
+        $totalRateWeekTwo = intval(($countWeekTwo / 21) * 100);
+        $countDay = Target::whereDate('updated_at', $today)->where('user_id', auth()->id())->whereHas('goalPlanLevel', function ($q) use ($planLevel) {
+            $q->where('plan_level_id', $planLevel);
+        })->where('check', '!=', 0)
+            ->count();
+
+        $totalRateDay = intval(($countDay / 3) * 100);
+        foreach ($date as $d) {
+            $countDayTotal = Target::whereDate('updated_at', $d->date)->where('user_id', auth()->id())->whereHas('goalPlanLevel', function ($q) use ($planLevel) {
+                $q->where('plan_level_id', $planLevel);
+            })->where('check', '!=', 0)
+                ->count();
+            $totalRateDayTotal = intval(($countDayTotal / 3) * 100);
+            array_push($arrDay, ["$d->date" => $totalRateDayTotal]);
+        }
+        //get exe
         $exe =  PlanLevel::where('id', $planLevel)->with(['exercise' => function ($q) use ($day, $week) {
             $q->where('day', $day)->where('week', $week);
-        }, 'exercise.media'])->get();
+        }, 'exercise.media', 'targets' => function ($q) {
+            $q->where('user_id', auth()->id())->where('check', '!=', 0);
+        }, 'targets.users', 'targets.users.date'])->first();
+        $exe->totalRate =   $totalRate;
+        $exe->totalRateDay =   $totalRateDay;
+        $exe->totalRateWeekOne =   $totalRateWeekOne;
+        $exe->totalRateWeekTwo =   $totalRateWeekTwo;
+        $exe->date =   $exe->targets[0]->users->date;
+        $exe->arrDay = $arrDay;
+
         return response()->json(['data' => $exe]);
     }
     public function getExerciseForPlan($planLevel)
@@ -118,14 +175,52 @@ class PlanLevelController extends Controller
      */
     public function show($id)
     {
-        $show = PlanLevel::where('id', $id)->whereHas('targets', function ($q) {
-            $q->where('user_id', auth()->id());
-        })
-            ->with(['targets' => function ($query) {
-                $query->where('user_id', auth()->id());
-            }, 'targets.check', 'targets.users', 'targets.users.date', 'plan', 'plan.media', 'level'])
+        $Getdate = Target::where('user_id', auth()->id())->with('users.date')->first();
+        $date = $Getdate->users->date;
+        $firstWeek = [$date[0], $date[1], $date[2], $date[3], $date[4], $date[5], $date[6]];
+        $secondWeek = [$date[7], $date[8], $date[9], $date[10], $date[11], $date[12], $date[13]];
+        $today = Carbon::today();
+        $count = Target::where('user_id', auth()->id())
+            ->whereHas('goalPlanLevel', function ($q) use ($id) {
+                $q->where('plan_level_id', $id);
+            })->where('check', '!=', 0)
+            ->count();
+        $totalRate = intval(($count / 42) * 100);
+        $countWeekOne = Target::where(function ($query) use ($firstWeek) {
+            foreach ($firstWeek as $d) {
+                $query->orWhereDate('updated_at', '=', Carbon::parse($d->date));
+            }
+        })->where('user_id', auth()->id())->whereHas('goalPlanLevel', function ($q) use ($id) {
+            $q->where('plan_level_id', $id);
+        })->where('check', '!=', 0)
+            ->count();
+
+        $totalRateWeekOne = intval(($countWeekOne / 21) * 100);
+        $countWeekTwo = Target::where(function ($query) use ($secondWeek) {
+            foreach ($secondWeek as $d) {
+                $query->WhereDate('updated_at', '=', Carbon::parse($d->date));
+            }
+        })->where('user_id', auth()->id())->whereHas('goalPlanLevel', function ($q) use ($id) {
+            $q->where('plan_level_id', $id);
+        })->where('check', '!=', 0)
+            ->count();
+
+        $totalRateWeekTwo = intval(($countWeekTwo / 21) * 100);
+        $countDay = Target::whereDate('updated_at', $today)->where('user_id', auth()->id())->whereHas('goalPlanLevel', function ($q) use ($id) {
+            $q->where('plan_level_id', $id);
+        })->where('check', '!=', 0)
+            ->count();
+
+        $totalRateDay = intval(($countDay / 3) * 100);
+        $show = PlanLevel::where('id', $id)
+            ->with(['targets.users' => function ($q) use ($today) {
+                $q->where('id', auth()->id())->whereDate('updated_at', $today);
+            }, 'targets.users.date', 'plan', 'plan.media', 'level'])
             ->first();
-        $show->Mytargets = $show->targets->last();
+        $show->totalRate =   $totalRate;
+        $show->totalRateDay =   $totalRateDay;
+        $show->totalRateWeekOne =   $totalRateWeekOne;
+        $show->totalRateWeekTwo =   $totalRateWeekTwo;
         return response()->json($show);
     }
 

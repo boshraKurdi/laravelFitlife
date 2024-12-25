@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\GoalPlanLevel;
 use App\Http\Requests\StoreGoalPlanLevelRequest;
 use App\Http\Requests\UpdateGoalPlanLevelRequest;
+use App\Http\Resources\PlanLevelResources;
 use App\Models\Date;
 use App\Models\Target;
 use Carbon\Carbon;
@@ -24,12 +25,9 @@ class GoalPlanLevelController extends Controller
     {
         $targets = GoalPlanLevel::query()->where('goal_id', $id)->whereHas('planLevels.plan', function ($q) {
             $q->where('type', '!=', 'food');
-        })->with(['users' => function ($q) {
+        })->whereHas('users', function ($q) {
             $q->where('user_id', auth()->id());
-        }, 'users.date', 'planLevels.plan', 'planLevels.level', 'planLevels.plan.media', 'goals'])->get();
-        foreach ($targets as $t) {
-            $t->myTarget = $t->users->last();
-        }
+        })->with(['planLevels', 'planLevels.plan', 'planLevels.level', 'planLevels.plan.media', 'goals'])->get();
         return response()->json(['data' => $targets]);
     }
 
