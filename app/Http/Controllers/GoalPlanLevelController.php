@@ -23,8 +23,14 @@ class GoalPlanLevelController extends Controller
 
     public function getPlanForGoals($id)
     {
-        $Getdate = Target::where('user_id', auth()->id())->with('users.date')->first();
-        $date = $Getdate->users->date;
+        $date = [];
+        $firstWeek = [];
+        $secondWeek = [];
+        $CountGetdate = Target::where('user_id', auth()->id())->with('users.date')->count();
+        if ($CountGetdate) {
+            $Getdate = Target::where('user_id', auth()->id())->with('users.date')->first();
+            $date = $Getdate->users->date;
+        }
         $targets = GoalPlanLevel::query()->where('goal_id', $id)->whereHas('planLevels.plan', function ($q) {
             $q->where('type', '!=', 'food');
         })->whereHas('users', function ($q) {

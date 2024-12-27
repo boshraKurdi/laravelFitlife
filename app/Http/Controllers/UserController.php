@@ -63,41 +63,44 @@ class UserController extends Controller
         $y = [0];
         $BMI = '';
         $arr = [];
-        $today = Carbon::today();
-        $sumCalories = 0;
         $profile = User::where('id', auth()->id())->with(['goalPlanLevel', 'goalPlanLevel.goals'])->first();
-        foreach ($profile->goalPlanLevel as $data) {
-            $sumCalories += $data->pivot->calories;
+        $today = Carbon::today();
+        $CountGetdate = Target::where('user_id', auth()->id())->count();
+        if ($CountGetdate) {
+            $sumCalories = 0;
+            foreach ($profile->goalPlanLevel as $data) {
+                $sumCalories += $data->pivot->calories;
+            }
+            $totalRate = ($sumCalories / $profile->goalPlanLevel[0]->goals->calories_max) * 100;
+            $profile->totalRate = intval($totalRate);
+            $caloriesForDay = Target::selectRaw('DATE(created_at) as x, SUM(calories) as y')
+                ->where('user_id', auth()->id())
+                ->groupBy('x')
+                ->get();
+            foreach ($caloriesForDay as $data) {
+                array_push($x, $data->x);
+                array_push($y, $data->y);
+            }
+            array_push($arr, ['x' => 0, 'y' => 0]);
+            foreach ($caloriesForDay as $data) {
+                array_push($arr, ['x' => $data->x, 'y' => intval($data->y)]);
+            }
+            $profile->caloriesForDay = $arr;
+            $profile->x = $x;
+            $profile->y = $y;
+            $profile->goal = $profile->goalPlanLevel[0]->goals;
+            $num = $profile->width /  pow($profile->height / 100, 2);
+            if ($num < 18.5) {
+                $BMI = 'نقص الوزن';
+            } else if ($num > 18.5 && $num < 24.5) {
+                $BMI = 'وزن صحي';
+            } else if ($num > 25 && $num < 29.5) {
+                $BMI = 'زيادة وزن';
+            } else {
+                $BMI = 'سمنة';
+            }
+            $profile->BMI = $BMI;
         }
-        $totalRate = ($sumCalories / $profile->goalPlanLevel[0]->goals->calories_max) * 100;
-        $profile->totalRate = intval($totalRate);
-        $caloriesForDay = Target::selectRaw('DATE(created_at) as x, SUM(calories) as y')
-            ->where('user_id', auth()->id())
-            ->groupBy('x')
-            ->get();
-        foreach ($caloriesForDay as $data) {
-            array_push($x, $data->x);
-            array_push($y, $data->y);
-        }
-        array_push($arr, ['x' => 0, 'y' => 0]);
-        foreach ($caloriesForDay as $data) {
-            array_push($arr, ['x' => $data->x, 'y' => intval($data->y)]);
-        }
-        $profile->caloriesForDay = $arr;
-        $profile->x = $x;
-        $profile->y = $y;
-        $profile->goal = $profile->goalPlanLevel[0]->goals;
-        $num = $profile->width /  pow($profile->height / 100, 2);
-        if ($num < 18.5) {
-            $BMI = 'نقص الوزن';
-        } else if ($num > 18.5 && $num < 24.5) {
-            $BMI = 'وزن صحي';
-        } else if ($num > 25 && $num < 29.5) {
-            $BMI = 'زيادة وزن';
-        } else {
-            $BMI = 'سمنة';
-        }
-        $profile->BMI = $BMI;
 
         return response()->json($profile);
     }

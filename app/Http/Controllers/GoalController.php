@@ -44,16 +44,21 @@ class GoalController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Goal $goal,  $id)
+    public function show(Goal $goal)
     {
         $show = $goal->load('media');
-        $g = $goal->id;
-        $d = Target::where('user_id', $id)->whereHas('goalPlanLevel', function ($q) use ($g) {
-            $q->where('goal_id', $g);
-        })->count();
-        $e = Target::where('user_id', $id)->count();
-        $show->count = $d;
-        $show->countAll = $e;
+        // $g = $goal->id;
+        // if ($id) {
+        //     $check = Target::where('user_id', $id)->count();
+        //     if ($check) {
+        //         $d = Target::where('user_id', $id)->whereHas('goalPlanLevel', function ($q) use ($g) {
+        //             $q->where('goal_id', $g);
+        //         })->count();
+        //         $show->count = $d;
+        //         $show->countAll = $check;
+        //     }
+        // }
+
         return response()->json($show);
     }
 

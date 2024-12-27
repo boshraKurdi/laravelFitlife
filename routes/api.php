@@ -63,7 +63,7 @@ Route::group(['prefix' => 'chat'], function () {
 });
 Route::group(['prefix' => 'goal'], function () {
     Route::get('index', [GoalController::class, 'index']);
-    Route::get('{goal}/show/{id?}', [GoalController::class, 'show']);
+    Route::get('{goal}/show', [GoalController::class, 'show']);
     Route::group(['middleware' => 'auth:api'], function () {
         Route::post('{goal}/update', [GoalController::class, 'update']);
         Route::post('store', [GoalController::class, 'store']);

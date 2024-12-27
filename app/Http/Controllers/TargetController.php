@@ -25,16 +25,21 @@ class TargetController extends Controller
     public function store(StoreTargetRequest $request)
     {
         $count = Target::where('user_id', auth()->id())->where('goal_plan_level_id', $request->goal_plan_level_id)->count();
-        $rate = intval(($count / 14) * 100);
-        $today = Carbon::today();
-        $UpdatedToday = Target::whereDate('updated_at', $today)->where('user_id', auth()->id())->where('goal_plan_level_id', $request->goal_plan_level_id)->get();
-        $target = Target::create([
-            'user_id' => auth()->id(),
-            'goal_plan_level_id' => $request->goal_plan_level_id,
-            'calories' => $request->calories,
-            'check' => $request->check,
-            'active' => true
-        ]);
+        if ($count) {
+            $rate = intval(($count / 14) * 100);
+            $today = Carbon::today();
+            $UpdatedToday = Target::whereDate('updated_at', $today)->where('user_id', auth()->id())->where('goal_plan_level_id', $request->goal_plan_level_id)->get();
+            $target = Target::create([
+                'user_id' => auth()->id(),
+                'goal_plan_level_id' => $request->goal_plan_level_id,
+                'calories' => $request->calories,
+                'check' => $request->check,
+                'active' => true
+            ]);
+        } else {
+            $target = 'please select goal';
+        }
+
         return response()->json($target);
     }
     public function storeE(StoreTargetRequest $request)

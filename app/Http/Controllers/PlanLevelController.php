@@ -42,10 +42,16 @@ class PlanLevelController extends Controller
 
         $x = [0];
         $y = [0];
-        $Getdate = Target::where('user_id', auth()->id())->with('users.date')->first();
-        $date = $Getdate->users->date;
-        $firstWeek = [$date[0], $date[1], $date[2], $date[3], $date[4], $date[5], $date[6]];
-        $secondWeek = [$date[7], $date[8], $date[9], $date[10], $date[11], $date[12], $date[13]];
+        $date = [];
+        $firstWeek = [];
+        $secondWeek = [];
+        $CountGetdate = Target::where('user_id', auth()->id())->with('users.date')->count();
+        if ($CountGetdate) {
+            $Getdate = Target::where('user_id', auth()->id())->with('users.date')->first();
+            $date = $Getdate->users->date;
+            $firstWeek = [$date[0], $date[1], $date[2], $date[3], $date[4], $date[5], $date[6]];
+            $secondWeek = [$date[7], $date[8], $date[9], $date[10], $date[11], $date[12], $date[13]];
+        }
         $today = Carbon::today();
         $count = Target::where('user_id', auth()->id())
             ->whereHas('goalPlanLevel', function ($q) use ($planLevel) {
@@ -112,7 +118,7 @@ class PlanLevelController extends Controller
         $exe->totalRateDay =   $totalRateDay;
         $exe->totalRateWeekOne =   $totalRateWeekOne;
         $exe->totalRateWeekTwo =   $totalRateWeekTwo;
-        $exe->date =   $date;
+        // $exe->date =   $date;
         $exe->x = $x;
         $exe->y = $y;
 
@@ -127,37 +133,44 @@ class PlanLevelController extends Controller
     public function meal($day, $week, Request $request)
     {
         $exe = '';
-        $target = GoalPlanLevel::whereHas('users', function ($q) {
-            $q->where('user_id', auth()->id());
-        })->whereHas('targets', function ($q) {
-            $q->where('active', true);
-        })->get();
-        if (count($target)) {
-            $plan_id = PlanLevel::whereHas('goals', function ($q) use ($target) {
-                $q->where('goals.id', $target[0]->goal_id);
-            })->whereHas('plan', function ($q) {
-                $q->where('type', 'food');
+        $check = Target::where('user_id', auth()->id())->count();
+        if ($check) {
+            $target = GoalPlanLevel::whereHas('users', function ($q) {
+                $q->where('user_id', auth()->id());
+            })->whereHas('targets', function ($q) {
+                $q->where('active', true);
             })->get();
-            if ($request->breakfast) {
-                $exe =  PlanLevel::where('id', $plan_id[0]->id)->with(['meal' => function ($q) use ($day, $week) {
-                    $q->where('day', $day)->where('week', $week)->where('breakfast', 1);
-                }, 'meal.media'])->get();
-            } else if ($request->lunch) {
-                $exe =  PlanLevel::where('id', $plan_id[0]->id)->with(['meal' => function ($q) use ($day, $week) {
-                    $q->where('day', $day)->where('week', $week)->where('lunch', 1);
-                }, 'meal.media'])->get();
+            if (count($target)) {
+                $plan_id = PlanLevel::whereHas('goals', function ($q) use ($target) {
+                    $q->where('goals.id', $target[0]->goal_id);
+                })->whereHas('plan', function ($q) {
+                    $q->where('type', 'food');
+                })->get();
+                $planId = $plan_id[0]->id;
+                if ($request->breakfast) {
+                    $exe =  PlanLevel::where('id', $plan_id[0]->id)->with(['meal' => function ($q) use ($day, $week) {
+                        $q->where('day', $day)->where('week', $week)->where('breakfast', 1);
+                    }, 'meal.media'])->get();
+                } else if ($request->lunch) {
+                    $exe =  PlanLevel::where('id', $plan_id[0]->id)->with(['meal' => function ($q) use ($day, $week) {
+                        $q->where('day', $day)->where('week', $week)->where('lunch', 1);
+                    }, 'meal.media'])->get();
+                } else {
+                    $exe =  PlanLevel::where('id', $plan_id[0]->id)->with(['meal' => function ($q) use ($day, $week) {
+                        $q->where('day', $day)->where('week', $week)->where('dinner', 1);
+                    }, 'meal.media'])->get();
+                }
             } else {
-                $exe =  PlanLevel::where('id', $plan_id[0]->id)->with(['meal' => function ($q) use ($day, $week) {
-                    $q->where('day', $day)->where('week', $week)->where('dinner', 1);
-                }, 'meal.media'])->get();
+                $exe = 'please wait to processing the goal';
             }
         } else {
-            $exe = 'please wait to processing the goal';
+            $planId = 0;
         }
+
 
         return response()->json([
             'data' => $exe,
-            'id' => $plan_id[0]->id
+            'id' => $planId
         ]);
     }
 
@@ -203,10 +216,16 @@ class PlanLevelController extends Controller
         $arr = [];
 
         $arrDay = [];
-        $Getdate = Target::where('user_id', auth()->id())->with('users.date')->first();
-        $date = $Getdate->users->date;
-        $firstWeek = [$date[0], $date[1], $date[2], $date[3], $date[4], $date[5], $date[6]];
-        $secondWeek = [$date[7], $date[8], $date[9], $date[10], $date[11], $date[12], $date[13]];
+        $date = [];
+        $firstWeek = [];
+        $secondWeek = [];
+        $CountGetdate = Target::where('user_id', auth()->id())->with('users.date')->count();
+        if ($CountGetdate) {
+            $Getdate = Target::where('user_id', auth()->id())->with('users.date')->first();
+            $date = $Getdate->users->date;
+            $firstWeek = [$date[0], $date[1], $date[2], $date[3], $date[4], $date[5], $date[6]];
+            $secondWeek = [$date[7], $date[8], $date[9], $date[10], $date[11], $date[12], $date[13]];
+        }
         $today = Carbon::today();
         $count = Target::where('user_id', auth()->id())
             ->whereHas('goalPlanLevel', function ($q) use ($id) {
