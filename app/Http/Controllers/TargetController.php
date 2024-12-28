@@ -24,60 +24,71 @@ class TargetController extends Controller
      */
     public function store(StoreTargetRequest $request)
     {
+        $message = '';
+        $target = [];
         $count = Target::where('user_id', auth()->id())->where('goal_plan_level_id', $request->goal_plan_level_id)->count();
         if ($count) {
-            $rate = intval(($count / 14) * 100);
-            $today = Carbon::today();
-            $UpdatedToday = Target::whereDate('updated_at', $today)->where('user_id', auth()->id())->where('goal_plan_level_id', $request->goal_plan_level_id)->get();
-            $target = Target::create([
-                'user_id' => auth()->id(),
-                'goal_plan_level_id' => $request->goal_plan_level_id,
-                'calories' => $request->calories,
-                'check' => $request->check,
-                'active' => true
-            ]);
-        } else {
-            $target = 'please select goal';
-        }
-
-        return response()->json($target);
-    }
-    public function storeE(StoreTargetRequest $request)
-    {
-        $currentDate = Carbon::now();
-        $goal_plan_level_id = Target::whereHas('goalPlanLevel', function ($q) use ($request) {
-            $q->where('goal_plan_levels.plan_level_id', $request->plan_level_id);
-        })->where('user_id', auth()->id())->first();
-
-        if ($goal_plan_level_id) {
-            $check = Target::where('user_id', auth()->id())
-                ->where('goal_plan_level_id', $goal_plan_level_id->goal_plan_level_id)
-                ->whereDate('created_at', $currentDate)
-                ->where('check', $request->check)
-                ->first();
-            if ($check) {
-                $target =
-                    $check
-                    ->update([
-                        'user_id' => auth()->id(),
-                        'goal_plan_level_id' => $goal_plan_level_id->goal_plan_level_id,
-                        'calories' => $request->calories + $check->calories,
-                        'check' > $check->check,
-                        'active' => true
-                    ]);
-            } else {
+            $countActive = Target::where('user_id', auth()->id())->where('goal_plan_level_id', $request->goal_plan_level_id)->where('active', 1)->count();
+            if ($countActive) {
                 $target = Target::create([
                     'user_id' => auth()->id(),
-                    'goal_plan_level_id' => $goal_plan_level_id->goal_plan_level_id,
+                    'goal_plan_level_id' => $request->goal_plan_level_id,
                     'calories' => $request->calories,
                     'check' => $request->check,
                     'active' => true
                 ]);
+            } else {
+                $message = 'please wait to processing the goal';
             }
         } else {
-            $target = 'the user is not shear in this plan';
+            $message = 'You are not involved in a goal';
         }
-        return response()->json($target);
+
+        return response()->json(['data' => $target, 'message' => $message]);
+    }
+    public function storeE(StoreTargetRequest $request)
+    {
+        $currentDate = Carbon::now();
+        $message = '';
+        $target = [];
+        $goal_plan_level_id = Target::whereHas('goalPlanLevel', function ($q) use ($request) {
+            $q->where('goal_plan_levels.plan_level_id', $request->plan_level_id);
+        })->where('user_id', auth()->id())->where('active', 1)->first();
+        $count = Target::where('user_id', auth()->id())->count();
+        if ($count) {
+            if ($goal_plan_level_id) {
+                $check = Target::where('user_id', auth()->id())
+                    ->where('goal_plan_level_id', $goal_plan_level_id->goal_plan_level_id)
+                    ->whereDate('created_at', $currentDate)
+                    ->where('check', $request->check)
+                    ->first();
+                if ($check) {
+                    $target =
+                        $check
+                        ->update([
+                            'user_id' => auth()->id(),
+                            'goal_plan_level_id' => $goal_plan_level_id->goal_plan_level_id,
+                            'calories' => $request->calories + $check->calories,
+                            'check' > $check->check,
+                            'active' => true
+                        ]);
+                } else {
+                    $target = Target::create([
+                        'user_id' => auth()->id(),
+                        'goal_plan_level_id' => $goal_plan_level_id->goal_plan_level_id,
+                        'calories' => $request->calories,
+                        'check' => $request->check,
+                        'active' => true
+                    ]);
+                }
+            } else {
+                $message = 'please wait to processing the goal';
+            }
+        } else {
+            $message = 'You are not involved in a goal';
+        }
+
+        return response()->json(['data' => $target, 'message' => $message]);
     }
 
     /**

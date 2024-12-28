@@ -24,20 +24,24 @@ class GoalPlanLevelController extends Controller
     public function getPlanForGoals($id)
     {
         $date = [];
-        $firstWeek = [];
-        $secondWeek = [];
-        $CountGetdate = Target::where('user_id', auth()->id())->with('users.date')->count();
+        $message = '';
+        $CountGetdate = Target::where('user_id', auth()->id())->count();
         if ($CountGetdate) {
-            $Getdate = Target::where('user_id', auth()->id())->with('users.date')->first();
-            $date = $Getdate->users->date;
+            $CountGetdateActive = Target::where('user_id', auth()->id())->where('active', 1)->count();
+            if ($CountGetdateActive) {
+                $Getdate = Target::where('user_id', auth()->id())->with('users.date')->first();
+                $date = $Getdate->users->date;
+            } else {
+                $message = 'please wait to processing the goal';
+            }
+        } else {
+            $message = 'You are not involved in a goal';
         }
         $targets = GoalPlanLevel::query()->where('goal_id', $id)->whereHas('planLevels.plan', function ($q) {
             $q->where('type', '!=', 'food');
-        })->whereHas('users', function ($q) {
-            $q->where('user_id', auth()->id());
         })->with(['planLevels', 'planLevels.plan', 'planLevels.level', 'planLevels.plan.media', 'goals'])->get();
 
-        return response()->json(['data' => $targets, 'date' => $date]);
+        return response()->json(['data' => $targets, 'date' => $date, 'message' => $message]);
     }
 
 
@@ -45,32 +49,38 @@ class GoalPlanLevelController extends Controller
     {
         $muscleGroups = ['thigh exercises', 'Abdominal exercises', 'Stretching exercises', 'Sculpting exercises'];
         $targets = array();
-        $check = GoalPlanLevel::whereHas('users', function ($q) {
-            $q->where('user_id', auth()->id());
-        })->count();
-        $target = GoalPlanLevel::whereHas('targets', function ($q) {
-            $q->where('active', 1)->where('user_id', auth()->id());
-        })
-            ->count();
-        if ($check) {
-            if ($target) {
-                if ($request->id) {
-                    foreach ($muscleGroups as $muscle) {
-                        $r = GoalPlanLevel::query()->where('goal_id', $request->id)->whereHas('planLevels.plan', function ($q) use ($muscle) {
-                            $q->where('type', $muscle);
-                        })
-                            ->with(['planLevels.plan', 'planLevels.level', 'planLevels.plan.media', 'goals'])->get();
-                        array_push($targets, $r);
+        $message = '';
+        $CountGetdate = Target::where('user_id', auth()->id())->count();
+        if ($CountGetdate) {
+            $check = GoalPlanLevel::whereHas('users', function ($q) {
+                $q->where('user_id', auth()->id());
+            })->count();
+            $target = GoalPlanLevel::whereHas('targets', function ($q) {
+                $q->where('active', 1)->where('user_id', auth()->id());
+            })
+                ->count();
+            if ($check) {
+                if ($target) {
+                    if ($request->id) {
+                        foreach ($muscleGroups as $muscle) {
+                            $r = GoalPlanLevel::query()->where('goal_id', $request->id)->whereHas('planLevels.plan', function ($q) use ($muscle) {
+                                $q->where('type', $muscle);
+                            })
+                                ->with(['planLevels.plan', 'planLevels.level', 'planLevels.plan.media', 'goals'])->get();
+                            array_push($targets, $r);
+                        }
                     }
+                } else {
+                    $message = 'please wait to processing the goal';
                 }
-            } else {
-                $targets = 'please wait to processing the goal';
             }
+        } else {
+            $message = 'You are not involved in a goal';
         }
 
 
 
-        return response()->json(['data' => $targets]);
+        return response()->json(['data' => $targets, 'message' => $message]);
     }
 
 
