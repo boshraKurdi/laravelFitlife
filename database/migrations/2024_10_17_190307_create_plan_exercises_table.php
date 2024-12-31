@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\Exercise;
-use App\Models\PlanLevel;
+use App\Models\Plan;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,11 +13,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('plan_level_exercises', function (Blueprint $table) {
+        Schema::create('plan_exercises', function (Blueprint $table) {
             $table->id();
             $table->integer('day');
             $table->integer('week');
-            $table->foreignIdFor(PlanLevel::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignIdFor(Plan::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->foreignIdFor(Exercise::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('plan_level_exercises');
+        Schema::dropIfExists('plan_exercises');
     }
 };

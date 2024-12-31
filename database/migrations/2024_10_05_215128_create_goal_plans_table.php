@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\Goal;
-use App\Models\PlanLevel;
+use App\Models\Plan;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,10 +13,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('goal_plan_levels', function (Blueprint $table) {
+        Schema::create('goal_plans', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Goal::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
-            $table->foreignIdFor(PlanLevel::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignIdFor(Plan::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('goal_plan_levels');
+        Schema::dropIfExists('goal_plans');
     }
 };

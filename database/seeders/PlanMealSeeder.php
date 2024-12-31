@@ -3,11 +3,11 @@
 namespace Database\Seeders;
 
 use App\Models\Meal;
-use App\Models\PlanLevelMeal;
+use App\Models\PlanMeal;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class PlanLevelMealSeeder extends Seeder
+class PlanMealSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -18,7 +18,7 @@ class PlanLevelMealSeeder extends Seeder
         $b = [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1];
         $l = [0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0];
         $dd = [0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0];
-        // 28 / 29/ 30/ 31
+        // 10 / 11/ 12/ 13
         for ($i = 1; $i <= 4; $i++) {
             for ($j = 1; $j <= 7; $j++) {
                 $excludedNumbers = [];
@@ -27,8 +27,8 @@ class PlanLevelMealSeeder extends Seeder
                         $randomNumber = $array[array_rand($array)];
                     } while (in_array($randomNumber, $excludedNumbers));
                     array_push($excludedNumbers, $randomNumber);
-                    PlanLevelMeal::create([
-                        'plan_level_id' => 28,
+                    PlanMeal::create([
+                        'plan_id' => 10,
                         'meal_id' => $randomNumber,
                         'day' => $j,
                         'week' => $i,
@@ -48,8 +48,8 @@ class PlanLevelMealSeeder extends Seeder
                         $randomNumber = $array[array_rand($array)];
                     } while (in_array($randomNumber, $excludedNumbers));
                     array_push($excludedNumbers, $randomNumber);
-                    PlanLevelMeal::create([
-                        'plan_level_id' => 29,
+                    PlanMeal::create([
+                        'plan_id' => 11,
                         'meal_id' => $randomNumber,
                         'day' => $j,
                         'week' => $i,
@@ -69,8 +69,8 @@ class PlanLevelMealSeeder extends Seeder
                         $randomNumber = $array[array_rand($array)];
                     } while (in_array($randomNumber, $excludedNumbers));
                     array_push($excludedNumbers, $randomNumber);
-                    PlanLevelMeal::create([
-                        'plan_level_id' => 30,
+                    PlanMeal::create([
+                        'plan_id' => 12,
                         'meal_id' => $randomNumber,
                         'day' => $j,
                         'week' => $i,
@@ -90,8 +90,8 @@ class PlanLevelMealSeeder extends Seeder
                         $randomNumber = $array[array_rand($array)];
                     } while (in_array($randomNumber, $excludedNumbers));
                     array_push($excludedNumbers, $randomNumber);
-                    PlanLevelMeal::create([
-                        'plan_level_id' => 31,
+                    PlanMeal::create([
+                        'plan_id' => 13,
                         'meal_id' => $randomNumber,
                         'day' => $j,
                         'week' => $i,

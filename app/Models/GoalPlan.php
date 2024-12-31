@@ -6,14 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class GoalPlanLevel extends Model
+class GoalPlan extends Model
 {
     use HasFactory;
-    protected $table = 'goal_plan_levels';
+    protected $table = 'goal_plans';
 
     protected $fillable = [
         'goal_id',
-        'plan_level_id',
+        'plan_id',
     ];
 
     public function users(): BelongsToMany
@@ -21,7 +21,7 @@ class GoalPlanLevel extends Model
         return $this->belongsToMany(
             User::class,
             'targets',
-            'goal_plan_level_id',
+            'goal_plan_id',
             'user_id'
         )->withTimestamps()->withPivot(['calories', 'id']);
     }
@@ -35,8 +35,8 @@ class GoalPlanLevel extends Model
     {
         return $this->belongsTo(Goal::class, 'goal_id');
     }
-    public function planLevels()
+    public function plan()
     {
-        return $this->belongsTo(PlanLevel::class, 'plan_level_id');
+        return $this->belongsTo(Plan::class, 'plan_id');
     }
 }

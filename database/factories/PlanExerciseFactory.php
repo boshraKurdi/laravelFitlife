@@ -2,14 +2,15 @@
 
 namespace Database\Factories;
 
-use App\Models\Meal;
+use App\Models\Exercise;
+use App\Models\Plan;
 use App\Models\PlanLevel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\PlanLevelMeal>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\PlanLevelExercise>
  */
-class PlanLevelMealFactory extends Factory
+class PlanExerciseFactory extends Factory
 {
     private static $dayCounter = 1;
     /**
@@ -24,14 +25,10 @@ class PlanLevelMealFactory extends Factory
             self::$dayCounter = 1;
         }
         return [
-            'plan_level_id' => $plan_level_id->id,
-            'meal_id' => Meal::inRandomOrder()->first()->id,
+            'plan_id' => $plan_level_id->id,
+            'exercise_id' => Exercise::inRandomOrder()->first()->id,
             'day' => self::$dayCounter++,
-            'week' => '1',
-            'breakfast' => rand(0, 1),
-            'lunch' => rand(0, 1),
-            'dinner' => rand(0, 1),
-            'snacks' => rand(0, 1),
+            'week' => '1'
         ];
     }
 }

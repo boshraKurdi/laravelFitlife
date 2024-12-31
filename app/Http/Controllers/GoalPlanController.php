@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\GoalPlanLevel;
-use App\Http\Requests\StoreGoalPlanLevelRequest;
-use App\Http\Requests\UpdateGoalPlanLevelRequest;
-use App\Http\Resources\PlanLevelResources;
+use App\Models\GoalPlan;
+use App\Http\Requests\StoreGoalPlanRequest;
+use App\Http\Requests\UpdateGoalPlanRequest;
 use App\Models\Date;
 use App\Models\Target;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
-class GoalPlanLevelController extends Controller
+class GoalPlanController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -37,9 +37,9 @@ class GoalPlanLevelController extends Controller
         } else {
             $message = 'You are not involved in a goal';
         }
-        $targets = GoalPlanLevel::query()->where('goal_id', $id)->whereHas('planLevels.plan', function ($q) {
+        $targets = GoalPlan::query()->where('goal_id', $id)->whereHas('plan', function ($q) {
             $q->where('type', '!=', 'food');
-        })->with(['planLevels', 'planLevels.plan', 'planLevels.level', 'planLevels.plan.media', 'goals'])->get();
+        })->with(['plan', 'plan.media', 'goals'])->get();
 
         return response()->json(['data' => $targets, 'date' => $date, 'message' => $message]);
     }
@@ -52,10 +52,10 @@ class GoalPlanLevelController extends Controller
         $message = '';
         $CountGetdate = Target::where('user_id', auth()->id())->count();
         if ($CountGetdate) {
-            $check = GoalPlanLevel::whereHas('users', function ($q) {
+            $check = GoalPlan::whereHas('users', function ($q) {
                 $q->where('user_id', auth()->id());
             })->count();
-            $target = GoalPlanLevel::whereHas('targets', function ($q) {
+            $target = GoalPlan::whereHas('targets', function ($q) {
                 $q->where('active', 1)->where('user_id', auth()->id());
             })
                 ->count();
@@ -63,10 +63,10 @@ class GoalPlanLevelController extends Controller
                 if ($target) {
                     if ($request->id) {
                         foreach ($muscleGroups as $muscle) {
-                            $r = GoalPlanLevel::query()->where('goal_id', $request->id)->whereHas('planLevels.plan', function ($q) use ($muscle) {
+                            $r = GoalPlan::query()->where('goal_id', $request->id)->whereHas('plan', function ($q) use ($muscle) {
                                 $q->where('type', $muscle);
                             })
-                                ->with(['planLevels.plan', 'planLevels.level', 'planLevels.plan.media', 'goals'])->get();
+                                ->with(['plan', 'plan.media', 'goals'])->get();
                             array_push($targets, $r);
                         }
                     }
@@ -87,7 +87,7 @@ class GoalPlanLevelController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreGoalPlanLevelRequest $request)
+    public function store(StoreGoalPlanRequest $request)
     {
         return response()->json('s');
     }
@@ -99,13 +99,13 @@ class GoalPlanLevelController extends Controller
         for ($i = 0; $i <= 14; $i++) {
             $dates[] = $currentDate->copy()->addDays($i)->format('Y-m-d');
         }
-        $goalPlanLevel = GoalPlanLevel::where('goal_id', $id)->get();
-        foreach ($goalPlanLevel as $g) {
+        $GoalPlan = GoalPlan::where('goal_id', $id)->get();
+        foreach ($GoalPlan as $g) {
             array_push($ids, $g->id);
         }
-        $check = Target::where('user_id', auth()->id())->whereIn('goal_plan_level_id', $ids)->count();
+        $check = Target::where('user_id', auth()->id())->whereIn('goal_plan_id', $ids)->count();
         if (!$check) {
-            foreach ($goalPlanLevel as $goal) {
+            foreach ($GoalPlan as $goal) {
                 $goal->users()->attach(auth()->id());
             }
             foreach ($dates as $d) {
@@ -115,6 +115,7 @@ class GoalPlanLevelController extends Controller
                 ]);
             }
         }
+
 
         return response()->json([
             'data' => 'succ',
@@ -138,7 +139,7 @@ class GoalPlanLevelController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(GoalPlanLevel $goalPlanLevel)
+    public function show(GoalPlan $goalPlan)
     {
         //
     }
@@ -146,7 +147,7 @@ class GoalPlanLevelController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateGoalPlanLevelRequest $request, GoalPlanLevel $goalPlanLevel)
+    public function update(UpdateGoalPlanRequest $request, GoalPlan $goalPlan)
     {
         //
     }
@@ -154,7 +155,7 @@ class GoalPlanLevelController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(GoalPlanLevel $goalPlanLevel)
+    public function destroy(GoalPlan $goalPlan)
     {
         //
     }

@@ -35,8 +35,8 @@ class GoalController extends Controller
         if ($request->media) {
             $goal->addMediaFromRequest('media')->toMediaCollection('goals');
         }
-        if ($request->PlanLevel) {
-            $goal->PlanLevel()->attach($request->PlanLevel);
+        if ($request->Plan) {
+            $goal->Plan()->attach($request->Plan);
         }
         return response()->json($goal);
     }
@@ -47,24 +47,22 @@ class GoalController extends Controller
     public function show(Goal $goal)
     {
         $show = $goal->load('media');
-        // $g = $goal->id;
-        // if ($id) {
-        //     $check = Target::where('user_id', $id)->count();
-        //     if ($check) {
-        //         $d = Target::where('user_id', $id)->whereHas('goalPlanLevel', function ($q) use ($g) {
-        //             $q->where('goal_id', $g);
-        //         })->count();
-        //         $show->count = $d;
-        //         $show->countAll = $check;
-        //     }
-        // }
+        $g = $goal->id;
+        $check = Target::where('user_id', auth()->id())->where('active', 1)->whereHas('goalPlan', function ($q) use ($g) {
+            $q->where('goal_id', $g);
+        })->count();
+
+
+        $show->count = $check;
+
+
 
         return response()->json($show);
     }
 
     public function showGoal(Goal $goal, $id)
     {
-        return response()->json(['data' => Goal::with(['media',  'PlanLevel', 'PlanLevel.plan.media', 'PlanLevel.plan', 'PlanLevel.level'])->where('id', $id)->get()]);
+        return response()->json(['data' => Goal::with(['media', 'plan.media', 'plan'])->where('id', $id)->get()]);
     }
 
     /**
@@ -82,8 +80,8 @@ class GoalController extends Controller
             'duration' => $request->duration
         ]);
 
-        if ($request->PlanLevel) {
-            $goal->PlanLevel()->sync($request->PlanLevel);
+        if ($request->Plan) {
+            $goal->Plan()->sync($request->Plan);
         }
         if ($request->media) {
             $goal->addMediaFromRequest('media')->toMediaCollection('goals');
@@ -107,7 +105,7 @@ class GoalController extends Controller
     public function getPlanForGoal(Goal $goal)
     {
 
-        $plans = Goal::with(['PlanLevel', 'PlanLevel.plan'])->where('id', 2)->with('PlanLevel')->get();
+        $plans = Goal::with(['Plan', 'Plan.plan'])->where('id', 2)->with('Plan')->get();
         return response()->json($plans);
     }
 

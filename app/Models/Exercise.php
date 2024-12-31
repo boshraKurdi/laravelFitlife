@@ -21,13 +21,13 @@ class Exercise extends Model implements HasMedia
         'counter',
         'calories'
     ];
-    public function planLevel()
+    public function plan()
     {
         return $this->belongsToMany(
-            PlanLevel::class,
-            'plan_level_exercises',
+            Plan::class,
+            'plan_exercises',
             'exercise_id',
-            'plan_level_id'
+            'plan_id'
         );
     }
     public function steps()

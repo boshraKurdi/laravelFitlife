@@ -3,14 +3,16 @@
 namespace Database\Factories;
 
 use App\Models\Goal;
+use App\Models\GoalPlan;
 use App\Models\GoalPlanLevel;
+use App\Models\Plan;
 use App\Models\PlanLevel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\GoalPlanLevel>
  */
-class GoalPlanLevelFactory extends Factory
+class GoalPlanFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -21,18 +23,18 @@ class GoalPlanLevelFactory extends Factory
     {
         $goal = Goal::inRandomOrder()->first();
 
-        $GoalPlanLevelIds = GoalPlanLevel::where('goal_id', $goal->id)->pluck('plan_level_id')->toArray();
+        $GoalPlanLevelIds = GoalPlan::where('goal_id', $goal->id)->pluck('plan_level_id')->toArray();
 
-        $PlanLevel = PlanLevel::whereNotIn('id', $GoalPlanLevelIds)
+        $PlanLevel = Plan::whereNotIn('id', $GoalPlanLevelIds)
             ->inRandomOrder()
             ->first();
 
         if (!$PlanLevel) {
-            $PlanLevel = PlanLevel::inRandomOrder()->first();
+            $PlanLevel = Plan::inRandomOrder()->first();
         }
         return [
             'goal_id' => $goal->id,
-            'plan_level_id' => $PlanLevel->id,
+            'plan_id' => $PlanLevel->id,
         ];
     }
 }

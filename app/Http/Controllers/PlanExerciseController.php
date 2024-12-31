@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Level;
-use App\Http\Requests\StoreLevelRequest;
-use App\Http\Requests\UpdateLevelRequest;
+use App\Models\PlanExercise;
+use App\Http\Requests\StorePlanExerciseRequest;
+use App\Http\Requests\UpdatePlanExerciseRequest;
 
-class LevelController extends Controller
+class PlanExerciseController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -19,7 +19,7 @@ class LevelController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreLevelRequest $request)
+    public function store(StorePlanExerciseRequest $request)
     {
         //
     }
@@ -27,7 +27,7 @@ class LevelController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Level $level)
+    public function show(PlanExercise $planExercise)
     {
         //
     }
@@ -35,7 +35,7 @@ class LevelController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateLevelRequest $request, Level $level)
+    public function update(UpdatePlanExerciseRequest $request)
     {
         //
     }
@@ -43,7 +43,7 @@ class LevelController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Level $level)
+    public function destroy(PlanExercise $planExercise)
     {
         //
     }

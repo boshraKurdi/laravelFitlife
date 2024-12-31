@@ -22,22 +22,41 @@ class Plan extends Model implements HasMedia
         'type_ar'
     ];
 
-    public function levels()
+
+    public function goalPlan()
+    {
+        return $this->hasManyThrough(GoalPlan::class, Plan::class);
+    }
+    public function targets()
+    {
+        return $this->hasManyThrough(Target::class, GoalPlan::class);
+    }
+    public function exercise()
     {
         return $this->belongsToMany(
-            Level::class,
-            'plan_levels',
+            Exercise::class,
+            'plan_exercises',
             'plan_id',
-            'level_id'
+            'exercise_id',
         );
     }
-    public function goalPlanLevel()
+    public function goals()
     {
-        return $this->hasManyThrough(GoalPlanLevel::class, PlanLevel::class);
+        return $this->belongsToMany(
+            Goal::class,
+            'goal_plans',
+            'plan_id',
+            'goal_id',
+        );
     }
-    public function PlanLevelExercises()
+    public function meal()
     {
-        return $this->hasManyThrough(PlanLevelExercise::class, PlanLevel::class);
+        return $this->belongsToMany(
+            Meal::class,
+            'plan_meals',
+            'plan_id',
+            'meal_id',
+        );
     }
     public function registerMediaCollections(): void
     {

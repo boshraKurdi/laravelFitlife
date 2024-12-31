@@ -13,6 +13,6 @@ class TargetSeeder extends Seeder
      */
     public function run(): void
     {
-        Target::factory(20)->create();
+        // Target::factory(20)->create();
     }
 }

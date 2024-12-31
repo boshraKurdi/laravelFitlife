@@ -25,13 +25,13 @@ class Meal extends Model implements HasMedia
         'prepare_ar',
         'category_id'
     ];
-    public function planLevel()
+    public function plan()
     {
         return $this->belongsToMany(
-            PlanLevel::class,
-            'plan_level_meals',
+            Plan::class,
+            'plan_meals',
             'meal_id',
-            'plan_level_id',
+            'plan_id',
         );
     }
     public function category()

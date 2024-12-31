@@ -5,12 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PlanLevelMeal extends Model
+class PlanMeal extends Model
 {
     use HasFactory;
+    protected $table = 'plan_meals';
 
     protected $fillable = [
-        'plan_level_id',
+        'plan_id',
         'meal_id',
         'day',
         'week',

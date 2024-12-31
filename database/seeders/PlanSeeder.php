@@ -15,8 +15,8 @@ class PlanSeeder extends Seeder
      */
     public function run(): void
     {
-        $title = ['thigh muscles', 'Abdominal muscles', 'flat stomach', 'Chest muscles', 'forearm muscles', 'Arm muscles', 'shoulder muscles', 'waistline', 'Strengthen and slim the thigh gap', 'healthy food for Burn fat', 'healthy food for building muscle', 'healthy food for improve physical fitness', 'healthy food for Improve athletic performance'];
-        $title_ar = ['عضلات الفخذين', 'عضلات البطن ', 'بطن مسطحة', 'عضلات الصدر', 'عضلات الساعدين', 'عضلات الذراعين', 'عضلات الكتفين', 'محيط الخصر', 'تقوية وتنحيف فجوة الفخذين', 'غذاء صحي ', 'غذاء صحي', 'غذاء صحي ', 'غذاء صحي'];
+        $title = ['thigh muscles', 'Abdominal muscles', 'flat stomach', 'Chest muscles', 'forearm muscles', 'Arm muscles', 'shoulder muscles', 'waistline', 'Strengthen and slim the thigh gap', 'healthy food for Burn fat', 'healthy food for building muscle', 'healthy food for improve physical fitness', 'healthy food for Improve athletic performance', 'sleep', 'water'];
+        $title_ar = ['عضلات الفخذين', 'عضلات البطن ', 'بطن مسطحة', 'عضلات الصدر', 'عضلات الساعدين', 'عضلات الذراعين', 'عضلات الكتفين', 'محيط الخصر', 'تقوية وتنحيف فجوة الفخذين', 'غذاء صحي ', 'غذاء صحي', 'غذاء صحي ', 'غذاء صحي', 'النوم', 'شرب الماء'];
         $description = [
             'This plan targets the thigh muscles in a variety of ways, which helps to strengthen the muscles and improve athletic performance. Don"t forget to warm up and stretch before and after the workout to help strengthen the thigh muscles and avoid injuries.',
             "This plan aims to strengthen the lower abdominal muscles and improve their strength and flexibility. Don't forget to include adequate rest periods between exercises to maintain the health of the abdominal muscles. It is also recommended to eat a healthy diet and maintain a focus on protein intake to support the muscle building process.",
@@ -30,8 +30,9 @@ class PlanSeeder extends Seeder
             'A balanced eating plan that includes eating a variety of foods, including fruits, vegetables, whole grains, and healthy proteins such as fish and poultry, while reducing saturated fats and added sugar to maintain a healthy body and energy.',
             'A balanced eating plan that includes eating a variety of foods, including fruits, vegetables, whole grains, and healthy proteins such as fish and poultry, while reducing saturated fats and added sugar to maintain a healthy body and energy.',
             'A balanced eating plan that includes eating a variety of foods, including fruits, vegetables, whole grains, and healthy proteins such as fish and poultry, while reducing saturated fats and added sugar to maintain a healthy body and energy.',
-            'A balanced eating plan that includes eating a variety of foods, including fruits, vegetables, whole grains, and healthy proteins such as fish and poultry, while reducing saturated fats and added sugar to maintain a healthy body and energy.'
-
+            'A balanced eating plan that includes eating a variety of foods, including fruits, vegetables, whole grains, and healthy proteins such as fish and poultry, while reducing saturated fats and added sugar to maintain a healthy body and energy.',
+            'a',
+            ''
         ];
         $description_ar = [
             'هذه الخطة تستهدف عضلات الفخذين بشكل متنوع، مما يساعد على تقوية العضلات وتحسين الأداء الرياضي. لا تنسى تمارين التسخين والتمديد قبل وبعد التمرين للمساعدة في تقوية عضلات الفخذين وتجنب الإصابات.',
@@ -46,20 +47,23 @@ class PlanSeeder extends Seeder
             'خطة غذائية متوازنة تتضمن تناول مجموعة متنوعة من الأطعمة، تشمل الفواكه والخضروات والحبوب الكاملة والبروتينات الصحية مثل الأسماك والدواجن، مع تقليل الدهون المشبعة والسكر المضاف للحفاظ على صحة الجسم والطاقة.',
             'خطة غذائية متوازنة تتضمن تناول مجموعة متنوعة من الأطعمة، تشمل الفواكه والخضروات والحبوب الكاملة والبروتينات الصحية مثل الأسماك والدواجن، مع تقليل الدهون المشبعة والسكر المضاف للحفاظ على صحة الجسم والطاقة.',
             'خطة غذائية متوازنة تتضمن تناول مجموعة متنوعة من الأطعمة، تشمل الفواكه والخضروات والحبوب الكاملة والبروتينات الصحية مثل الأسماك والدواجن، مع تقليل الدهون المشبعة والسكر المضاف للحفاظ على صحة الجسم والطاقة.',
-            'خطة غذائية متوازنة تتضمن تناول مجموعة متنوعة من الأطعمة، تشمل الفواكه والخضروات والحبوب الكاملة والبروتينات الصحية مثل الأسماك والدواجن، مع تقليل الدهون المشبعة والسكر المضاف للحفاظ على صحة الجسم والطاقة.'
+            'خطة غذائية متوازنة تتضمن تناول مجموعة متنوعة من الأطعمة، تشمل الفواكه والخضروات والحبوب الكاملة والبروتينات الصحية مثل الأسماك والدواجن، مع تقليل الدهون المشبعة والسكر المضاف للحفاظ على صحة الجسم والطاقة.',
+            'd',
+            ''
         ];
-        $type = ['thigh exercises', 'Abdominal exercises', 'Abdominal exercises', 'Stretching exercises', 'Stretching exercises', 'Stretching exercises', 'Stretching exercises', 'Sculpting exercises', 'thigh exercises', 'food', 'food', 'food', 'food'];
-        $type_ar = ['تمارين الفخذ', 'تمارين البطن', 'تمارين البطن', 'تمارين الشد', 'تمارين الشد', 'تمارين الشد', 'تمارين الشد', 'تمارين النحت', 'تمارين الفخذ', 'غذاء', 'غذاء', 'غذاء', 'غذاء'];
-        $duration = [5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4];
-        $muscle = ['thigh', 'Upper abdomen', 'lower abdomen', 'chest', 'forearm', 'arm', 'shoulder', 'Waist', 'thigh', '', '', '', ''];
-        $muscle_ar = ['فخذين', 'البطن', 'البطن', 'الصدر', 'الساعدين', 'الذراعين', 'الكتفين', 'الخصر', 'فخذين', '', '', '', ''];
-        for ($i = 0; $i < 13; $i++) {
+        $type = ['thigh exercises', 'Abdominal exercises', 'Abdominal exercises', 'Stretching exercises', 'Stretching exercises', 'Stretching exercises', 'Stretching exercises', 'Sculpting exercises', 'thigh exercises', 'food', 'food', 'food', 'food', 'sleep', 'water', ''];
+        $type_ar = ['تمارين الفخذ', 'تمارين البطن', 'تمارين البطن', 'تمارين الشد', 'تمارين الشد', 'تمارين الشد', 'تمارين الشد', 'تمارين النحت', 'تمارين الفخذ', 'غذاء', 'غذاء', 'غذاء', 'غذاء', 'نوم', 'ماء', ''];
+        $muscle = ['thigh', 'Upper abdomen', 'lower abdomen', 'chest', 'forearm', 'arm', 'shoulder', 'Waist', 'thigh', '', '', '', '', '', '', ''];
+        $muscle_ar = ['فخذين', 'البطن', 'البطن', 'الصدر', 'الساعدين', 'الذراعين', 'الكتفين', 'الخصر', 'فخذين', '', '', '', '', '', '', ''];
+        for ($i = 0; $i < 15; $i++) {
             Plan::create([
                 'title' => $title[$i],
                 'title_ar' => $title_ar[$i],
                 'description' => $description[$i],
                 'description_ar' => $description_ar[$i],
-                'duration' => $duration[$i],
+                'duration' => 2,
+                'sleep' => 8,
+                'water' => 5,
                 'type' => $type[$i],
                 'type_ar' => $type_ar[$i],
                 'muscle' => $muscle[$i],

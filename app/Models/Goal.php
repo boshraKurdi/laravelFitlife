@@ -21,19 +21,19 @@ class Goal extends Model implements HasMedia
         'duration',
     ];
 
-    public function PlanLevel()
+    public function Plan()
     {
         return $this->belongsToMany(
-            PlanLevel::class,
-            'goal_plan_levels',
+            Plan::class,
+            'goal_plans',
             'goal_id',
-            'plan_level_id'
+            'plan_id'
         );
     }
 
     public function targets()
     {
-        return $this->hasManyThrough(Target::class, GoalPlanLevel::class);
+        return $this->hasManyThrough(Target::class, GoalPlan::class);
     }
 
     public function registerMediaCollections(): void

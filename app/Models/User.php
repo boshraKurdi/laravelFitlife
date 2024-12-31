@@ -69,12 +69,18 @@ class User extends Authenticatable implements JWTSubject, HasMedia
         'password',
         'remember_token',
     ];
-    public function goalPlanLevel(): BelongsToMany
+    public function goalPlan(): BelongsToMany
     {
         return $this->belongsToMany(
-            GoalPlanLevel::class,
+            GoalPlan::class,
             'targets',
         )->withPivot(['calories', 'updated_at']);
+    }
+    public function targets()
+    {
+        return $this->hasMany(
+            Target::class,
+        );
     }
     /**
      * Get the attributes that should be cast.
@@ -88,6 +94,7 @@ class User extends Authenticatable implements JWTSubject, HasMedia
             'password' => 'hashed',
         ];
     }
+
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('users')->singleFile();

@@ -5,21 +5,17 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ExerciseController;
 use App\Http\Controllers\GoalController;
-use App\Http\Controllers\GoalPlanLevelController;
+use App\Http\Controllers\GoalPlanController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\GymController;
 use App\Http\Controllers\MealController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PlanController;
-use App\Http\Controllers\PlanLevelController;
 use App\Http\Controllers\SectionController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\TargetController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserServiceController;
-use App\Models\GoalPlanLevel;
-use App\Models\Plan;
-use App\Models\PlanLevel;
 use Illuminate\Support\Facades\Route;
 
 Route::get('getLastTimeUpdateDatabase', [UserController::class, 'getLastTimeUpdateDatabase']);
@@ -40,6 +36,8 @@ Route::group(['prefix' => 'user'], function () {
     Route::get('coachs', [UserController::class, 'coachs']);
     Route::group(['middleware' => 'auth:api'], function () {
         Route::get('profile', [UserController::class, 'profile']);
+        Route::get('deleteAccount', [UserController::class, 'deleteAccount']);
+        Route::post('editProfile', [UserController::class, 'editProfile']);
         Route::post('update', [UserController::class, 'update']);
         Route::get('show/{user}', [UserController::class, 'show']);
     });
@@ -70,13 +68,14 @@ Route::group(['prefix' => 'goal'], function () {
     });
 });
 Route::group(['prefix' => 'plan'], function () {
-    Route::get('plansForGoal/{ids}', [GoalPlanLevelController::class, 'getPlanForGoals']);
+    Route::get('plansForGoal/{ids}', [GoalPlanController::class, 'getPlanForGoals']);
     Route::group(['middleware' => 'auth:api'], function () {
-        Route::get('index', [PlanLevelController::class, 'index']);
-        Route::post('{PlanLevel}/{day}/{week}/exercises', [PlanLevelController::class, 'exercise']);
-        Route::post('{day}/{week}/meals', [PlanLevelController::class, 'meal']);
+        Route::get('index', [PlanController::class, 'index']);
+        Route::post('{PlanLevel}/{day}/{week}/exercises', [PlanController::class, 'exercise']);
+        Route::get('sleep', [PlanController::class, 'getSleep']);
+        Route::post('{day}/{week}/meals', [PlanController::class, 'meal']);
         Route::post('{plan}/update', [PlanController::class, 'update']);
-        Route::post('{id}/show', [PlanLevelController::class, 'show']);
+        Route::post('{id}/show', [PlanController::class, 'showPlan']);
     });
 });
 Route::group(['prefix' => 'exercise'], function () {
@@ -92,11 +91,13 @@ Route::group(['prefix' => 'meal'], function () {
 });
 Route::group(['middleware' => 'auth:api'], function () {
     Route::group(['prefix' => 'target'], function () {
-        Route::get('index', [PlanLevelController::class, 'getUserPlans']);
-        Route::post('plans/{ids?}', [GoalPlanLevelController::class, 'getPlanForGoalsWithMuscle']);
-        Route::get('insert/{id}', [GoalPlanLevelController::class, 'insert']);
-        Route::get('getDateGoal', [GoalPlanLevelController::class, 'getDateGoal']);
+        Route::get('index', [PlanController::class, 'getUserPlans']);
+        Route::post('plans/{ids?}', [GoalPlanController::class, 'getPlanForGoalsWithMuscle']);
+        Route::get('insert/{id}', [GoalPlanController::class, 'insert']);
+        Route::get('getDateGoal', [GoalPlanController::class, 'getDateGoal']);
         Route::post('store', [TargetController::class, 'store']);
+        Route::post('storeSleep', [TargetController::class, 'storeSleep']);
+        Route::post('storeWater', [TargetController::class, 'storeWater']);
         Route::post('storeExersice', [TargetController::class, 'storeE']);
     });
     Route::group(['prefix' => 'gym'], function () {
@@ -120,14 +121,14 @@ Route::group(['prefix' => 'dashboard'], function () {
         Route::delete('{goal}/destroy', [GoalController::class, 'destroy']);
     });
     Route::group(['prefix' => 'plan'], function () {
-        Route::get('{PlanLevel}/exercises', [PlanLevelController::class, 'getExerciseForPlan']);
+        Route::get('{PlanLevel}/exercises', [PlanController::class, 'getExerciseForPlan']);
         Route::get('index', [PlanController::class, 'index']);
-        Route::get('{planLevel}/show', [PlanLevelController::class, 'showPlan']);
+        // Route::get('{planLevel}/show', [PlanLevelController::class, 'showPlan']);
         Route::get('{plan}/showPlan', [PlanController::class, 'show']);
         Route::post('{plan}/update', [PlanController::class, 'update']);
-        Route::get('plansForGoal/{ids}', [GoalPlanLevelController::class, 'getPlanForGoals']);
+        Route::get('plansForGoal/{ids}', [GoalPlanController::class, 'getPlanForGoals']);
         Route::post('store', [PlanController::class, 'store']);
-        Route::delete('{planLevel}/destroy', [PlanLevelController::class, 'destroy']);
+        Route::delete('{planLevel}/destroy', [GoalPlanController::class, 'destroy']);
     });
     Route::group(['prefix' => 'exercise'], function () {
         Route::get('index', [ExerciseController::class, 'index']);

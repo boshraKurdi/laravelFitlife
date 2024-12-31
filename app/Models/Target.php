@@ -11,17 +11,19 @@ class Target extends Model
     protected $table = 'targets';
     protected $fillable = [
         'user_id',
-        'goal_plan_level_id',
+        'goal_plan_id',
         'calories',
         'active',
         'check',
+        'water',
+        'sleep'
     ];
     public function users()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-    public function goalPlanLevel()
+    public function goalPlan()
     {
-        return $this->belongsTo(GoalPlanLevel::class, 'goal_plan_level_id');
+        return $this->belongsTo(GoalPlan::class, 'goal_plan_id');
     }
 }
