@@ -7,6 +7,7 @@ use App\Http\Requests\StoreTargetRequest;
 use App\Http\Requests\UpdateTargetRequest;
 use App\Models\GoalPlan;
 use App\Models\User;
+use App\Observers\GoalPlanObserver;
 use Carbon\Carbon;
 
 class TargetController extends Controller
@@ -47,6 +48,8 @@ class TargetController extends Controller
                         'check' => $request->check[$i],
                         'active' => true,
                     ]);
+                    $observer = new GoalPlanObserver();
+                    $observer->update();
                     $data = 'success';
                     $message = 'Your progress in the plan meals has been recorded. Keep going. 😎😍';
                 }
@@ -82,6 +85,8 @@ class TargetController extends Controller
                     'sleep' => $request->hours,
                     'active' => true,
                 ]);
+                $observer = new GoalPlanObserver();
+                $observer->update();
                 $data = 'success';
                 $message = 'Your progress in the plan sleep has been recorded. Keep going. 😎😍';
             } else {
@@ -116,6 +121,8 @@ class TargetController extends Controller
                     'water' => $request->water,
                     'active' => true,
                 ]);
+                $observer = new GoalPlanObserver();
+                $observer->update();
                 $message = 'Your progress in the drink water has been recorded. Keep going. 😎😍';
                 $data = 'success';
             } else {
@@ -163,6 +170,8 @@ class TargetController extends Controller
                         'active' => true
                     ]);
                 }
+                $observer = new GoalPlanObserver();
+                $observer->update();
                 $message = 'Your progress in the exercises has been recorded. Keep going. 😎😍';
                 $data = 'success';
             } else {

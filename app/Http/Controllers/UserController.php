@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Target;
+use App\Models\Update;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -69,9 +70,11 @@ class UserController extends Controller
 
     public function getLastTimeUpdateDatabase()
     {
-        $user = User::query()->first();
+        $update = Update::get();
+        $user = User::first();
+        $time = count($update) ? $update->last()->updated_at : $user->updated_at;
         return response()->json([
-            'lastTime' => $user->updated_at
+            'lastTime' => $time
         ]);
     }
     public function profile()

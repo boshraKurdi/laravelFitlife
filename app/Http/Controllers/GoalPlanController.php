@@ -7,6 +7,8 @@ use App\Http\Requests\StoreGoalPlanRequest;
 use App\Http\Requests\UpdateGoalPlanRequest;
 use App\Models\Date;
 use App\Models\Target;
+use App\Models\Update;
+use App\Observers\GoalPlanObserver;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -45,7 +47,7 @@ class GoalPlanController extends Controller
             $type = 'error';
         }
         $targets = GoalPlan::query()->where('goal_id', $id)->whereHas('plan', function ($q) {
-            $q->where('type', '!=', 'food');
+            $q->where('type', '!=', 'food')->where('type', '!=', 'sleep')->where('type', '!=', 'water');
         })->with(['plan', 'plan.media', 'goals'])->get();
         return response()->json(['data' => $targets, 'date' => $date, 'message' => $message, 'type' => $type]);
     }
@@ -70,7 +72,7 @@ class GoalPlanController extends Controller
                         $q->where('type', $muscle);
                     })
                         ->with(['goalPlan.plan', 'goalPlan.plan.media', 'goalPlan.goals'])->get();
-                    array_push($targets, $r);
+                    count($r) ?  array_push($targets, $r) : '';
                 }
                 $type = 'success';
             } else {
@@ -118,6 +120,8 @@ class GoalPlanController extends Controller
                     'date' => $d
                 ]);
             }
+            $observer = new GoalPlanObserver();
+            $observer->update();
             $message = 'Your journey have just started, one mill journey starts with one step 🤩🤩';
             $type = 'success';
         }
