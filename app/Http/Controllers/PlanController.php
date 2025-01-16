@@ -98,6 +98,7 @@ class PlanController extends Controller
         $date = [];
         $message = '';
         $exe  = [];
+        $type = "error";
         $firstWeek = [];
         $secondWeek = [];
         $CountGetdate = Target::where('user_id', auth()->id())->whereHas('goalPlan', function ($q) use ($plan) {
@@ -181,24 +182,40 @@ class PlanController extends Controller
                 $exe->totalRateWeekTwo =   $totalRateWeekTwo;
                 $exe->x = $x;
                 $exe->y = $y;
+                $type = "success";
             } else {
                 $message = 'please wait to processing the goal';
             }
         } else {
-            $message = 'You are not involved in a goal';
+            $message = "This plan is not available to you or is not intended for exercise.😊";
         }
 
-        return response()->json(['data' => $exe, 'message' => $message]);
+        return response()->json(['data' => $exe, 'type' => $type,  'message' => $message]);
     }
 
     public function getSleep()
     {
         $today = Carbon::today();
-        $sleep =  Plan::where('id', 14)->with(['targets' => function ($q) use ($today) {
-            $q->where('user_id', auth()->id())->where('sleep', '!=', null)->whereDate('targets.created_at', $today);
-        }])->first();
+        $message = '';
+        $sleep = '';
+        $type = 'error';
+        $check = Target::where('user_id', auth()->id())->count();
+        if ($check) {
+            $checkAtice = Target::where('user_id', auth()->id())->where('active', 1)->count();
+            if ($checkAtice) {
+                $sleep =  Plan::where('id', 14)->with(['targets' => function ($q) use ($today) {
+                    $q->where('user_id', auth()->id())->where('sleep', '!=', null)->whereDate('targets.created_at', $today);
+                }])->first();
+                $type = 'success';
+            } else {
+                $message = 'please wait to processing the goal';
+            }
+        } else {
+            $message = "If you want to see more details please register with this goal and don't forget to check your email address 😉😉";
+        }
 
-        return response()->json($sleep);
+
+        return response()->json(['data' => $sleep, 'message' => $message, 'type' => $type]);
     }
 
     public function getExerciseForPlan($plan)
@@ -213,50 +230,52 @@ class PlanController extends Controller
         $exe = [];
         $today = Carbon::now();
         $message = '';
-        $planId = 0;
+        $plan_id = 0;
+        $type = 'error';
         $check = Target::where('user_id', auth()->id())->count();
         if ($check) {
             $target = GoalPlan::whereHas('users', function ($q) {
                 $q->where('user_id', auth()->id());
             })->whereHas('targets', function ($q) {
                 $q->where('active', true);
-            })->get();
-            if (count($target)) {
+            })->first();
+            if ($target) {
                 $plan_id = Plan::whereHas('goals', function ($q) use ($target) {
-                    $q->where('goal_id', $target[0]->goal_id);
+                    $q->where('goal_id', $target->goal_id);
                 })
                     ->where('type', 'food')
-                    ->get();
-                $planId = $plan_id[0]->id;
+                    ->first();
                 if ($request->breakfast) {
-                    $exe =  Plan::where('id', $plan_id[0]->id)->with(['targets' => function ($q) use ($today) {
+                    $exe =  Plan::where('id', $plan_id->id)->with(['targets' => function ($q) use ($today) {
                         $q->where('user_id', auth()->id())->where('check', '!=', 0)->whereDate('targets.created_at', $today);
                     }, 'targets.users', 'meal' => function ($q) use ($day, $week) {
                         $q->where('day', $day)->where('week', $week)->where('breakfast', 1);
                     }, 'meal.media'])->get();
                 } else if ($request->lunch) {
-                    $exe =  Plan::where('id', $plan_id[0]->id)->with(['targets' => function ($q) use ($today) {
+                    $exe =  Plan::where('id', $plan_id->id)->with(['targets' => function ($q) use ($today) {
                         $q->where('user_id', auth()->id())->where('check', '!=', 0)->whereDate('targets.created_at', $today);
                     }, 'targets.users', 'meal' => function ($q) use ($day, $week) {
                         $q->where('day', $day)->where('week', $week)->where('lunch', 1);
                     }, 'meal.media'])->get();
                 } else {
-                    $exe =  Plan::where('id', $plan_id[0]->id)->with(['targets' => function ($q) use ($today) {
+                    $exe =  Plan::where('id', $plan_id->id)->with(['targets' => function ($q) use ($today) {
                         $q->where('user_id', auth()->id())->where('check', '!=', 0)->whereDate('targets.created_at', $today);
                     }, 'targets.users', 'meal' => function ($q) use ($day, $week) {
                         $q->where('day', $day)->where('week', $week)->where('dinner', 1);
                     }, 'meal.media'])->get();
                 }
+                $type = 'success';
             } else {
                 $message = 'please wait to processing the goal';
             }
         } else {
-            $message = 'You are not involved in a goal';
+            $message = "If you want to see more details please register with this goal and don't forget to check your email address 😉😉";
         }
 
         return response()->json([
             'data' => $exe,
-            'id' => $plan_id,
+            'id' => $plan_id ? $plan_id->id : 0,
+            'type' => $type,
             'message' => $message
         ]);
     }
@@ -266,6 +285,7 @@ class PlanController extends Controller
     {
         $message = '';
         $newIndex = [];
+        $type = 'error';
         $CountGetdate = Target::where('user_id', auth()->id())->count();
         if ($CountGetdate) {
             $CountGetdateWithActive = Target::where('user_id', auth()->id())->where('active', 1)->count();
@@ -275,6 +295,8 @@ class PlanController extends Controller
                         $q->where('user_id', auth()->id());
                     })
                     ->where('type', '!=', 'food')
+                    ->where('type', '!=', 'sleep')
+                    ->where('type', '!=', 'water')
 
                     ->with(['targets' => function ($query) {
                         $query->where('user_id', auth()->id());
@@ -290,14 +312,15 @@ class PlanController extends Controller
                     $i->totalRate = $totalRate;
                     return $i;
                 });
+                $type = 'success';
             } else {
                 $message = 'please wait to processing the goal';
             }
         } else {
-            $message = 'You are not involved in a goal';
+            $message = "If you want to see more details please register with this goal and don't forget to check your email address 😉😉";
         }
 
-        return response()->json(['data' => $newIndex, 'message' => $message]);
+        return response()->json(['data' => $newIndex, 'type' => $type, 'message' => $message]);
     }
 
 
@@ -306,10 +329,13 @@ class PlanController extends Controller
         $arr = [];
         $arrDay = [];
         $date = [];
+        $type = 'error';
         $message = '';
         $today = Carbon::today();
         $show = [];
-        $CountGetdate = Target::where('user_id', auth()->id())->count();
+        $CountGetdate = Target::where('user_id', auth()->id())->whereHas('goalPlan', function ($q) use ($id) {
+            $q->where('plan_id', $id);
+        })->count();
         if ($CountGetdate) {
             $CountGetdateActive = Target::where('user_id', auth()->id())->where('active', 1)->count();
             if ($CountGetdateActive) {
@@ -382,13 +408,14 @@ class PlanController extends Controller
                 $show->totalRateWeekOne =   $totalRateWeekOne;
                 $show->totalRateWeekTwo =   $totalRateWeekTwo;
                 $show->arrDay = $arrDay;
+                $type = 'success';
             } else {
                 $message = 'please wait to processing the goal';
             }
         } else {
-            $message = 'You are not involved in a goal';
+            $message = "This plan is not available to you or is not intended for goal.😊";
         }
-        return response()->json(['data' => $show, 'message' => $message]);
+        return response()->json(['data' => $show, 'type' => $type, 'message' => $message]);
     }
 
     // public function showPlan(Plan $Plan)

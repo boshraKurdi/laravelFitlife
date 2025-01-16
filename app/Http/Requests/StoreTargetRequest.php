@@ -22,7 +22,11 @@ class StoreTargetRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            // 'user_id' => 'required|exists:users,id',
+            // 'goal_plan_id' => 'required|exists:goal_plans,id',
+            // 'calories' => 'required',
+            // 'check' => 'required',
+            // 'active' => 'required',
         ];
     }
 }

@@ -92,7 +92,7 @@ Route::group(['prefix' => 'meal'], function () {
 Route::group(['middleware' => 'auth:api'], function () {
     Route::group(['prefix' => 'target'], function () {
         Route::get('index', [PlanController::class, 'getUserPlans']);
-        Route::post('plans/{ids?}', [GoalPlanController::class, 'getPlanForGoalsWithMuscle']);
+        Route::get('plans', [GoalPlanController::class, 'getPlanForGoalsWithMuscle']);
         Route::get('insert/{id}', [GoalPlanController::class, 'insert']);
         Route::get('getDateGoal', [GoalPlanController::class, 'getDateGoal']);
         Route::post('store', [TargetController::class, 'store']);
