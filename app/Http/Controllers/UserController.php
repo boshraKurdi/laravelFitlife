@@ -90,8 +90,9 @@ class UserController extends Controller
             $q->where('active', 1);
         }, 'goalPlan.goals'])->first();
         $today = Carbon::today();
+        //get exercise 
         $CountGetdate = Target::where('user_id', auth()->id())->whereHas('goalPlan.plan', function ($q) {
-            $q->where('type', '!=', 'food');
+            $q->where('type', '!=', 'food')->where('type', '!=', 'sleep')->where('type', '!=', 'water');
         })->where('active', 1)->get();
         if (count($CountGetdate)) {
             $sumCalories = 0;
@@ -102,7 +103,7 @@ class UserController extends Controller
             $profile->totalRate = intval($totalRate);
             $caloriesForDay = Target::selectRaw('DATE(created_at) as x, SUM(calories) as y')
                 ->whereHas('goalPlan.plan', function ($q) {
-                    $q->where('type', '!=', 'food');
+                    $q->where('type', '!=', 'food')->where('type', '!=', 'sleep')->where('type', '!=', 'water');
                 })
                 ->where('user_id', auth()->id())
                 ->groupBy('x')
@@ -118,6 +119,7 @@ class UserController extends Controller
             $profile->caloriesForDay = $arr;
             $profile->x = $x;
             $profile->y = $y;
+            //get meal
             $FoodForDay = Target::selectRaw('DATE(created_at) as x, SUM(calories) as y')
                 ->whereHas('goalPlan.plan', function ($q) {
                     $q->where('type', 'food');
@@ -140,6 +142,16 @@ class UserController extends Controller
             $profile->xx = $xx;
             $profile->yy = $yy;
             $profile->goal = $profile->goalPlan[0]->goals;
+            //get water
+            $WaterForDay = Target::where('user_id', auth()->id())->whereHas('goalPlan.plan', function ($q) {
+                $q->where('type', 'water');
+            })->whereDate('updated_at', $today)->where('active', 1)->first();
+            $profile->waterForDay = $WaterForDay->water;
+            //get sleep
+            $SleepForDay = Target::where('user_id', auth()->id())->whereHas('goalPlan.plan', function ($q) {
+                $q->where('type', 'sleep');
+            })->whereDate('updated_at', $today)->where('active', 1)->first();
+            $profile->sleepForDay = $SleepForDay->sleep;
             $num = $profile->width /  pow($profile->height / 100, 2);
             if ($num < 18.5) {
                 $BMI = 'نقص الوزن';

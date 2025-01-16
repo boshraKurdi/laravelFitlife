@@ -73,6 +73,7 @@ Route::group(['prefix' => 'plan'], function () {
         Route::get('index', [PlanController::class, 'index']);
         Route::post('{PlanLevel}/{day}/{week}/exercises', [PlanController::class, 'exercise']);
         Route::get('sleep', [PlanController::class, 'getSleep']);
+        Route::get('water', [PlanController::class, 'getWater']);
         Route::post('{day}/{week}/meals', [PlanController::class, 'meal']);
         Route::post('{plan}/update', [PlanController::class, 'update']);
         Route::post('{id}/show', [PlanController::class, 'showPlan']);

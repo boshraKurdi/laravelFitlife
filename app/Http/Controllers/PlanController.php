@@ -218,6 +218,31 @@ class PlanController extends Controller
         return response()->json(['data' => $sleep, 'message' => $message, 'type' => $type]);
     }
 
+    public function getWater()
+    {
+        $today = Carbon::today();
+        $message = '';
+        $water = '';
+        $type = 'error';
+        $check = Target::where('user_id', auth()->id())->count();
+        if ($check) {
+            $checkAtice = Target::where('user_id', auth()->id())->where('active', 1)->count();
+            if ($checkAtice) {
+                $water =  Plan::where('id', 15)->with(['targets' => function ($q) use ($today) {
+                    $q->where('user_id', auth()->id())->where('water', '!=', null)->whereDate('targets.created_at', $today);
+                }])->first();
+                $type = 'success';
+            } else {
+                $message = 'please wait to processing the goal';
+            }
+        } else {
+            $message = "If you want to see more details please register with this goal and don't forget to check your email address 😉😉";
+        }
+
+
+        return response()->json(['data' => $water, 'message' => $message, 'type' => $type]);
+    }
+
     public function getExerciseForPlan($plan)
     {
         $exe =  Plan::where('id', $plan)->with(['exercise', 'exercise.media'])->get();
@@ -234,14 +259,10 @@ class PlanController extends Controller
         $type = 'error';
         $check = Target::where('user_id', auth()->id())->count();
         if ($check) {
-            $target = GoalPlan::whereHas('users', function ($q) {
-                $q->where('user_id', auth()->id());
-            })->whereHas('targets', function ($q) {
-                $q->where('active', true);
-            })->first();
+            $target = Target::where('user_id', auth()->id())->where('active', 1)->with('goalPlan')->first();
             if ($target) {
                 $plan_id = Plan::whereHas('goals', function ($q) use ($target) {
-                    $q->where('goal_id', $target->goal_id);
+                    $q->where('goal_id', $target->goal_plan->goal_id);
                 })
                     ->where('type', 'food')
                     ->first();
@@ -292,26 +313,31 @@ class PlanController extends Controller
             if ($CountGetdateWithActive) {
                 $plans = Plan::query()
                     ->whereHas('targets', function ($q) {
-                        $q->where('user_id', auth()->id());
+                        $q->where('user_id', auth()->id())->where('check', '!=', 0);
                     })
                     ->where('type', '!=', 'food')
                     ->where('type', '!=', 'sleep')
                     ->where('type', '!=', 'water')
 
                     ->with(['targets' => function ($query) {
-                        $query->where('user_id', auth()->id());
+                        $query->where('user_id', auth()->id())->where('check', '!=', 0);
                     }, 'media', 'targets.goalPlan'])
                     ->get();
-                $newIndex = $plans->map(function ($i) {
-                    $count = Target::where('user_id', auth()->id())
-                        ->whereHas('goalPlan', function ($q) use ($i) {
-                            $q->where('plan_id', $i->id);
-                        })->where('check', '!=', 0)
-                        ->count();
-                    $totalRate = intval(($count / 42) * 100);
-                    $i->totalRate = $totalRate;
-                    return $i;
-                });
+                if ($plans) {
+                    $newIndex = $plans->map(function ($i) {
+                        $count = Target::where('user_id', auth()->id())
+                            ->whereHas('goalPlan', function ($q) use ($i) {
+                                $q->where('plan_id', $i->id);
+                            })->where('check', '!=', 0)
+                            ->count();
+                        $totalRate = intval(($count / 42) * 100);
+                        $i->totalRate = $totalRate;
+                        return $i;
+                    });
+                } else {
+                    $message = "Don't you want to burn the fat? 💪💪What your waiting for start your first plan with us now 🔥🔥";
+                }
+
                 $type = 'success';
             } else {
                 $message = 'please wait to processing the goal';
