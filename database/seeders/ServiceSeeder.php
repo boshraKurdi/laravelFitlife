@@ -13,6 +13,20 @@ class ServiceSeeder extends Seeder
      */
     public function run(): void
     {
-        Service::factory(4)->create();
+        Service::create([
+            'service' => 'chat with coach',
+            'duration' =>  1,
+            'price' => 1000
+        ]);
+        Service::create([
+            'service' => 'chat with coach',
+            'duration' =>  2,
+            'price' => 2000
+        ]);
+        Service::create([
+            'service' => 'chat with coach',
+            'duration' =>  3,
+            'price' => 3000
+        ]);
     }
 }

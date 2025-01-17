@@ -7,6 +7,8 @@ use App\Http\Requests\StoreMessageRequest;
 use App\Http\Requests\UpdateMessageRequest;
 use App\Models\Chat;
 use App\Models\Group;
+use App\Models\UserService;
+use Carbon\Carbon;
 
 class MessageController extends Controller
 {
@@ -15,10 +17,22 @@ class MessageController extends Controller
      */
     public function index($id)
     {
+        $meesage = '';
+        $check = UserService::where('user_id', auth()->id())->first();
+        if ($check) {
+            $date1 = Carbon::parse($check->created_at);
+            $date2 = Carbon::now();
+            $differenceInDays = $date1->diffInDays($date2);
+            if (intval($differenceInDays) > $check->duration) {
+                $meesage = 'Your service period has expired. Please renew your subscription to one of the services to be able to communicate with the trainers.😊😊';
+            }
+        } else {
+            $meesage = 'Please subscribe to one of the services to be able to communicate😊😊';
+        }
         $messages = Message::query()->whereHas('group', function ($q) use ($id) {
             $q->where('chat_id', $id);
         })->with('group.user')->get();
-        return response()->json($messages);
+        return response()->json(['data' => $messages, 'message' => $meesage]);
     }
 
     /**

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\UserService;
 use App\Http\Requests\StoreUserServiceRequest;
 use App\Http\Requests\UpdateUserServiceRequest;
+use Carbon\Carbon;
 
 class UserServiceController extends Controller
 {
@@ -21,17 +22,55 @@ class UserServiceController extends Controller
      */
     public function store(StoreUserServiceRequest $request, $id)
     {
-        $store = UserService::query()->create([
-            'user_id' => auth()->id(),
-            'service_id' => $id,
-            'price' => $request->price,
-            'type' => $request->type,
-            'cvc' => $request->cvc,
-            'number' => $request->number,
-            'month' => $request->month,
-            'year' => $request->year
+        $message = '';
+        $type = 'error';
+        $differenceInDays = 0;
+        $check = UserService::where('user_id', auth()->id())->first();
+        if ($check) {
+            $date1 = Carbon::parse($check->created_at);
+            $date2 = Carbon::now();
+            $differenceInDays = $date1->diffInDays($date2);
+            if (intval($differenceInDays) > $check->duration) {
+                UserService::query()->create([
+                    'user_id' => auth()->id(),
+                    'service_id' => $id,
+                    'price' => $request->price,
+                    'type' => $request->type,
+                    'cvc' => $request->cvc,
+                    'number' => $request->number,
+                    'month' => $request->month,
+                    'year' => $request->year
+                ]);
+                $message = 'payment successfully!';
+                $type = 'success';
+            } else {
+                $message = 'The service you previously subscribed to has not expired. Please wait until it expires to purchase another service😊😊';
+                $type = 'error';
+            }
+        } else {
+            UserService::query()->create([
+                'user_id' => auth()->id(),
+                'service_id' => $id,
+                'price' => $request->price,
+                'type' => $request->type,
+                'cvc' => $request->cvc,
+                'number' => $request->number,
+                'month' => $request->month,
+                'year' => $request->year
+            ]);
+            $message = 'payment successfully!';
+            $type = 'success';
+        }
+
+        return response()->json([
+            'type' => $type,
+            'message' => $message
         ]);
-        return response()->json($store);
+    }
+
+    public function checkChat()
+    {
+        $check = UserService::where('user_id', auth()->id())->count();
     }
 
     /**

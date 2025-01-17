@@ -18,7 +18,7 @@ class ServiceFactory extends Factory
     {
         return [
             'service' => 'chat with coach',
-            'duration' =>  rand(1, 4) . ' week',
+            'duration' =>  rand(1, 4),
             'price' => rand(10, 1000)
         ];
     }
