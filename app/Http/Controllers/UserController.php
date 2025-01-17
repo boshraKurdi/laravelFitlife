@@ -146,12 +146,12 @@ class UserController extends Controller
             $WaterForDay = Target::where('user_id', auth()->id())->whereHas('goalPlan.plan', function ($q) {
                 $q->where('type', 'water');
             })->whereDate('updated_at', $today)->where('active', 1)->first();
-            $profile->waterForDay = $WaterForDay->water;
+            $profile->waterForDay = $WaterForDay ? $WaterForDay->water : 0;
             //get sleep
             $SleepForDay = Target::where('user_id', auth()->id())->whereHas('goalPlan.plan', function ($q) {
                 $q->where('type', 'sleep');
             })->whereDate('updated_at', $today)->where('active', 1)->first();
-            $profile->sleepForDay = $SleepForDay->sleep;
+            $profile->sleepForDay = $SleepForDay ? $SleepForDay->sleep : 0;
             $num = $profile->width /  pow($profile->height / 100, 2);
             if ($num < 18.5) {
                 $BMI = 'نقص الوزن';

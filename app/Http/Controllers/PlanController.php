@@ -262,7 +262,7 @@ class PlanController extends Controller
             $target = Target::where('user_id', auth()->id())->where('active', 1)->with('goalPlan')->first();
             if ($target) {
                 $plan_id = Plan::whereHas('goals', function ($q) use ($target) {
-                    $q->where('goal_id', $target->goal_plan->goal_id);
+                    $q->where('goal_id', $target->goalPlan->goal_id);
                 })
                     ->where('type', 'food')
                     ->first();
