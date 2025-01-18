@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Target;
 use App\Http\Requests\StoreTargetRequest;
+use App\Http\Requests\StoreTargetSleepRequest;
+use App\Http\Requests\StoreTargetWaterRequest;
 use App\Http\Requests\UpdateTargetRequest;
 use App\Models\GoalPlan;
 use App\Models\User;
@@ -62,7 +64,7 @@ class TargetController extends Controller
 
         return response()->json(['type' => $data, 'message' => $message]);
     }
-    public function storeSleep(StoreTargetRequest $request)
+    public function storeSleep(StoreTargetSleepRequest $request)
     {
         $goal_id = Target::where('user_id', auth()->id())->WhereHas('goalPlan', function ($q) {
             $q->where('plan_id', 14);
@@ -98,7 +100,7 @@ class TargetController extends Controller
 
         return response()->json(['type' => $data, 'message' => $message]);
     }
-    public function storeWater(StoreTargetRequest $request)
+    public function storeWater(StoreTargetWaterRequest $request)
     {
         $goal_id = Target::where('user_id', auth()->id())->WhereHas('goalPlan', function ($q) {
             $q->where('plan_id', 15);

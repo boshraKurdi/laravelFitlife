@@ -64,14 +64,14 @@ class GoalPlanController extends Controller
             $target = GoalPlan::whereHas('targets', function ($q) {
                 $q->where('active', 1)->where('user_id', auth()->id());
             })
-                ->count();
+                ->first();
             if ($target) {
 
                 foreach ($muscleGroups as $muscle) {
-                    $r = Target::where('user_id', auth()->id())->whereHas('goalPlan.plan', function ($q) use ($muscle) {
+                    $r = GoalPlan::where('goal_id', $target->goal_id)->whereHas('plan', function ($q) use ($muscle) {
                         $q->where('type', $muscle);
                     })
-                        ->with(['goalPlan.plan', 'goalPlan.plan.media', 'goalPlan.goals'])->get();
+                        ->with(['plan', 'plan.media', 'goals'])->get();
                     count($r) ?  array_push($targets, $r) : '';
                 }
                 $type = 'success';

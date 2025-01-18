@@ -46,7 +46,7 @@ class GoalController extends Controller
      */
     public function show(Goal $goal)
     {
-        $show = $goal->load('media');
+        $show = $goal->load(['media', 'plan', 'plan.media']);
         $g = $goal->id;
         $check = Target::where('user_id', auth()->id())->where('active', 1)->whereHas('goalPlan', function ($q) use ($g) {
             $q->where('goal_id', $g);

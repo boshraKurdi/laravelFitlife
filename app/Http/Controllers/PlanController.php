@@ -266,6 +266,9 @@ class PlanController extends Controller
                 })
                     ->where('type', 'food')
                     ->first();
+                $allMeals =  Plan::where('id', $plan_id->id)->with(['meal' => function ($q) use ($day, $week) {
+                    $q->where('day', $day)->where('week', $week);
+                }, 'meal.media'])->get();
                 if ($request->breakfast) {
                     $exe =  Plan::where('id', $plan_id->id)->with(['targets' => function ($q) use ($today) {
                         $q->where('user_id', auth()->id())->where('check', '!=', 0)->whereDate('targets.created_at', $today);
@@ -285,6 +288,7 @@ class PlanController extends Controller
                         $q->where('day', $day)->where('week', $week)->where('dinner', 1);
                     }, 'meal.media'])->get();
                 }
+                $exe[0]->allMeals = $allMeals;
                 $type = 'success';
             } else {
                 $message = 'please wait to processing the goal';
