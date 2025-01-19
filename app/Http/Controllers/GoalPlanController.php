@@ -37,6 +37,10 @@ class GoalPlanController extends Controller
                 $Getdate = Target::where('user_id', auth()->id())->whereHas('goalPlan', function ($q) use ($id) {
                     $q->where('goal_id', $id);
                 })->with('users.date')->first();
+                if (!$Getdate) {
+                    $message = 'Finish your first goal and then you can start another one to be the person you want to be ✌️👊';
+                    $type = 'error';
+                }
                 $date = $Getdate ? $Getdate->users->date : [];
             } else {
                 $message = 'please wait to processing the goal';

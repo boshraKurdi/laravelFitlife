@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\GetMealRequest;
 use App\Models\Plan;
 use App\Http\Requests\StorePlanRequest;
 use App\Http\Requests\UpdatePlanRequest;
@@ -250,7 +251,7 @@ class PlanController extends Controller
     }
 
 
-    public function meal($day, $week, Request $request)
+    public function meal($day, $week, GetMealRequest $request)
     {
         $exe = [];
         $today = Carbon::now();
