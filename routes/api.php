@@ -88,6 +88,7 @@ Route::group(['prefix' => 'exercise'], function () {
 Route::group(['prefix' => 'meal'], function () {
     Route::group(['middleware' => 'auth:api'], function () {
         Route::get('{meal}/show', [MealController::class, 'show']);
+        Route::get('category', [CategoryController::class, 'index']);
     });
 });
 Route::group(['middleware' => 'auth:api'], function () {
