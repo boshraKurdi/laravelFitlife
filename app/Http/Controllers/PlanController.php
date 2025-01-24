@@ -7,6 +7,7 @@ use App\Models\Plan;
 use App\Http\Requests\StorePlanRequest;
 use App\Http\Requests\UpdatePlanRequest;
 use App\Models\GoalPlan;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Target;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -260,7 +261,7 @@ class PlanController extends Controller
         $type = 'error';
         $check = Target::where('user_id', auth()->id())->count();
         if ($check) {
-            $target = Target::where('user_id', auth()->id())->where('active', 1)->with('goalPlan')->first();
+            $target = Target::where('user_id', auth()->id())->where('active', 1)->with(['goalPlan', 'users.date'])->first();
             if ($target) {
                 $plan_id = Plan::whereHas('goals', function ($q) use ($target) {
                     $q->where('goal_id', $target->goalPlan->goal_id);
@@ -289,6 +290,23 @@ class PlanController extends Controller
                         $q->where('day', $day)->where('week', $week)->where('dinner', 1);
                     }, 'meal.media'])->get();
                 }
+
+                //get meal bars
+                $xx = [];
+                $yy = [];
+                $FoodForDay = Target::selectRaw('DATE(created_at) as x, SUM(calories) as y')
+                    ->whereHas('goalPlan.plan', function ($q) {
+                        $q->where('type', 'food');
+                    })
+                    ->where('user_id', auth()->id())
+                    ->groupBy('x')
+                    ->get();
+
+                foreach ($FoodForDay as $data) {
+                    array_push($xx, $data->x ? $data->x : 0);
+                    array_push($yy, $data->y ? $data->y  : 0);
+                }
+
                 $exe[0]->allMeals = $allMeals;
                 $type = 'success';
             } else {
@@ -300,8 +318,11 @@ class PlanController extends Controller
 
         return response()->json([
             'data' => $exe,
+            'date' => $target->users->date,
             'id' => $plan_id ? $plan_id->id : 0,
             'type' => $type,
+            'x' => $xx,
+            'y' => $yy,
             'message' => $message
         ]);
     }
@@ -360,6 +381,8 @@ class PlanController extends Controller
         $arr = [];
         $arrDay = [];
         $date = [];
+        $gender = Auth::user()->gender;
+        $ar = $gender === 'male' ? array(6, 7, 8, 9, 10) : array(1, 2, 3, 4, 5);
         $type = 'error';
         $message = '';
         $today = Carbon::today();
@@ -377,8 +400,11 @@ class PlanController extends Controller
                 $count = Target::where('user_id', auth()->id())
                     ->whereHas('goalPlan', function ($q) use ($id) {
                         $q->where('plan_id', $id);
-                    })->where('check', '!=', 0)->count();
-                $totalRate = intval(($count / 42) * 100);
+                    })->whereHas('goalPlan.plan.exercise', function ($q) {
+                        $q->where('type', Auth::user()->gender);
+                    })
+                    ->whereIn('check', $ar)->count();
+                $totalRate = intval(($count / 21) * 100);
                 $countWeekOne = Target::where('user_id', auth()->id())
                     ->whereHas('goalPlan', function ($q) use ($id) {
                         $q->where('plan_id', $id);
@@ -408,7 +434,6 @@ class PlanController extends Controller
 
                 $totalRateDay = intval(($countDay / 3) * 100);
                 if ($request->type) {
-                    array_push($arrDay, ['x' => 0, 'y' => 0]);
                     if ($request->type === 'weekly') {
                         if ($request->number_week == 1) {
                             $arr = $firstWeek;

@@ -10,7 +10,8 @@ class Date extends Model
     use HasFactory;
     protected $fillable =  [
         'user_id',
-        'date'
+        'date',
+        'date_meal'
     ];
     public function user()
     {

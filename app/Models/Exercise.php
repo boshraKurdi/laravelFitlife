@@ -19,6 +19,7 @@ class Exercise extends Model implements HasMedia
         'description_ar',
         'duration',
         'counter',
+        'type',
         'calories'
     ];
     public function plan()

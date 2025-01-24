@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AuthUpdateRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -88,7 +89,7 @@ class AuthController extends Controller
         return response()->json(Auth::user());
     }
 
-    public function update(Request $request)
+    public function update(AuthUpdateRequest $request)
     {
         User::query()->where('id', Auth::user()->id)->update([
             'width' => $request->width,
@@ -98,7 +99,8 @@ class AuthController extends Controller
             'illness' => $request->illness,
             'age' => $request->age,
             'lat' => $request->lat,
-            'lon' => $request->lon
+            'lon' => $request->lon,
+            'days' => $request->days
         ]);
         return response()->json([
             'message' => 'user has been updated successfully'

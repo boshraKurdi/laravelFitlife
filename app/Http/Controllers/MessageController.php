@@ -18,12 +18,12 @@ class MessageController extends Controller
     public function index($id)
     {
         $meesage = '';
-        $check = UserService::where('user_id', auth()->id())->first();
+        $check = UserService::where('user_id', auth()->id())->with('service')->first();
         if ($check) {
             $date1 = Carbon::parse($check->created_at);
             $date2 = Carbon::now();
             $differenceInDays = $date1->diffInDays($date2);
-            if (intval($differenceInDays) > $check->duration) {
+            if (intval($differenceInDays) > ($check->service->duration * 7)) {
                 $meesage = 'Your service period has expired. Please renew your subscription to one of the services to be able to communicate with the trainers.😊😊';
             }
         } else {

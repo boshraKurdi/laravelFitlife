@@ -19,6 +19,7 @@ return new class extends Migration
             $table->text('description_ar');
             $table->integer('duration');
             $table->integer('calories');
+            $table->string('type');
             $table->integer('counter');
             $table->timestamps();
         });

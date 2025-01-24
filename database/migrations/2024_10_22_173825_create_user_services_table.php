@@ -18,7 +18,6 @@ return new class extends Migration
             $table->foreignIdFor(User::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->foreignIdFor(Service::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->integer('month');
-            $table->integer('year');
             $table->integer('cvc');
             $table->integer('number');
             $table->float('price');

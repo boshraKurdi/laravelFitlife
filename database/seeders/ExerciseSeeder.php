@@ -62,6 +62,7 @@ class ExerciseSeeder extends Seeder
             'تمرين فعال لتقوية عضلات الجانبية والجذع، وهو يساعد على تحسين الثبات والتوازن العام للجسم. ',
             'المعروفة أيضًا بتمارين الكتل الروسية أو الخبز الروسية، هي تمارين رياضية شهيرة تستخدم الكتل الثقيلة لتنمية القوة واللياقة البدنية'
         ];
+        $type = ['feminine', 'feminine', 'feminine', 'feminine', 'feminine', 'male', 'male', 'male', 'male', 'male'];
 
         for ($i = 0; $i < 10; $i++) {
             Exercise::create([
@@ -71,6 +72,7 @@ class ExerciseSeeder extends Seeder
                 'description_ar' => $description_ar[$i],
                 'duration' =>  rand(10, 15),
                 'counter' => 25,
+                'type' => $type[$i],
                 'calories' => rand(10, 100)
             ]);
         }

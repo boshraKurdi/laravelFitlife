@@ -39,7 +39,6 @@ class UserServiceController extends Controller
                     'cvc' => $request->cvc,
                     'number' => $request->number,
                     'month' => $request->month,
-                    'year' => $request->year
                 ]);
                 $message = 'payment successfully!';
                 $type = 'success';
@@ -56,7 +55,6 @@ class UserServiceController extends Controller
                 'cvc' => $request->cvc,
                 'number' => $request->number,
                 'month' => $request->month,
-                'year' => $request->year
             ]);
             $message = 'payment successfully!';
             $type = 'success';

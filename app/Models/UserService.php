@@ -19,4 +19,9 @@ class UserService extends Model
         'month',
         'year'
     ];
+
+    public function service()
+    {
+        return $this->belongsTo(Service::class, 'service_id');
+    }
 }

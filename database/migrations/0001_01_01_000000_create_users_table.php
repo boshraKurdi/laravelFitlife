@@ -33,6 +33,7 @@ return new class extends Migration
             $table->string('google_id')->nullable();
             $table->string('google_token')->nullable();
             $table->string('gender')->nullable();
+            $table->text('days')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

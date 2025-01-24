@@ -79,16 +79,16 @@ class UserController extends Controller
     }
     public function profile()
     {
-        $x = [0];
-        $y = [0];
-        $xx = [0];
-        $yy = [0];
+        $x = [];
+        $y = [];
+        $xx = [];
+        $yy = [];
         $arrFood = [];
         $BMI = '';
         $arr = [];
         $profile = User::where('id', auth()->id())->with(['goalPlan' => function ($q) {
             $q->where('active', 1);
-        }, 'goalPlan.goals'])->first();
+        }, 'goalPlan.goals', 'date'])->first();
         $today = Carbon::today();
         //get exercise 
         $CountGetdate = Target::where('user_id', auth()->id())->whereHas('goalPlan.plan', function ($q) {
@@ -112,7 +112,6 @@ class UserController extends Controller
                 array_push($x, $data->x);
                 array_push($y, $data->y);
             }
-            array_push($arr, ['x' => 0, 'y' => 0]);
             foreach ($caloriesForDay as $data) {
                 array_push($arr, ['x' => $data->x, 'y' => intval($data->y)]);
             }
@@ -128,13 +127,11 @@ class UserController extends Controller
                 ->groupBy('x')
                 ->get();
 
-            array_push($arrFood, ['x' => 0, 'y' => 0]);
             foreach ($FoodForDay as $data) {
                 array_push($xx, $data->x);
                 array_push($yy, $data->y);
                 array_push($arrFood, ['x' => $data->x, 'y' => intval($data->y)]);
             }
-            array_push($arr, ['x' => 0, 'y' => 0]);
             foreach ($caloriesForDay as $data) {
                 array_push($arr, ['x' => $data->x, 'y' => intval($data->y)]);
             }

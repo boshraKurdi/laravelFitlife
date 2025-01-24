@@ -39,6 +39,7 @@ Route::group(['prefix' => 'user'], function () {
         Route::get('deleteAccount', [UserController::class, 'deleteAccount']);
         Route::post('editProfile', [UserController::class, 'editProfile']);
         Route::post('update', [UserController::class, 'update']);
+        Route::post('editScheduling', [TargetController::class, 'editScheduling']);
         Route::get('show/{user}', [UserController::class, 'show']);
     });
 });

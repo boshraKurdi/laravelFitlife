@@ -7,10 +7,12 @@ use App\Http\Requests\StoreTargetRequest;
 use App\Http\Requests\StoreTargetSleepRequest;
 use App\Http\Requests\StoreTargetWaterRequest;
 use App\Http\Requests\UpdateTargetRequest;
+use App\Models\Date;
 use App\Models\GoalPlan;
 use App\Models\User;
 use App\Observers\GoalPlanObserver;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class TargetController extends Controller
 {
@@ -200,6 +202,44 @@ class TargetController extends Controller
     public function update(UpdateTargetRequest $request, Target $target)
     {
         $ids = [];
+        $dates = [];
+        $dates_meal = [];
+        $user = User::where('id', $request->user_id)->first();
+        $days = $user->days ? json_decode($user->days, true) : '{"sunday":true,"tuesday":true,"monday":true,"wednesday":true,"thrusday":true,"friday":true,"saturday":true}';
+        $currentDate = Carbon::now();
+        $acceptedCount = 0;
+
+        while ($acceptedCount < 14) {
+            $dayOfWeek = (int)$currentDate->format('w');
+
+            $dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thrusday', 'friday', 'saturday'];
+            $currentDayName = $dayNames[$dayOfWeek];
+
+            if ($days[$currentDayName] === true) {
+                $dates[] = $currentDate->format('Y-m-d');
+                $acceptedCount++;
+            }
+            $dates_meal[] = $currentDate->format('Y-m-d');
+            $currentDate->modify('+1 day');
+        }
+
+        // $checkAll = Target::where('user_id', $request->user_id)->count();
+
+        // $check = Target::where('user_id', $request->user_id)->whereIn('goal_plan_id', $ids)->count();
+        // if (!$check) {
+        //     if (!$checkAll) {
+        for ($i = 0; $i < 14; $i++) {
+            Date::create([
+                'user_id' => $request->user_id,
+                'date' => $dates[$i],
+                'date_meal' => $dates_meal[$i]
+            ]);
+        }
+        $observer = new GoalPlanObserver();
+        $observer->update();
+        //     }
+        // }
+        $ids = [];
         $goal_plan_id = GoalPlan::where('goal_id', $request->goal_id)->get();
         foreach ($goal_plan_id as $id) {
             array_push($ids, $id->id);
@@ -209,6 +249,48 @@ class TargetController extends Controller
                 'active' => true
             ]);
         return response()->json(['data' => 'succ']);
+    }
+
+    public function editScheduling(UpdateTargetRequest $request, Target $target)
+    {
+        $dates = [];
+        $dates_meal = [];
+        $start_day = User::where('id', auth()->id())->with('date')->first();
+        $days = json_decode($request->days, true);
+        $currentDate = count($start_day->date) ? $start_day->date[0]->created_at : 0;
+        $acceptedCount = 0;
+        $request->validate([
+            'days' => 'required',
+        ]);
+        User::where('id', auth()->id())->update([
+            'days' => $request->days
+        ]);
+
+        while ($acceptedCount < 14) {
+            $dayOfWeek = (int)$currentDate->format('w');
+
+            $dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thrusday', 'friday', 'saturday'];
+            $currentDayName = $dayNames[$dayOfWeek];
+
+            if ($days[$currentDayName]) {
+                $dates[] = $currentDate->format('Y-m-d');
+                $acceptedCount++;
+            }
+            $dates_meal[] = $currentDate->format('Y-m-d');
+            $currentDate->modify('+1 day');
+        }
+        Date::where('user_id', auth()->id())->delete();
+
+        for ($i = 0; $i < 14; $i++) {
+            Date::create([
+                'user_id' => auth()->id(),
+                'date' => $dates[$i],
+                'date_meal' => $dates_meal[$i]
+            ]);
+        }
+        $observer = new GoalPlanObserver();
+        $observer->update();
+        return response()->json(['data' => $start_day]);
     }
 
     /**

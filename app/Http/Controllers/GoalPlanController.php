@@ -102,39 +102,34 @@ class GoalPlanController extends Controller
     public function insert($id)
     {
         $ids = [];
-        $dates = [];
         $type = 'error';
-        $currentDate = Carbon::now();
-        for ($i = 0; $i <= 14; $i++) {
-            $dates[] = $currentDate->copy()->addDays($i)->format('Y-m-d');
-        }
+
         $GoalPlan = GoalPlan::where('goal_id', $id)->get();
         foreach ($GoalPlan as $g) {
             array_push($ids, $g->id);
         }
+        $checkAll = Target::where('user_id', auth()->id())->count();
+
         $check = Target::where('user_id', auth()->id())->whereIn('goal_plan_id', $ids)->count();
         $message = 'you have already registered for this goal.😊';
         if (!$check) {
-            foreach ($GoalPlan as $goal) {
-                $goal->users()->attach(auth()->id());
+            if (!$checkAll) {
+                foreach ($GoalPlan as $goal) {
+                    $goal->users()->attach(auth()->id());
+                }
+                $observer = new GoalPlanObserver();
+                $observer->update();
+                $message = 'Your journey have just started, one mill journey starts with one step 🤩🤩';
+                $type = 'success';
+            } else {
+                $message = 'you have already registered , plaese finsh your goal.😊';
             }
-            foreach ($dates as $d) {
-                Date::create([
-                    'user_id' => auth()->id(),
-                    'date' => $d
-                ]);
-            }
-            $observer = new GoalPlanObserver();
-            $observer->update();
-            $message = 'Your journey have just started, one mill journey starts with one step 🤩🤩';
-            $type = 'success';
         }
 
 
         return response()->json([
             'data' => $message,
             'type' => $type,
-
         ]);
     }
 
