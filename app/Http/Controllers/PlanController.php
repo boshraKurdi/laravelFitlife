@@ -186,10 +186,10 @@ class PlanController extends Controller
                 $exe->y = $y;
                 $type = "success";
             } else {
-                $message = 'please wait to processing the goal';
+                $message = app()->getLocale() == 'en' ? 'please wait to processing the goal' : 'الرجاء الانتظار حتى معالجة طلبك';
             }
         } else {
-            $message = "This plan is not available to you or is not intended for exercise.😊";
+            $message = app()->getLocale() == 'en' ? "This plan is not available to you or is not intended for exercise.😊" : "هذه الخطة غير متاحة لك وليست مخصصة لممارسة الرياضة.😊";
         }
 
         return response()->json(['data' => $exe, 'type' => $type,  'message' => $message]);
@@ -210,10 +210,10 @@ class PlanController extends Controller
                 }])->first();
                 $type = 'success';
             } else {
-                $message = 'please wait to processing the goal';
+                $message = app()->getLocale() == 'en' ? 'please wait to processing the goal' : 'الرجاء الانتظار حتى معالجة طلبك';
             }
         } else {
-            $message = "If you want to see more details please register with this goal and don't forget to check your email address 😉😉";
+            $message = app()->getLocale() == 'en' ?  "If you want to see more details please register with this goal and don't forget to check your email address 😉😉" : "إذا كنت تريد رؤية المزيد من التفاصيل يرجى التسجيل بهذا الهدف ولا تنسى التحقق من عنوان بريدك الإلكتروني 😉😉";
         }
 
 
@@ -235,10 +235,10 @@ class PlanController extends Controller
                 }])->first();
                 $type = 'success';
             } else {
-                $message = 'please wait to processing the goal';
+                $message = app()->getLocale() == 'en' ? 'please wait to processing the goal' : 'الرجاء الانتظار حتى معالجة طلبك';
             }
         } else {
-            $message = "If you want to see more details please register with this goal and don't forget to check your email address 😉😉";
+            $message = app()->getLocale() == 'en' ? "If you want to see more details please register with this goal and don't forget to check your email address 😉😉" : "إذا كنت تريد رؤية المزيد من التفاصيل يرجى التسجيل بهذا الهدف ولا تنسى التحقق من عنوان بريدك الإلكتروني 😉😉";
         }
 
 
@@ -310,10 +310,10 @@ class PlanController extends Controller
                 $exe[0]->allMeals = $allMeals;
                 $type = 'success';
             } else {
-                $message = 'please wait to processing the goal';
+                $message = app()->getLocale() == 'en' ? 'please wait to processing the goal' : 'الرجاء الانتظار حتى معالجة طلبك';
             }
         } else {
-            $message = "If you want to see more details please register with this goal and don't forget to check your email address 😉😉";
+            $message = app()->getLocale() == 'en' ? "If you want to see more details please register with this goal and don't forget to check your email address 😉😉" : "إذا كنت تريد رؤية المزيد من التفاصيل يرجى التسجيل بهذا الهدف ولا تنسى التحقق من عنوان بريدك الإلكتروني 😉😉";
         }
 
         return response()->json([
@@ -361,15 +361,15 @@ class PlanController extends Controller
                         return $i;
                     });
                 } else {
-                    $message = "Don't you want to burn the fat? 💪💪What your waiting for start your first plan with us now 🔥🔥";
+                    $message = app()->getLocale() == 'en' ? "Don't you want to burn the fat? 💪💪What your waiting for start your first plan with us now 🔥🔥" : 'ألا تريد حرق الدهون؟ 💪💪ما الذي تنتظره؟ ابدأ خطتك الأولى معنا الآن 🔥🔥';
                 }
 
                 $type = 'success';
             } else {
-                $message = 'please wait to processing the goal';
+                $message =  app()->getLocale() == 'en' ? 'please wait to processing the goal' : 'الرجاء الانتظار حتى معالجة طلبك';
             }
         } else {
-            $message = "If you want to see more details please register with this goal and don't forget to check your email address 😉😉";
+            $message = app()->getLocale() == 'en' ? "If you want to see more details please register with this goal and don't forget to check your email address 😉😉" : "إذا كنت تريد رؤية المزيد من التفاصيل يرجى التسجيل بهذا الهدف ولا تنسى التحقق من عنوان بريدك الإلكتروني 😉😉";
         }
 
         return response()->json(['data' => $newIndex, 'type' => $type, 'message' => $message]);
@@ -466,10 +466,10 @@ class PlanController extends Controller
                 $show->arrDay = $arrDay;
                 $type = 'success';
             } else {
-                $message = 'please wait to processing the goal';
+                $message = app()->getLocale() == 'en' ? 'please wait to processing the goal' : 'الرجاء الانتظار حتى معالجة طلبك';
             }
         } else {
-            $message = "This plan is not available to you or is not intended for goal.😊";
+            $message = app()->getLocale() == 'en' ? "This plan is not available to you or is not intended for goal.😊" : 'هذه الخطة غير متاحة لك أو غير مخصصة للهدف.😊';
         }
         return response()->json(['data' => $show, 'type' => $type, 'message' => $message]);
     }

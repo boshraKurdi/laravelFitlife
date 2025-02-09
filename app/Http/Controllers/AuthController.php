@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AuthUpdateRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
@@ -19,10 +20,12 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         $token = Auth::attempt($credentials);
+
         if (!$token) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'the emaol or password not validation',
+                'message' => app()->getLocale() == 'en' ? 'the email or password not validation' : 'الايميل او كلمة السر غير صالحين',
+                'lan' => app()->getLocale()
             ], 401);
         }
 

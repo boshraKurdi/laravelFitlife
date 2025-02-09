@@ -55,13 +55,13 @@ class TargetController extends Controller
                     $observer = new GoalPlanObserver();
                     $observer->update();
                     $data = 'success';
-                    $message = 'Your progress in the plan meals has been recorded. Keep going. 😎😍';
+                    $message = app()->getLocale() == 'en'  ? 'Your progress in the plan meals has been recorded. Keep going. 😎😍' : 'لقد تم تسجيل تقدمك في خطة الوجبات. استمر. 😎😍';
                 }
             } else {
-                $message = 'please wait to processing the goal';
+                $message = app()->getLocale() == 'en'  ? 'please wait to processing the goal' : 'يرجى الانتظار لمعالجة الهدف';
             }
         } else {
-            $message = 'This plan is not available to you or is not intended for food.😊';
+            $message = app()->getLocale() == 'en'  ? 'This plan is not available to you or is not intended for food.😊' : 'هذه الخطة غير متاحة لك وليست مخصصة للطعام.😊';
         }
 
         return response()->json(['type' => $data, 'message' => $message]);
@@ -92,12 +92,12 @@ class TargetController extends Controller
                 $observer = new GoalPlanObserver();
                 $observer->update();
                 $data = 'success';
-                $message = 'Your progress in the plan sleep has been recorded. Keep going. 😎😍';
+                $message = app()->getLocale() == 'en'  ? 'Your progress in the plan sleep has been recorded. Keep going. 😎😍' : 'لقد تم تسجيل تقدمك في خطة النوم، استمر. 😎😍';
             } else {
-                $message = 'please wait to processing the goal';
+                $message = app()->getLocale() == 'en'  ? 'please wait to processing the goal' : 'يرجى الانتظار لمعالجة الهدف';
             }
         } else {
-            $message = 'This plan is not available to you or is not intended for sleep.😊';
+            $message = app()->getLocale() == 'en' ? 'This plan is not available to you or is not intended for sleep.😊' : 'هذه الخطة غير متاحة لك وليست مخصصة للنوم.😊';
         }
 
         return response()->json(['type' => $data, 'message' => $message]);
@@ -127,13 +127,13 @@ class TargetController extends Controller
                 ]);
                 $observer = new GoalPlanObserver();
                 $observer->update();
-                $message = 'Your progress in the drink water has been recorded. Keep going. 😎😍';
+                $message = app()->getLocale() == 'en' ? 'Your progress in the drink water has been recorded. Keep going. 😎😍' : 'لقد تم تسجيل تقدمك في شرب الماء، استمر. 😎😍';
                 $data = 'success';
             } else {
-                $message = 'please wait to processing the goal';
+                $message = app()->getLocale() == 'en'  ? 'please wait to processing the goal' : 'يرجى الانتظار لمعالجة الهدف';
             }
         } else {
-            $message = 'This plan is not available to you or is not intended for water.😊';
+            $message = app()->getLocale() == 'en' ? 'This plan is not available to you or is not intended for water.😊' : 'هذه الخطة غير متاحة لك أو غير مخصصة للمياه.😊';
         }
 
         return response()->json(['type' => $data, 'message' => $message]);
@@ -176,13 +176,13 @@ class TargetController extends Controller
                 }
                 $observer = new GoalPlanObserver();
                 $observer->update();
-                $message = 'Your progress in the exercises has been recorded. Keep going. 😎😍';
+                $message = app()->getLocale() == 'en'  ? 'Your progress in the exercises has been recorded. Keep going. 😎😍' : 'لقد تم تسجيل تقدمك في التمارين، استمر. 😎😍';
                 $data = 'success';
             } else {
-                $message = 'please wait to processing the goal';
+                $message = app()->getLocale() == 'en'  ? 'please wait to processing the goal' : 'يرجى الانتظار لمعالجة الهدف';
             }
         } else {
-            $message = 'This plan is not available to you or is not intended for exercise.😊';
+            $message = app()->getLocale() == 'en' ? 'This plan is not available to you or is not intended for exercise.😊'  : 'هذه الخطة غير متاحة لك وليست مخصصة لممارسة الرياضة.😊';
         }
 
         return response()->json(['type' => $data, 'message' => $message]);

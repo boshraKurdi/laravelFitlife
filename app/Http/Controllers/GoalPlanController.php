@@ -111,7 +111,7 @@ class GoalPlanController extends Controller
         $checkAll = Target::where('user_id', auth()->id())->count();
 
         $check = Target::where('user_id', auth()->id())->whereIn('goal_plan_id', $ids)->count();
-        $message = 'you have already registered for this goal.😊';
+        $message = app()->getLocale() == 'en' ? 'you have already registered for this goal.😊' : 'لقد قمت بالتسجيل بالفعل لهذا الهدف.😊';
         if (!$check) {
             if (!$checkAll) {
                 foreach ($GoalPlan as $goal) {
@@ -119,10 +119,10 @@ class GoalPlanController extends Controller
                 }
                 $observer = new GoalPlanObserver();
                 $observer->update();
-                $message = 'Your journey have just started, one mill journey starts with one step 🤩🤩';
+                $message = app()->getLocale() == 'en'  ? 'Your journey has just started, one mile journey starts with one step 🤩🤩' : 'رحلتك بدأت للتو، رحلة الميل الواحد تبدأ بخطوة واحدة 🤩🤩';
                 $type = 'success';
             } else {
-                $message = 'you have already registered , plaese finsh your goal.😊';
+                $message = app()->getLocale() == 'en'  ? 'you have already registered , plaese finsh your goal.😊' : 'لقد قمت بالتسجيل بالفعل، يرجى إكمال هدفك.😊';
             }
         }
 
