@@ -49,7 +49,19 @@ class StepSeeder extends Seeder
             'Place your neck in a neutral position and exhale to support your heart.',
             'This exercise targets all of your abdominal muscles, making it a great exercise for your obliques.',
             'To do the exercise, sit on the floor, then lean back at a 45-degree angle and pull your belly in.',
-            'Then bend your knees, then lift your feet off the floor.'
+            'Then bend your knees, then lift your feet off the floor.',
+            'Place your hands and knees on the floor so that your hands are under your shoulders and your knees are under your hips.',
+            'Cow Pose: Take a deep breath, lift your head up, and arch your back down.',
+            'Cat Pose: As you exhale, arch your back up and bring your chin to your chest.',
+            'Sit on your knees with your toes close together.',
+            'Extend your arms forward with your forehead lowered to the floor.',
+            'Relax and take deep breaths for 30 seconds to a minute.',
+            'Lie on your back with your knees bent and your feet flat on the floor.',
+            'Lift your hips up until your body is in a straight line from your knees to your shoulders.',
+            'Press your butt at the top, then slowly lower down.',
+            'Sit on the floor with your legs extended in front of you.',
+            'Bend your right knee and place your right foot over your left knee.',
+            'Place your right hand behind you and your left on your right knee, then gently twist your torso to the right.'
         ];
         $content_ar = [
             'وقف مستقيمًا بقدميك على عرض الكتفين أو أوسع قليلاً، وامكني الدمبل أمام صدرك أو ارتفع بعقبيك.',
@@ -87,10 +99,21 @@ class StepSeeder extends Seeder
             ' وضع الرقبة في وضع محايد وإخراج الزفير لدعم القلب',
             'يستهدف هذا التمرين جميع عضلات البطن ، مما يجعله تمرينًا رائعًا وخصوصاَ لعضلات البطن الجانبية obliques.',
             ' للقيام بالتمرين اجلس على الأرض ثم ارجع للخلف بزاوية 45 درجة وادخل بطنك الى الداخل.',
-            ' بعد ذلك اثني ركبتيك ، ثم قم برفع قدميك عن الأرض'
-
+            ' بعد ذلك اثني ركبتيك ، ثم قم برفع قدميك عن الأرض',
+            'ضع يديك وركبتيك على الأرض بحيث تكون اليدان تحت الكتفين والركبتان تحت الوركين.',
+            'وضعية البقرة: خذ نفسًا عميقًا، ارفع رأسك للأعلى، واجعل ظهرك يتقوس للأسفل',
+            'وضعية القط: أثناء الزفير، انحنِ بظهرك للأعلى وقرب ذقنك إلى صدرك',
+            ' اجلس على ركبتيك مع تقريب أصابع القدمين من بعضهما',
+            'مد ذراعيك للأمام مع إنزال الجبهة إلى الأرض.',
+            'استرخِ وخذ أنفاسًا عميقة لمدة 30 ثانية إلى دقيقة.',
+            ' استلقِ على ظهرك مع ثني ركبتيك وقدميك مسطحتين على الأرض.',
+            'ارفع الوركين للأعلى حتى يصبح الجسم في خط مستقيم من الركبتين إلى الكتفين.',
+            'اضغط على المؤخرة في الأعلى، ثم انزل ببطء.',
+            'اجلس على الأرض مع فرد الساقين أمامك',
+            'اثنِ ركبتك اليمنى وضع قدمك اليمنى فوق الركبة اليسرى.',
+            'ضع يدك اليمنى خلفك واليسرى على ركبتك اليمنى، ثم لف جذعك برفق نحو اليمين.'
         ];
-        $exe = [1, 1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 10];
+        $exe = [1, 1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 10, 11, 11, 11, 12, 12, 12, 13, 13, 13, 14, 14, 14];
         for ($i = 0; $i < count($content); $i++) {
             Step::create([
                 'content' => $content[$i],

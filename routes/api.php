@@ -16,6 +16,7 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\TargetController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserServiceController;
+use App\Models\Target;
 use Illuminate\Support\Facades\Route;
 
 Route::get('getLastTimeUpdateDatabase', [UserController::class, 'getLastTimeUpdateDatabase']);
@@ -77,7 +78,7 @@ Route::group(['prefix' => 'plan'], function () {
         Route::get('water', [PlanController::class, 'getWater']);
         Route::post('{day}/{week}/meals', [PlanController::class, 'meal']);
         Route::post('{plan}/update', [PlanController::class, 'update']);
-        Route::post('{id}/show', [PlanController::class, 'showPlan']);
+        Route::post('{id}/{day}/{week}/show', [PlanController::class, 'showPlan']);
     });
 });
 Route::group(['prefix' => 'exercise'], function () {
@@ -97,10 +98,12 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::get('index', [PlanController::class, 'getUserPlans']);
         Route::get('plans', [GoalPlanController::class, 'getPlanForGoalsWithMuscle']);
         Route::get('insert/{id}', [GoalPlanController::class, 'insert']);
+        Route::get('progress/{day}/{week}', [PlanController::class, 'progress']);
         Route::get('getDateGoal', [GoalPlanController::class, 'getDateGoal']);
         Route::post('store', [TargetController::class, 'store']);
         Route::post('storeSleep', [TargetController::class, 'storeSleep']);
         Route::post('storeWater', [TargetController::class, 'storeWater']);
+        Route::get('addDay', [TargetController::class, 'addDay']);
         Route::post('storeExersice', [TargetController::class, 'storeE']);
     });
     Route::group(['prefix' => 'gym'], function () {
@@ -111,9 +114,12 @@ Route::group(['middleware' => 'auth:api'], function () {
 Route::group(['prefix' => 'dashboard'], function () {
     Route::group(['prefix' => 'user'], function () {
         Route::get('index', [UserController::class, 'index']);
+        Route::get('show/{id}', [UserController::class, 'showUser']);
     });
     Route::group(['prefix' => 'admin'], function () {
         Route::post('active_goal', [TargetController::class, 'update']);
+        Route::post('not_active_goal', [TargetController::class, 'notUpdate']);
+        Route::get('getRequestGoals', [TargetController::class, 'getRequestGoals']);
     });
     Route::group(['prefix' => 'goal'], function () {
         Route::get('index', [GoalController::class, 'index']);

@@ -145,7 +145,11 @@ class TargetController extends Controller
         $data = 'error';
         $count = Target::where('user_id', auth()->id())->whereHas('goalPlan', function ($q) use ($request) {
             $q->where('plan_id', $request->plan_id);
-        })->count();
+        })
+            ->whereHas('goalPlan.plan', function ($q) use ($request) {
+                $q->where('type', '!=', 'sleep')->where('type', '!=', 'water');
+            })
+            ->count();
         if ($count) {
             $goal_plan_id = Target::whereHas('goalPlan', function ($q) use ($request) {
                 $q->where('plan_id', $request->plan_id);
@@ -199,9 +203,55 @@ class TargetController extends Controller
     /**
      * Update the specified resource in storage.
      */
+    public function addDay(UpdateTargetRequest $request, Target $target)
+    {
+        $dates = [];
+        $dates_meal = [];
+        $user = User::where('id', auth()->id())->first();
+        $days = $user->days ? json_decode($user->days, true) : '{"sunday":true,"tuesday":true,"monday":true,"wednesday":true,"thrusday":true,"friday":true,"saturday":true}';
+        $currentDate = Carbon::now();
+        $acceptedCount = 0;
+
+        while ($acceptedCount < 14) {
+            $dayOfWeek = (int)$currentDate->format('w');
+
+            $dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thrusday', 'friday', 'saturday'];
+            $currentDayName = $dayNames[$dayOfWeek];
+
+            if ($days[$currentDayName] === true) {
+                $dates[] = $currentDate->format('Y-m-d');
+                $acceptedCount++;
+            }
+            $dates_meal[] = $currentDate->format('Y-m-d');
+            $currentDate->modify('+1 day');
+        }
+
+        // $checkAll = Target::where('user_id', auth()->id())->count();
+
+        // $check = Target::where('user_id', auth()->id())->whereIn('goal_plan_id', $ids)->count();
+        // if (!$check) {
+        //     if (!$checkAll) {
+        for ($i = 0; $i < 14; $i++) {
+            Date::create([
+                'user_id' => auth()->id(),
+                'date' => $dates[$i],
+                'date_meal' => $dates_meal[$i]
+            ]);
+        }
+        $observer = new GoalPlanObserver();
+        $observer->update();
+        //     }
+        // }
+
+        Target::where('user_id', auth()->id())
+            ->update([
+                'active' => true
+            ]);
+        return response()->json(['data' => 'succ']);
+    }
+
     public function update(UpdateTargetRequest $request, Target $target)
     {
-        $ids = [];
         $dates = [];
         $dates_meal = [];
         $user = User::where('id', $request->user_id)->first();
@@ -239,58 +289,80 @@ class TargetController extends Controller
         $observer->update();
         //     }
         // }
-        $ids = [];
-        $goal_plan_id = GoalPlan::where('goal_id', $request->goal_id)->get();
-        foreach ($goal_plan_id as $id) {
-            array_push($ids, $id->id);
-        }
-        Target::whereIn('goal_plan_id', $ids)->where('user_id', $request->user_id)
+
+        Target::where('user_id', $request->user_id)
             ->update([
                 'active' => true
             ]);
         return response()->json(['data' => 'succ']);
+    }
+    public function notUpdate(UpdateTargetRequest $request, Target $target)
+    {
+
+        $user = User::where('id', $request->user_id)->first();
+        if ($user) {
+            $observer = new GoalPlanObserver();
+            $observer->update();
+            Target::where('user_id', $request->user_id)->delete();
+            return response()->json(['data' => 'succ']);
+        }
     }
 
     public function editScheduling(UpdateTargetRequest $request, Target $target)
     {
         $dates = [];
         $dates_meal = [];
+        $type = 'error';
+        $message = '';
         $start_day = User::where('id', auth()->id())->with('date')->first();
         $days = json_decode($request->days, true);
-        $currentDate = count($start_day->date) ? $start_day->date[0]->created_at : 0;
-        $acceptedCount = 0;
-        $request->validate([
-            'days' => 'required',
-        ]);
-        User::where('id', auth()->id())->update([
-            'days' => $request->days
-        ]);
-
-        while ($acceptedCount < 14) {
-            $dayOfWeek = (int)$currentDate->format('w');
-
-            $dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thrusday', 'friday', 'saturday'];
-            $currentDayName = $dayNames[$dayOfWeek];
-
-            if ($days[$currentDayName]) {
-                $dates[] = $currentDate->format('Y-m-d');
-                $acceptedCount++;
-            }
-            $dates_meal[] = $currentDate->format('Y-m-d');
-            $currentDate->modify('+1 day');
-        }
-        Date::where('user_id', auth()->id())->delete();
-
-        for ($i = 0; $i < 14; $i++) {
-            Date::create([
-                'user_id' => auth()->id(),
-                'date' => $dates[$i],
-                'date_meal' => $dates_meal[$i]
+        if (count($start_day->date)) {
+            $currentDate = Carbon::parse($start_day->date[0]->date_meal);
+            $acceptedCount = 0;
+            $request->validate([
+                'days' => 'required',
             ]);
+            $start_day->update([
+                'days' => $request->days
+            ]);
+
+            while ($acceptedCount < 14) {
+                $dayOfWeek = (int)$currentDate->format('w');
+
+                $dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thrusday', 'friday', 'saturday'];
+                $currentDayName = $dayNames[$dayOfWeek];
+
+                if ($days[$currentDayName]) {
+                    $dates[] = $currentDate->format('Y-m-d');
+                    $acceptedCount++;
+                }
+                $dates_meal[] = $currentDate->format('Y-m-d');
+                $currentDate->modify('+1 day');
+            }
+            Date::where('user_id', auth()->id())->delete();
+
+            for ($i = 0; $i < 14; $i++) {
+                Date::create([
+                    'user_id' => auth()->id(),
+                    'date' => $dates[$i],
+                    'date_meal' => $dates_meal[$i]
+                ]);
+            }
+            $observer = new GoalPlanObserver();
+            $observer->update();
+            $type = 'success';
+            $message = app()->getLocale() == 'en' ? 'update your scheduling. 😎' : "لقد تم تعديل جدولك بنجاح 😎";
+        } else {
+            $message = app()->getLocale() == 'en' ? 'faild update your scheduling , plaese try agen' : "فشل تعديل جدولك حاول مرة اخرى";
         }
-        $observer = new GoalPlanObserver();
-        $observer->update();
-        return response()->json(['data' => $start_day]);
+
+        return response()->json(['data' => $start_day, 'message' => $message, 'type' => $type]);
+    }
+
+    public function getRequestGoals()
+    {
+        $index = Target::selectRaw('user_id as id  , user_id as user_id, MAX(goal_plan_id) as goal_plan_id')->where('active', 0)->with(['users', 'goalPlan.goals'])->groupBy(['user_id'])->get();
+        return response()->json(['data' => $index]);
     }
 
     /**

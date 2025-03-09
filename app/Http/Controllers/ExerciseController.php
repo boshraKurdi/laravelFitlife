@@ -51,7 +51,7 @@ class ExerciseController extends Controller
      */
     public function show(Exercise $exercise)
     {
-        $exe = $exercise->load(['media', 'steps']);
+        $exe = $exercise->load(['media', 'steps', 'steps.media']);
         return response()->json($exe);
     }
 

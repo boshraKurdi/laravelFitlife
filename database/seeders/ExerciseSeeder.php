@@ -24,6 +24,10 @@ class ExerciseSeeder extends Seeder
             'One leg abdominal press exercise',
             'Side panel',
             'Russian exercises',
+            'Cat-Cow Stretch',
+            'Childs Pose',
+            'Glute Bridge',
+            'Seated Spinal Twist'
         ];
         $title_ar = [
             'السكوات',
@@ -36,7 +40,10 @@ class ExerciseSeeder extends Seeder
             'تمرين ضغط البطن بساق واحدة',
             'اللوح الجانبي',
             'التمارين الروسية',
-
+            'تمدد القط والبقرة',
+            'تمرين الطفل ',
+            'تمرين الجسر',
+            'تمرين دوران الجذع',
         ];
         $description = [
             'Squats help make your core stronger by strengthening your abdominal muscles, which in turn makes simple physical activities like twisting, bending, and even standing easier. They may help you balance better and improve your posture.',
@@ -48,7 +55,11 @@ class ExerciseSeeder extends Seeder
             'Excellent exercise to strengthen the abdominal and buttock muscles and improve the strength of the hip area.',
             'Excellent exercise to strengthen the abdominal muscles and improve overall strength and stability of the body.',
             'An effective exercise to strengthen the lateral and core muscles, it helps improve stability and overall body balance.',
-            'Also known as Russian blocks or Russian bread, it is a popular exercise that uses heavy blocks to develop strength and fitness.'
+            'Also known as Russian blocks or Russian bread, it is a popular exercise that uses heavy blocks to develop strength and fitness.',
+            'A simple yoga exercise that helps improve spinal flexibility and reduce stress.',
+            'Relaxation exercise to help relieve tension in the lower back and shoulders.',
+            'Strengthens the thigh and buttock muscles, and improves body balance.',
+            'Helps improve spinal flexibility and relieve back tension'
         ];
         $description_ar = [
             'يساعد تمرين السكوات في جعل محور أو جذع الجسم أقوى من خلال تقوية عضلات البطن، وهذا بدوره يجعل من الأنشطة البدنية البسيطة، مثل: الالتفاف، والانحناء وحتى الوقوف أسهل. قد يساعد في جعلك تتوازن بطريقة أفضل ويحسن من وضعية جسمك.',
@@ -60,11 +71,15 @@ class ExerciseSeeder extends Seeder
             'تمرين ممتاز لتقوية عضلات البطن والأرداف وتحسين قوة منطقة الوركين',
             'تمرين ممتاز لتقوية عضلات البطن وتحسين القوة العامة واستقرار الجسم',
             'تمرين فعال لتقوية عضلات الجانبية والجذع، وهو يساعد على تحسين الثبات والتوازن العام للجسم. ',
-            'المعروفة أيضًا بتمارين الكتل الروسية أو الخبز الروسية، هي تمارين رياضية شهيرة تستخدم الكتل الثقيلة لتنمية القوة واللياقة البدنية'
+            'المعروفة أيضًا بتمارين الكتل الروسية أو الخبز الروسية، هي تمارين رياضية شهيرة تستخدم الكتل الثقيلة لتنمية القوة واللياقة البدنية',
+            'تمرين يوجا بسيط يساعد على تحسين مرونة العمود الفقري وتقليل التوتر',
+            'تمرين استرخاء يساعد على تخفيف التوتر في أسفل الظهر والكتفين',
+            'يقوي عضلات الفخذين والمؤخرة، ويحسن توازن الجسم.',
+            'يساعد على تحسين مرونة العمود الفقري وتخفيف التوتر في الظهر'
         ];
-        $type = ['feminine', 'feminine', 'feminine', 'feminine', 'feminine', 'male', 'male', 'male', 'male', 'male'];
+        $type = ['feminine', 'feminine', 'feminine', 'feminine', 'feminine', 'male', 'male', 'male', 'male', 'male', 'holiday', 'holiday', 'holiday', 'holiday'];
 
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 14; $i++) {
             Exercise::create([
                 'title' => $title[$i],
                 'title_ar' => $title_ar[$i],
