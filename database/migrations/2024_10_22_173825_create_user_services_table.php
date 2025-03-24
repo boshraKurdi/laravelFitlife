@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('month');
             $table->integer('cvc');
             $table->integer('number');
+            $table->string('status')->default('active');
             $table->float('price');
             $table->string('type');
             $table->timestamps();

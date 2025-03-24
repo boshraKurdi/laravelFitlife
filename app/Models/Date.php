@@ -11,7 +11,7 @@ class Date extends Model
     protected $fillable =  [
         'user_id',
         'date',
-        'date_meal'
+        'is_holiday',
     ];
     public function user()
     {

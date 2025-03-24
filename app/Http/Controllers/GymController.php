@@ -22,9 +22,13 @@ class GymController extends Controller
         })->sortBy('distance');
         return response()->json(['data' => $newIndex->values()]);
     }
-    public function getIndex()
+    public function getIndex($id = null)
     {
         $index = Gym::query()->with('media', 'section')->get();
+        if ($id) {
+            $index = Gym::query()->where('id', $id)->with('media', 'section')->get();
+        }
+
         return response()->json(['data' => $index]);
     }
 

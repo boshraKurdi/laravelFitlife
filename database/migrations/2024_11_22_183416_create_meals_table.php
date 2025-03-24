@@ -18,8 +18,6 @@ return new class extends Migration
             $table->string('title_ar');
             $table->text('description');
             $table->text('description_ar');
-            $table->text('components');
-            $table->text('components_ar');
             $table->integer('calories');
             $table->float('carbohydrates');
             $table->float('fats');

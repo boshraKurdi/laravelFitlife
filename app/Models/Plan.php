@@ -38,7 +38,7 @@ class Plan extends Model implements HasMedia
             'plan_exercises',
             'plan_id',
             'exercise_id',
-        );
+        )->withPivot(['day', 'week']);
     }
     public function goals()
     {

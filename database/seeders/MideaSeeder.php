@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Exercise;
 use App\Models\Goal;
 use App\Models\Gym;
+use App\Models\Ingredient;
 use App\Models\Meal;
 use App\Models\Plan;
 use App\Models\Section;
@@ -295,6 +296,26 @@ class MideaSeeder extends Seeder
             ->addMedia($image_coach_5)
             ->preservingOriginal()
             ->toMediaCollection('users');
+        $image_c_1 = storage_path('images\c_1.jpg');
+        $image_c_2 = storage_path('images\c_2.jpg');
+        $image_c_3 = storage_path('images\c_3.jpg');
+        for ($i = 1; $i <= 28; $i++) {
+            $Ingredient_1 = Ingredient::find($i);
+            $Ingredient_1
+                ->addMedia($image_c_1)
+                ->preservingOriginal()
+                ->toMediaCollection('ingredients');
+            $Ingredient_2 = Ingredient::find(28 + $i);
+            $Ingredient_2
+                ->addMedia($image_c_2)
+                ->preservingOriginal()
+                ->toMediaCollection('ingredients');
+            $Ingredient_3 = Ingredient::find(56 + $i);
+            $Ingredient_3
+                ->addMedia($image_c_3)
+                ->preservingOriginal()
+                ->toMediaCollection('ingredients');
+        }
 
         $image_step_1 = storage_path('images\step_1.jpg');
         $image_step_2 = storage_path('images\step_2.jpg');
@@ -303,7 +324,6 @@ class MideaSeeder extends Seeder
         $image_step_5 = storage_path('images\step_5.jpg');
         for ($i = 1; $i <= 10; $i++) {
             $step_1 = Step::find($i);
-
             $step_1
                 ->addMedia($image_step_1)
                 ->preservingOriginal()

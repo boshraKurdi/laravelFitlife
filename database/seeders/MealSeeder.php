@@ -74,36 +74,6 @@ class MealSeeder extends Seeder
             'خبز البيض المسلوق يمكن أن يكون جزءًا من نظام غذائي متوازن يدعم الصحة الجسدية والعقلية.',
             'طبق المناعة يعزز صحة الجسم من خلال توفير العناصر الغذائية الأساسية التي تقوي الجهاز المناعي، مثل الفيتامينات والمعادن ومضادات الأكسدة. يساعد تناول هذا الطبق بانتظام في تقليل خطر الإصابة بالأمراض وتعزيز القدرة على مواجهة العدوى.',
         ];
-        $components = [
-            'Orange',
-            'Dough , Sauce , Cheese , Toppings: Meats , Vegetables',
-            'Shrimp , Shrimp Broth , Vegetables and Spices',
-            'Beef, zucchini, carrots, green pepper, broccoli, spinach, molokhia, bulgur, onions, eggs, garlic, herbs, salt and spices.',
-            'With one or two shots of espresso, steamed milk and a thin layer of foamed milk.',
-            'Lettuce, tomato, mushroom, carrot, sweet corn, black olives, cocktail sauce',
-            'Halal frozen beef, water, salt, onion, garlic, spices, carbohydrates, phosphates (E450, E451, E452), protein.',
-            'Fresh chicken, Assorted vegetables: such as onions, garlic, green peppers, red peppers, eggplant, zucchini, carrots, coriander, Olive oil, Spices and seasonings: such as salt, black pepper, garlic powder, cumin seeds, dried coriander, or any other spices that add a delicious flavor to the meal, Lemon juice: can be added to add a refreshing flavor.',
-            '1 whole chicken (about 1.5 - 2 kg), 4 tablespoons olive oil, juice of 1 lemon, 4 cloves minced garlic, 1 teaspoon paprika, 1 teaspoon cumin, 1 teaspoon dried coriander, salt and pepper to taste',
-            '250 grams of pasta (such as spaghetti, fusilli or any type you prefer), 2 tablespoons of olive oil, 3 cloves of garlic, minced, 1 medium onion, minced, 1 bell pepper (any color) cut into cubes, 1 cup of chopped tomatoes (can use canned tomatoes), 1 teaspoon of dried herbs (such as oregano or basil), grated Parmesan cheese (optional for serving)',
-            '200g rice noodles or regular noodles, 250g chicken breast, sliced, 2 cups mixed vegetables (such as carrots, peppers, broccoli), 3 tablespoons soy sauce and 1 teaspoon sesame oil',
-            '2 boiled eggs, 2 slices of bread (wholemeal bread can be used), salt and pepper to taste, sliced ​​cucumber or tomato (optional), 1 teaspoon mayonnaise or yogurt (optional)',
-            '1 cup fresh spinach, 1/2 avocado, 1 chopped cucumber, 1 tablespoon lemon juice, 1 handful of nuts (such as almonds or walnuts)'
-        ];
-        $components_ar = [
-            'برتقال',
-            'العجين , الصلصة , الجبن , الإضافات: اللحوم , الخضروات',
-            'الروبيان , مرق الروبيان,الخضار,لبهارات والتوابل',
-            ' لحم بقري، كوسة، جزر، فلفل أخضر، بروكلي، سبانخ، ملوخية، برغل، بصل، بيض، ثوم، أعشاب، ملح وبهارات.',
-            ' بجرعة أو جرعتين من الاسبريسو، حليب مبخر وتعلوهم طبقة رقيقة من الحليب الرغوي',
-            'خس ، طماطم ، فطر ، جزر ، ذرة حلوة ، زيتون أسود ، صلصة الكوكتيل',
-            'لحم بقري مجمد حلال، ماء، ملح، بصل، ثوم، بهارات، كربوهيدرات، فوسفات (E450، E451، E452)، بروتين.',
-            'دجاج طازج ، خضروات متنوعة: مثل البصل، الثوم، الفلفل الأخضر، الفلفل الأحمر، الباذنجان، الكوسا، الجزر، الكزبرة، زيت الزيتون ، التوابل والبهارات: مثل الملح، الفلفل الأسود، بودرة الثوم، بذور الكمون، الكزبرة المجففة، أو أي توابل أخرى تضيف نكهة لذيذة للوجبة ، عصير الليمون: يمكن إضافته لإضافة نكهة منعشة.',
-            'دجاجة كاملة (حوالي 1.5 - 2 كجم)، 4 ملاعق كبيرة زيت زيتون ،عصير ليمونة واحدة ،4 فصوص ثوم مفروم ، ملعقة صغيرة من البابريكا، ملعقة صغيرة من الكمون ، ملعقة صغيرة من الكزبرة المجففة ، ملح وفلفل حسب الذوق',
-            '250 غرام من المعكرونة (مثل السباغيتي أو الفوسيلي أو أي نوع تفضله) ، 2 ملعقة كبيرة من زيت الزيتون ، 3 فصوص ثوم مفرومة ،1 حبة بصل متوسطة مفرومة ،1 حبة فلفل رومي (أي لون) مقطعة إلى مكعبات ،1 كوب من الطماطم المقطعة (يمكن استخدام الطماطم المعلبة) ،1 ملعقة صغيرة من الأعشاب المجففة (مثل الأوريجانو أو الريحان) ،جبنة بارميزان مبشورة (اختياري للتقديم)',
-            '200 غرام من نودلز الأرز أو النودلز العادية ،250 غرام من صدور الدجاج، مقطعة إلى شرائح ، 2 كوب من الخضار المشكّلة (مثل الجزر والفلفل والبروكلي) ،3 ملاعق كبيرة من صوص الصويا وملعقة صغيرة من زيت السمسم',
-            '2 بيضة مسلوقة ، شريحتان من الخبز (يمكن استخدام الخبز الكامل) ،ملح وفلفل حسب الذوق ،شرائح خيار أو طماطم (اختياري) ، ملعقة صغيرة من المايونيز أو الزبادي (اختياري)',
-            'كوب من السبانخ الطازجة ، نصف حبة أفوكادو ،حبة خيار مقطعة ، ملعقة كبيرة من عصير الليمون، حفنة من المكسرات (مثل اللوز أو الجوز)'
-        ];
         $prepare = [
             'j',
             'The oven temperature starts at a high temperature, usually around 200-220 degrees Celsius, Use pizza dough, fill it with sauce and cheese,Add your favorite toppings such as produce or flowers,Place the pizza in the oven for 10-15 minutes until it becomes a school headquarters and the cheese is golden.',
@@ -151,8 +121,6 @@ class MealSeeder extends Seeder
                 'title_ar' => $title_ar[$i],
                 'description' => $description[$i],
                 'description_ar' => $description_ar[$i],
-                'components' => $components[$i],
-                'components_ar' => $components_ar[$i],
                 'prepare' => $prepare[$i],
                 'calories' => rand(10, 100),
                 'carbohydrates' => rand(10, 100),

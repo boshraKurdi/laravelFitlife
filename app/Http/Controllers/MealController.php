@@ -5,15 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\Meal;
 use App\Http\Requests\StoreMealRequest;
 use App\Http\Requests\UpdateMealRequest;
+use App\Models\Ingredient;
 
 class MealController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($id = null)
     {
         $index = Meal::query()->with(['media', 'category'])->get();
+        if ($id) {
+            $index = Meal::query()->where('id', $id)->with(['media', 'category'])->get();
+        }
         return response()->json(['data' => $index]);
     }
 
@@ -22,7 +26,7 @@ class MealController extends Controller
      */
     public function store(StoreMealRequest $request)
     {
-        $store = Meal::create([
+        $meal = Meal::create([
             'title' => $request->title,
             'title_ar' => $request->title_ar,
             'description' => $request->description,
@@ -30,11 +34,34 @@ class MealController extends Controller
             'components' => $request->components,
             'components_ar' => $request->components_ar,
             'prepare' => $request->prepare,
+            'carbohydrates' => $request->carbohydrates,
+            'proteins' => $request->proteins,
+            'fats' => $request->fats,
             'calories' => $request->calories,
             'prepare_ar' => $request->prepare_ar,
             'category_id' => $request->category_id
         ]);
-        return response()->json($store);
+        if ($request->hasFile("media")) {
+            $meal->addMediaFromRequest("media")->toMediaCollection('meals');
+        }
+
+        if ($request->has('ingredients')) {
+            foreach ($request->ingredients as $index => $stepData) {
+
+
+                $step = Ingredient::create([
+                    'meal_id' => $meal->id,
+                    'name' => $stepData['name'],
+                    'name_ar' => $stepData['name_ar'],
+                    'num' => $stepData['num'],
+                ]);
+                if ($request->hasFile("media_ingredients.$index")) {
+                    $step->addMediaFromRequest("media_ingredients.$index")->toMediaCollection('ingredients');
+                }
+            }
+        }
+
+        return response()->json($meal);
     }
 
     /**
@@ -42,7 +69,7 @@ class MealController extends Controller
      */
     public function show(Meal $meal)
     {
-        $show = $meal->load(['media', 'category']);
+        $show = $meal->load(['media', 'category', 'ingredients', 'ingredients.media']);
         $other = Meal::whereHas('category', function ($q) use ($meal) {
             $q->where('id', $meal->category->id);
         })->with('media')->get();
@@ -63,10 +90,35 @@ class MealController extends Controller
             'components' => $request->components,
             'components_ar' => $request->components_ar,
             'prepare' => $request->prepare,
+            'carbohydrates' => $request->carbohydrates,
+            'proteins' => $request->proteins,
+            'fats' => $request->fats,
             'calories' => $request->calories,
             'prepare_ar' => $request->prepare_ar,
             'category_id' => $request->category_id
         ]);
+        if ($request->hasFile("media")) {
+            $meal->addMediaFromRequest("media")->toMediaCollection('meals');
+        }
+
+        if ($request->has('ingredients')) {
+            Ingredient::where('meal_id',  $meal->id)->delete();
+            foreach ($request->ingredients as $index => $stepData) {
+
+                $i = Ingredient::create([
+                    'meal_id' => $meal->id,
+                    'name' => $stepData['name'],
+                    'name_ar' => $stepData['name_ar'],
+                    'num' => $stepData['num'],
+                ]);
+
+
+                if ($request->hasFile("media_ingredients.$index")) {
+                    $i->addMediaFromRequest("media_ingredients.$index")->toMediaCollection('ingredients');
+                }
+            }
+        }
+
         return response()->json(['data' => 'update meal successfully!']);
     }
 

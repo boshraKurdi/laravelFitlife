@@ -253,58 +253,74 @@ class TargetController extends Controller
     public function update(UpdateTargetRequest $request, Target $target)
     {
         $dates = [];
-        $dates_meal = [];
+        $holiday = [];
+        $message = app()->getLocale() == 'en' ? 'Target acceptance failed try again 😢' : 'فشل قبول الهدف حاول مرة أخرى 😢';
+        $type = 'error';
         $user = User::where('id', $request->user_id)->first();
-        $days = $user->days ? json_decode($user->days, true) : '{"sunday":true,"tuesday":true,"monday":true,"wednesday":true,"thrusday":true,"friday":true,"saturday":true}';
-        $currentDate = Carbon::now();
-        $acceptedCount = 0;
+        $days = json_decode($user->days, true);
+        if ($days) {
+            $currentDate = Carbon::now();
 
-        while ($acceptedCount < 14) {
-            $dayOfWeek = (int)$currentDate->format('w');
+            for ($i = 0; $i < 14; $i++) {
+                $dayOfWeek = (int)$currentDate->format('w');
 
-            $dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thrusday', 'friday', 'saturday'];
-            $currentDayName = $dayNames[$dayOfWeek];
+                $dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thrusday', 'friday', 'saturday'];
+                $currentDayName = $dayNames[$dayOfWeek];
 
-            if ($days[$currentDayName] === true) {
+                if ($days[$currentDayName] === true) {
+                    $holiday[] = 0;
+                } else {
+                    $holiday[] = 1;
+                }
                 $dates[] = $currentDate->format('Y-m-d');
-                $acceptedCount++;
+                $currentDate->modify('+1 day');
             }
-            $dates_meal[] = $currentDate->format('Y-m-d');
-            $currentDate->modify('+1 day');
+
+
+            // $checkAll = Target::where('user_id', $request->user_id)->count();
+
+            // $check = Target::where('user_id', $request->user_id)->whereIn('goal_plan_id', $ids)->count();
+            // if (!$check) {
+            //     if (!$checkAll) {
+            for ($i = 0; $i < 14; $i++) {
+                Date::create([
+                    'user_id' => $request->user_id,
+                    'date' => $dates[$i],
+                    'is_holiday' => $holiday[$i]
+                ]);
+            }
+            $observer = new GoalPlanObserver();
+            $observer->update();
+            //     }
+            // }
+
+            $t = Target::where('user_id', $request->user_id)
+                ->update([
+                    'active' => true
+                ]);
+            if ($t) {
+                $type = "success";
+                $message = app()->getLocale() == 'en' ? 'The target has been successfully accepted🔥' : "تم قبول الهدف بنجاح🔥";
+            }
         }
 
-        // $checkAll = Target::where('user_id', $request->user_id)->count();
-
-        // $check = Target::where('user_id', $request->user_id)->whereIn('goal_plan_id', $ids)->count();
-        // if (!$check) {
-        //     if (!$checkAll) {
-        for ($i = 0; $i < 14; $i++) {
-            Date::create([
-                'user_id' => $request->user_id,
-                'date' => $dates[$i],
-                'date_meal' => $dates_meal[$i]
-            ]);
-        }
-        $observer = new GoalPlanObserver();
-        $observer->update();
-        //     }
-        // }
-
-        Target::where('user_id', $request->user_id)
-            ->update([
-                'active' => true
-            ]);
-        return response()->json(['data' => 'succ']);
+        return response()->json(['data' =>  $user, 'message' => $message, 'type' => $type]);
     }
     public function notUpdate(UpdateTargetRequest $request, Target $target)
     {
 
         $user = User::where('id', $request->user_id)->first();
+        $message = app()->getLocale() == 'en' ? 'Target Unacceptance failed try again 😢' : 'فشل الرفض الهدف حاول مرة أخرى 😢';
+        $type = 'error';
         if ($user) {
             $observer = new GoalPlanObserver();
             $observer->update();
-            Target::where('user_id', $request->user_id)->delete();
-            return response()->json(['data' => 'succ']);
+            $t = Target::where('user_id', $request->user_id)->delete();
+            if ($t) {
+                $type = "success";
+                $message = app()->getLocale() == 'en' ? 'The target has been successfully unaccepted' : "تم رفض الهدف بنجاح🔥";
+            }
+            return response()->json(['data' =>  $user, 'message' => $message, 'type' => $type]);
         }
     }
 
@@ -317,8 +333,7 @@ class TargetController extends Controller
         $start_day = User::where('id', auth()->id())->with('date')->first();
         $days = json_decode($request->days, true);
         if (count($start_day->date)) {
-            $currentDate = Carbon::parse($start_day->date[0]->date_meal);
-            $acceptedCount = 0;
+            $currentDate = Carbon::parse($start_day->date[0]->date);
             $request->validate([
                 'days' => 'required',
             ]);
@@ -326,32 +341,41 @@ class TargetController extends Controller
                 'days' => $request->days
             ]);
 
-            while ($acceptedCount < 14) {
-                $dayOfWeek = (int)$currentDate->format('w');
+            if ($days) {
+                Date::where('user_id', auth()->id())->delete();
+                $currentDate = Carbon::now();
 
-                $dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thrusday', 'friday', 'saturday'];
-                $currentDayName = $dayNames[$dayOfWeek];
+                for ($i = 0; $i < 14; $i++) {
+                    $dayOfWeek = (int)$currentDate->format('w');
 
-                if ($days[$currentDayName]) {
+                    $dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thrusday', 'friday', 'saturday'];
+                    $currentDayName = $dayNames[$dayOfWeek];
+
+                    if ($days[$currentDayName] === true) {
+                        $holiday[] = 0;
+                    } else {
+                        $holiday[] = 1;
+                    }
                     $dates[] = $currentDate->format('Y-m-d');
-                    $acceptedCount++;
+                    $currentDate->modify('+1 day');
                 }
-                $dates_meal[] = $currentDate->format('Y-m-d');
-                $currentDate->modify('+1 day');
-            }
-            Date::where('user_id', auth()->id())->delete();
 
-            for ($i = 0; $i < 14; $i++) {
-                Date::create([
-                    'user_id' => auth()->id(),
-                    'date' => $dates[$i],
-                    'date_meal' => $dates_meal[$i]
-                ]);
+
+                for ($i = 0; $i < 14; $i++) {
+                    Date::create([
+                        'user_id' => auth()->id(),
+                        'date' => $dates[$i],
+                        'is_holiday' => $holiday[$i]
+                    ]);
+                }
+                $observer = new GoalPlanObserver();
+                $observer->update();
+                //     }
+                // }
+
+                $type = "success";
+                $message = app()->getLocale() == 'en' ? 'update your scheduling. 😎' : "لقد تم تعديل جدولك بنجاح 😎";
             }
-            $observer = new GoalPlanObserver();
-            $observer->update();
-            $type = 'success';
-            $message = app()->getLocale() == 'en' ? 'update your scheduling. 😎' : "لقد تم تعديل جدولك بنجاح 😎";
         } else {
             $message = app()->getLocale() == 'en' ? 'faild update your scheduling , plaese try agen' : "فشل تعديل جدولك حاول مرة اخرى";
         }

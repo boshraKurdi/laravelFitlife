@@ -15,8 +15,6 @@ class Meal extends Model implements HasMedia
         'title_ar',
         'description',
         'description_ar',
-        'components',
-        'components_ar',
         'prepare',
         'calories',
         'carbohydrates',
@@ -37,6 +35,12 @@ class Meal extends Model implements HasMedia
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+    public function ingredients()
+    {
+        return $this->hasMany(
+            Ingredient::class,
+        );
     }
 
     public function registerMediaCollections(): void

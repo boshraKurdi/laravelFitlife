@@ -11,9 +11,14 @@ class SectionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($id = null)
     {
-        return response()->json(['data' => Section::with('media')->get()]);
+        $index = Section::with('media')->get();
+        if ($id) {
+            $index = Section::where('id', $id)->with('media')->get();
+        }
+
+        return response()->json(['data' => $index]);
     }
 
     /**

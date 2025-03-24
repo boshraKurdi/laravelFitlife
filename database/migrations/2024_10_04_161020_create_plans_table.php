@@ -20,8 +20,8 @@ return new class extends Migration
             $table->integer('duration');
             $table->string('muscle');
             $table->string('muscle_ar');
-            $table->string('sleep');
-            $table->string('water');
+            $table->string('sleep')->nullable();
+            $table->string('water')->nullable();
             $table->string('type');
             $table->string('type_ar');
             $table->timestamps();

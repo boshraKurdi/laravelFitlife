@@ -12,9 +12,12 @@ class GoalController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($id = null)
     {
         $goals = Goal::query()->with('media')->get();
+        if ($id) {
+            $goals = Goal::query()->where('id', $id)->with('media')->get();
+        }
         return response()->json(['data' => $goals]);
     }
 

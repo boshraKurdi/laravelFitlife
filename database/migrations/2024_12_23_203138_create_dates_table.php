@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(User::class)->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->string('date');
-            $table->string('date_meal');
+            $table->boolean('is_holiday');
             $table->timestamps();
         });
     }

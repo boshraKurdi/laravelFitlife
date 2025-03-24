@@ -9,19 +9,25 @@ use App\Http\Requests\UpdatePlanRequest;
 use App\Models\Exercise;
 use App\Models\GoalPlan;
 use App\Models\PlanExercise;
+use App\Models\PlanMeal;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Target;
+use App\Services\IsHoliday;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PlanController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($id = null)
     {
-        $index = Plan::with(['media'])->get();
+        $index = Plan::with(['media', 'exercise'])->get();
+        if ($id) {
+            $index = Plan::where('id', $id)->with(['media'])->get();
+        }
         return response()->json(['data' => $index]);
     }
 
@@ -43,12 +49,49 @@ class PlanController extends Controller
      */
     public function store(StorePlanRequest $request)
     {
-        $plan = Plan::query()->create([
+        $plan = Plan::create([
             'title' => $request->title,
+            'title_ar' => $request->title_ar,
             'description' => $request->description,
+            'description_ar' => $request->description_ar,
             'muscle' => $request->muscle,
-            'duration' => $request->duration
+            'muscle_ar' => $request->muscle_ar,
+            'duration' => $request->duration,
+            'water' => $request->water,
+            'sleep' => $request->sleep,
+            'type' => $request->type,
+            'type_ar' => $request->type_ar
         ]);
+        $allDays = json_decode($request->a, true);
+        if ($request->type === 'food') {
+            foreach ($allDays as $index => $meal_ids) {
+                foreach ($meal_ids as $id) {
+                    PlanMeal::create([
+                        'meal_id' => $id,
+                        'plan_id' => $plan->id,
+                        'day' => ($index % 7) + 1,
+                        'week' => intval($index / 7) + 1,
+                        'breakfast' => 0,
+                        'dinner' => 0,
+                        'lunch' => 0,
+                        'snacks' => 1
+                    ]);
+                }
+            }
+        } else if ($request->type !== 'water' && $request->type !== 'food' && $request->type !== 'sleep') {
+
+
+            foreach ($allDays as $index => $exercise_ids) {
+                foreach ($exercise_ids as $id) {
+                    PlanExercise::create([
+                        'exercise_id' => $id,
+                        'plan_id' => $plan->id,
+                        'day' => ($index % 7) + 1,
+                        'week' => intval($index / 7) + 1,
+                    ]);
+                }
+            }
+        }
         if ($request->media) {
             $plan->addMediaFromRequest('media')->toMediaCollection('plans');
         }
@@ -60,7 +103,7 @@ class PlanController extends Controller
      */
     public function show(Plan $plan)
     {
-        $show = $plan->load(['media']);
+        $show = $plan->load(['media', 'exercise']);
         return response()->json($show);
     }
 
@@ -69,15 +112,49 @@ class PlanController extends Controller
      */
     public function update(UpdatePlanRequest $request, Plan $plan)
     {
-        $update = $plan->update([
+        $plan->update([
             'title' => $request->title,
             'title_ar' => $request->title_ar,
             'description' => $request->description,
             'description_ar' => $request->description_ar,
             'muscle' => $request->muscle,
             'muscle_ar' => $request->muscle_ar,
-            'duration' => $request->duration
+            'duration' => $request->duration,
+            'water' => $request->water,
+            'sleep' => $request->sleep,
+            'type' => $request->type,
+            'type_ar' => $request->type_ar
         ]);
+        $allDays = json_decode($request->a, true);
+        if ($request->type === 'food') {
+            PlanMeal::where('plan_id', $plan->id)->delete();
+            foreach ($allDays as $index => $meal_ids) {
+                foreach ($meal_ids as $id) {
+                    PlanMeal::create([
+                        'meal_id' => $id,
+                        'plan_id' => $plan->id,
+                        'day' => ($index % 7) + 1,
+                        'week' => intval($index / 7) + 1,
+                        'breakfast' => 0,
+                        'dinner' => 0,
+                        'lunch' => 0,
+                        'snacks' => 1
+                    ]);
+                }
+            }
+        } else if ($request->type !== 'water' && $request->type !== 'food' && $request->type !== 'sleep') {
+            PlanExercise::where('plan_id', $plan->id)->delete();
+            foreach ($allDays as $index => $exercise_ids) {
+                foreach ($exercise_ids as $id) {
+                    PlanExercise::create([
+                        'exercise_id' => $id,
+                        'plan_id' => $plan->id,
+                        'day' => ($index % 7) + 1,
+                        'week' => intval($index / 7) + 1,
+                    ]);
+                }
+            }
+        }
         if ($request->media) {
             $plan->addMediaFromRequest('media')->toMediaCollection('plans');
         }
@@ -89,7 +166,8 @@ class PlanController extends Controller
      */
     public function destroy(Plan $plan)
     {
-        //
+        $plan->delete();
+        return response()->json('delete');
     }
 
     public function exercise(Request $request, $plan, $day, $week)
@@ -175,8 +253,9 @@ class PlanController extends Controller
                     }
                 }
                 //get exe
+                $is = IsHoliday::IsHoliday();
 
-                if ($day) {
+                if (!$is) {
                     $exe =  Plan::where('id', $plan)->with(['exercise' => function ($q) use ($day, $week) {
                         $q->where('day', $day)->where('week', $week);
                     }, 'exercise.media', 'targets' => function ($q) use ($today) {
@@ -212,6 +291,7 @@ class PlanController extends Controller
         $today = Carbon::today();
         $message = '';
         $sleep = '';
+        $arrDay = [];
 
         $type = 'error';
         $check = Target::where('user_id', auth()->id())->count();
@@ -221,6 +301,19 @@ class PlanController extends Controller
                 $sleep =  Plan::where('id', 14)->with(['targets' => function ($q) use ($today) {
                     $q->where('user_id', auth()->id())->where('sleep', '!=', null)->whereDate('targets.created_at', $today);
                 }])->first();
+
+                $SleepForDay = Target::selectRaw('DATE(created_at) as x, SUM(sleep) as y')
+                    ->whereHas('goalPlan.plan', function ($q) {
+                        $q->where('type', 'sleep');
+                    })
+                    ->where('user_id', auth()->id())
+                    ->groupBy('x')
+                    ->get();
+
+                foreach ($SleepForDay as $data) {
+                    array_push($arrDay, ['x' => $data->x, 'y' => intval($data->y)]);
+                }
+                $sleep->arrDay = $arrDay;
                 $type = 'success';
             } else {
                 $message = app()->getLocale() == 'en' ? 'please wait to processing the goal' : 'الرجاء الانتظار حتى معالجة طلبك';
@@ -238,6 +331,7 @@ class PlanController extends Controller
         $today = Carbon::today();
         $message = '';
         $water = '';
+        $arrDay = [];
         $type = 'error';
         $check = Target::where('user_id', auth()->id())->count();
         if ($check) {
@@ -246,6 +340,19 @@ class PlanController extends Controller
                 $water =  Plan::where('id', 15)->with(['targets' => function ($q) use ($today) {
                     $q->where('user_id', auth()->id())->where('water', '!=', null)->whereDate('targets.created_at', $today);
                 }])->first();
+
+                $WaterForDay = Target::selectRaw('DATE(created_at) as x, SUM(water) as y')
+                    ->whereHas('goalPlan.plan', function ($q) {
+                        $q->where('type', 'water');
+                    })
+                    ->where('user_id', auth()->id())
+                    ->groupBy('x')
+                    ->get();
+
+                foreach ($WaterForDay as $data) {
+                    array_push($arrDay, ['x' => $data->x, 'y' => intval($data->y)]);
+                }
+                $water->arrDay = $arrDay;
                 $type = 'success';
             } else {
                 $message = app()->getLocale() == 'en' ? 'please wait to processing the goal' : 'الرجاء الانتظار حتى معالجة طلبك';
@@ -270,6 +377,7 @@ class PlanController extends Controller
         $exe = [];
         $today = Carbon::now();
         $message = '';
+        $arrDay = [];
         $plan_id = 0;
         $type = 'error';
         $check = Target::where('user_id', auth()->id())->count();
@@ -305,8 +413,6 @@ class PlanController extends Controller
                 }
 
                 //get meal bars
-                $xx = [];
-                $yy = [];
                 $FoodForDay = Target::selectRaw('DATE(created_at) as x, SUM(calories) as y')
                     ->whereHas('goalPlan.plan', function ($q) {
                         $q->where('type', 'food');
@@ -316,11 +422,12 @@ class PlanController extends Controller
                     ->get();
 
                 foreach ($FoodForDay as $data) {
-                    array_push($xx, $data->x ? $data->x : 0);
-                    array_push($yy, $data->y ? $data->y  : 0);
+                    array_push($arrDay, ['x' => $data->x, 'y' => intval($data->y)]);
                 }
 
+
                 $exe[0]->allMeals = $allMeals;
+                $exe[0]->arrDay = $arrDay;
                 $type = 'success';
             } else {
                 $message = app()->getLocale() == 'en' ? 'please wait to processing the goal' : 'الرجاء الانتظار حتى معالجة طلبك';
@@ -334,8 +441,6 @@ class PlanController extends Controller
             'date' => $target->users->date,
             'id' => $plan_id ? $plan_id->id : 0,
             'type' => $type,
-            'x' => $xx,
-            'y' => $yy,
             'message' => $message
         ]);
     }
@@ -428,6 +533,7 @@ class PlanController extends Controller
                     $d->meals = $food;
                     $d->water = $water;
                     $d->sleep = $sleep;
+                    $d->date = Auth::user()->date;
                 }
             } else {
                 $message =  app()->getLocale() == 'en' ? 'please wait to processing the goal' : 'الرجاء الانتظار حتى معالجة طلبك';
@@ -467,7 +573,7 @@ class PlanController extends Controller
                                 $q->where('plan_id', $i->id);
                             })->where('check', '!=', 0)
                             ->count();
-                        $totalRate = intval(($count / 42) * 100);
+                        $totalRate = intval(($count / 21) * 100);
                         $i->totalRate = $totalRate;
                         return $i;
                     });
@@ -507,38 +613,44 @@ class PlanController extends Controller
             if ($CountGetdateActive) {
                 $Getdate = Target::where('user_id', auth()->id())->with('users.date')->first();
                 $date = $Getdate->users->date;
-                $firstWeek = [$date[0], $date[1], $date[2], $date[3], $date[4], $date[5], $date[6]];
-                $secondWeek = [$date[7], $date[8], $date[9], $date[10], $date[11], $date[12], $date[13]];
+
+                //count exerice with gender 
                 $count = Target::where('user_id', auth()->id())
                     ->whereHas('goalPlan', function ($q) use ($id) {
                         $q->where('plan_id', $id);
-                    })->whereHas('goalPlan.plan.exercise', function ($q) {
-                        $q->where('type', Auth::user()->gender);
                     })
                     ->whereIn('check', $ar)->count();
+                $dates = $Getdate->users->date;
+
+
+                $weeks = collect($dates)->chunk(7)->values();
+
+                $results = [];
+                //progress week rate 
+                foreach ($weeks as $index => $weekDays) {
+
+                    $weekDates = collect($weekDays)->map(function ($d) {
+                        return Carbon::parse($d->date)->toDateString();
+                    });
+
+                    $countWeekIndex = Target::where('user_id', auth()->id())
+                        ->whereHas('goalPlan', function ($q) use ($id) {
+                            $q->where('plan_id', $id);
+                        })
+                        ->where('check', '!=', 0)
+                        ->whereIn(DB::raw('DATE(updated_at)'), $weekDates)
+                        ->count();
+
+                    $totalRate = intval(($countWeekIndex / 21) * 100); // عدل الرقم حسب النظام عندك
+
+                    $results[] = [
+                        'week' => $index + 1,
+                        'rate'  => $totalRate
+                    ];
+                }
                 $totalRate = intval(($count / 21) * 100);
-                $countWeekOne = Target::where('user_id', auth()->id())
-                    ->whereHas('goalPlan', function ($q) use ($id) {
-                        $q->where('plan_id', $id);
-                    })->where('check', '!=', 0)->where(function ($query) use ($firstWeek) {
-                        foreach ($firstWeek as $d) {
-                            $query->orWhereDate('updated_at', '=', Carbon::parse($d->date));
-                        }
-                    })
-                    ->count();
 
-                $totalRateWeekOne = intval(($countWeekOne / 21) * 100);
-                $countWeekTwo = Target::where('user_id', auth()->id())
-                    ->whereHas('goalPlan', function ($q) use ($id) {
-                        $q->where('plan_id', $id);
-                    })->where('check', '!=', 0)->where(function ($query) use ($secondWeek) {
-                        foreach ($secondWeek as $d) {
-                            $query->WhereDate('updated_at', '=', Carbon::parse($d->date));
-                        }
-                    })
-                    ->count();
 
-                $totalRateWeekTwo = intval(($countWeekTwo / 21) * 100);
                 $countDay = Target::where('user_id', auth()->id())
                     ->whereHas('goalPlan', function ($q) use ($id) {
                         $q->where('plan_id', $id);
@@ -549,39 +661,31 @@ class PlanController extends Controller
                     ->count();
                 $countE = $countx ? $countx : 1;
                 $totalRateDay = intval(($countDay / $countE) * 100);
-                if ($request->type) {
-                    if ($request->type === 'weekly') {
-                        if ($request->number_week == 1) {
-                            $arr = $firstWeek;
-                        } else if ($request->number_week == 2) {
-                            $arr = $secondWeek;
-                        }
-                        foreach ($arr as $d) {
-                            $countDayTotal = Target::where('user_id', auth()->id())
-                                ->whereHas('goalPlan', function ($q) use ($id) {
-                                    $q->where('plan_id', $id);
-                                })->where('check', '!=', 0)->whereDate('updated_at', $d->date)->count();
-                            $totalRateDayTotal = intval(($countDayTotal / $countE) * 100);
-                            array_push($arrDay, ['x' => $d->date, 'y' => $totalRateDayTotal]);
-                        }
-                    } else {
-                        array_push($arrDay, ["x" => 'first week', 'y' => $totalRateWeekOne]);
-                        array_push($arrDay, ['x' => "scound week", 'y' => $totalRateWeekTwo]);
-                    }
+
+
+                // drow proggres day rate
+                $AllDayTotal = Target::selectRaw('DATE(created_at) as x, SUM(calories) as y')->where('user_id', auth()->id())
+                    ->whereHas('goalPlan', function ($q) use ($id) {
+                        $q->where('plan_id', $id);
+                    })->where('check', '!=', 0)->groupBy('x')->get();
+
+                foreach ($AllDayTotal as $data) {
+                    $totalRateDayTotal = intval((count($AllDayTotal) / $countE) * 100);
+                    array_push($arrDay, ['x' => $data->x, 'y' => $totalRateDayTotal]);
                 }
+
                 // progress claories
-                foreach ($arr as $d) {
-                    $countDayTotalC =   Target::selectRaw('SUM(calories) as y')
-                        ->whereHas('goalPlan.plan', function ($q) use ($id) {
-                            $q->where('id', $id);
-                        })
-                        ->where('user_id', auth()->id())
-                        ->where('check', '!=', 0)
-                        ->whereDate('updated_at', $d->date)
-                        ->first();
-                    $totalRateDayTotal = intval(($countDayTotal / 3) * 100);
-                    array_push($arrCal, ['x' => $d->date, 'y' => $countDayTotalC->y ? $countDayTotalC->y : 0]);
+                $CalroiesForDay = Target::selectRaw('DATE(created_at) as x, SUM(calories) as y')
+                    ->whereHas('goalPlan.plan', function ($q) {
+                        $q->where('type', "!=", 'food')->where('type', "!=", 'water')->where('type', "!=", 'sleep');
+                    })
+                    ->where('user_id', auth()->id())
+                    ->groupBy('x')
+                    ->get();
+                foreach ($CalroiesForDay as $data) {
+                    array_push($arrCal, ['x' => $data->x, 'y' => intval($data->y)]);
                 }
+
                 $show = Plan::where('id', $id)
                     ->with(['targets' => function ($q) use ($today) {
                         $q->where('user_id', auth()->id())->whereDate('targets.created_at', $today)->where('check', '!=', 0);
@@ -591,8 +695,7 @@ class PlanController extends Controller
                 $show->totalRate =   $totalRate;
                 $show->arrCal =   $arrCal;
                 $show->totalRateDay =   $totalRateDay;
-                $show->totalRateWeekOne =   $totalRateWeekOne;
-                $show->totalRateWeekTwo =   $totalRateWeekTwo;
+                $show->totalRateWeekOne =   $results;
                 $show->arrDay = $arrDay;
                 $type = 'success';
             } else {

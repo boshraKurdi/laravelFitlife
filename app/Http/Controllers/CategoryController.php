@@ -11,9 +11,12 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($id = null)
     {
         $index = Category::get();
+        if ($id) {
+            $index = Category::where('id', $id)->get();
+        }
         return response()->json(['data' => $index]);
     }
 

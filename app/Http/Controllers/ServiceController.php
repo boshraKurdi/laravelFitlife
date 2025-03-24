@@ -11,9 +11,12 @@ class ServiceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($id = null)
     {
         $index = Service::get();
+        if ($id) {
+            $index = Service::where('id', $id)->get();
+        }
         return response()->json(['data' => $index]);
     }
 
