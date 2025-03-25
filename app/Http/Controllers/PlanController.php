@@ -103,7 +103,7 @@ class PlanController extends Controller
      */
     public function show(Plan $plan)
     {
-        $show = $plan->load(['media', 'exercise']);
+        $show = $plan->load(['media', 'exercise', 'exercise.media']);
         return response()->json($show);
     }
 

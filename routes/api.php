@@ -16,7 +16,6 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\TargetController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserServiceController;
-use App\Models\Target;
 use Illuminate\Support\Facades\Route;
 
 Route::get('getLastTimeUpdateDatabase', [UserController::class, 'getLastTimeUpdateDatabase']);
