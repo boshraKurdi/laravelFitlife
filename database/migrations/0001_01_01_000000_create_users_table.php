@@ -34,7 +34,7 @@ return new class extends Migration
             $table->string('google_token')->nullable();
             $table->string('gender')->nullable();
             $table->text('days')->nullable();
-            $table->date('last_login_at');
+            $table->dateTime('last_login_at')->useCurrent();
             $table->rememberToken();
             $table->timestamps();
         });
