@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Chat;
+use Illuminate\Http\Request;
 use App\Http\Requests\StoreChatRequest;
 use App\Http\Requests\UpdateChatRequest;
 use App\Models\Group;
+use App\Models\User;
 
 class ChatController extends Controller
 {
@@ -22,7 +24,8 @@ class ChatController extends Controller
         $chats = Chat::query()->whereIn('id', $arr)->with(['user'  => function ($q) {
             $q->where('user_id', '!=', auth()->id());
         }, 'user.media'])->get();
-        return response()->json($chats);
+        $users = User::where('id', '!=', auth()->id())->get();
+        return response()->json(['chats' => $chats, 'users' => $users]);
     }
 
     /**
@@ -58,7 +61,18 @@ class ChatController extends Controller
 
         return response()->json($chat->load(['user', 'user.media']));
     }
-
+    public function CreateGroup(Request $request)
+    {
+        $chat = Chat::create([
+            'name' => $request->name,
+            'type' => 'public',
+            'lastMessage' => ''
+        ]);
+        if ($request->user) {
+            $chat->user()->attach($request->user);
+        }
+        return response()->json(['data' => $chat->load(['user', 'user.media']), 'message' => "create group successfully"]);
+    }
     /**
      * Display the specified resource.
      */

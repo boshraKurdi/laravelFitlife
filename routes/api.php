@@ -41,6 +41,8 @@ Route::group(['prefix' => 'user'], function () {
         Route::post('update', [UserController::class, 'update']);
         Route::post('editScheduling', [TargetController::class, 'editScheduling']);
         Route::get('show/{user}', [UserController::class, 'show']);
+        Route::post('send_request_coach', [UserController::class, 'send_request_coach']);
+        Route::post('send_request_admin', [UserController::class, 'send_request_admin']);
     });
 });
 Route::group(['prefix' => 'service'], function () {
@@ -56,6 +58,7 @@ Route::group(['prefix' => 'chat'], function () {
         Route::get('index', [ChatController::class, 'index']);
         Route::get('show/{chat}', [ChatController::class, 'show']);
         Route::post('store', [ChatController::class, 'store']);
+        Route::post('CreateGroup', [ChatController::class, 'CreateGroup']);
         Route::get('messages/{id}', [MessageController::class, 'index']);
         Route::post('sendMessage', [MessageController::class, 'sendMessage']);
     });
@@ -96,6 +99,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::group(['prefix' => 'target'], function () {
         Route::get('index', [PlanController::class, 'getUserPlans']);
         Route::get('plans', [GoalPlanController::class, 'getPlanForGoalsWithMuscle']);
+        Route::get('plansL', [GoalPlanController::class, 'getPlanForGoalsWithMuscleL']);
         Route::get('insert/{id}', [GoalPlanController::class, 'insert']);
         Route::get('progress/{day}/{week}', [PlanController::class, 'progress']);
         Route::get('getDateGoal', [GoalPlanController::class, 'getDateGoal']);
@@ -123,6 +127,8 @@ Route::group(['prefix' => 'dashboard'], function () {
         Route::post('active_goal', [TargetController::class, 'update']);
         Route::post('not_active_goal', [TargetController::class, 'notUpdate']);
         Route::get('getRequestGoals', [TargetController::class, 'getRequestGoals']);
+        Route::get('getRequestAdmin', [UserController::class, 'getRequestAdmin']);
+        Route::get('getRequestCoach', [UserController::class, 'getRequestCoach']);
     });
     Route::group(['prefix' => 'goal'], function () {
         Route::get('index/{id?}', [GoalController::class, 'index']);

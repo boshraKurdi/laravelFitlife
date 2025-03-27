@@ -91,6 +91,50 @@ class GoalPlanController extends Controller
         return response()->json(['data' => $targets, 'type' => $type, 'message' => $message]);
     }
 
+    public function getPlanForGoalsWithMuscleL(Request $request)
+    {
+        $muscleGroups = [
+            'thigh_exercises' => 'thigh exercises',
+            'abdominal_exercises' => 'Abdominal exercises',
+            'stretching_exercises' => 'Stretching exercises',
+            'sculpting_exercises' => 'Sculpting exercises'
+        ];
+
+        $targets = [];
+        $message = '';
+        $type = 'error';
+
+        $CountGetdate = Target::where('user_id', auth()->id())->count();
+
+        if ($CountGetdate) {
+            $target = GoalPlan::whereHas('targets', function ($q) {
+                $q->where('active', 1)->where('user_id', auth()->id());
+            })->first();
+
+            if ($target) {
+                foreach ($muscleGroups as $key => $muscle) {
+                    $plans = GoalPlan::where('goal_id', $target->goal_id)
+                        ->whereHas('plan', function ($q) use ($muscle) {
+                            $q->where('type', $muscle);
+                        })
+                        ->with(['plan', 'plan.media', 'goals'])
+                        ->get();
+
+                    if (count($plans)) {
+                        $targets[$key] = $plans;
+                    }
+                }
+                $type = 'success';
+            } else {
+                $message = 'please wait to processing the goal';
+            }
+        } else {
+            $message = "If you want to see more details please register with this goal and don't forget to check your email address 😉😉";
+        }
+
+        return response()->json(['data' => $targets, 'type' => $type, 'message' => $message]);
+    }
+
 
     /**
      * Store a newly created resource in storage.

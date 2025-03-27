@@ -86,6 +86,16 @@ class UserController extends Controller
             'lastTime' => $time
         ]);
     }
+    public function getRequestAdmin()
+    {
+        $index = User::where('is_request', 1)->get();
+        return response()->json(['data' => $index]);
+    }
+    public function getRequestCoach()
+    {
+        $index = User::where('is_request', 2)->get();
+        return response()->json(['data' => $index]);
+    }
     public function showUser($id)
     {
 
@@ -294,6 +304,43 @@ class UserController extends Controller
     {
         User::where('id', auth()->id())->delete();
         return response()->json('user been deleted successfully');
+    }
+
+    public function send_request_admin(Request $request)
+    {
+        $user = User::where('id', auth()->id())->first();
+        $user->update([
+            'is_request' => 1,
+            'description' => $request->description,
+            'why_admin' => $request->why_admin,
+        ]);
+        if ($request->media) {
+            $user->addMediaFromRequest('media')->toMediaCollection('users');
+        }
+        if ($request->media_file) {
+            $user->addMediaFromRequest('media_file')->toMediaCollection('users');
+        }
+        return response()->json(['message' => 'send request successfully!']);
+    }
+
+    public function send_request_coach(Request $request)
+    {
+        $user = User::where('id', auth()->id())->first();
+        $user->update([
+            'is_request' => 2,
+            'description' => $request->description,
+            'communication' => $request->communication,
+            'analysis' => $request->analysis,
+            'education' => $request->education,
+            'development' => $request->development,
+        ]);
+        if ($request->media) {
+            $user->addMediaFromRequest('media')->toMediaCollection('users');
+        }
+        if ($request->media_file) {
+            $user->addMediaFromRequest('media_file')->toMediaCollection('users');
+        }
+        return response()->json(['message' => 'send request successfully!']);
     }
 
     public function progressAdmin()

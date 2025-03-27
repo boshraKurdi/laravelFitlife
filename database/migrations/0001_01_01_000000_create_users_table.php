@@ -27,12 +27,14 @@ return new class extends Migration
             $table->integer('communication')->nullable();
             $table->integer('education')->nullable();
             $table->integer('development')->nullable();
+            $table->text('why_admin')->nullable();
             $table->string('address')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
             $table->string('google_id')->nullable();
             $table->string('google_token')->nullable();
             $table->string('gender')->nullable();
+            $table->integer('is_request')->default(0);
             $table->text('days')->nullable();
             $table->dateTime('last_login_at')->useCurrent();
             $table->rememberToken();

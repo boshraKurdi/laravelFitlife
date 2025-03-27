@@ -65,7 +65,7 @@ class AuthController extends Controller
         $user = Auth::user();
 
 
-        if (!$user->hasRole('admin')) {
+        if (!$user->hasRole('admin') && !$user->hasRole('coach')) {
             Auth::logout();
 
             return response()->json([
