@@ -9,6 +9,7 @@ use App\Models\Update;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
@@ -88,13 +89,46 @@ class UserController extends Controller
     }
     public function getRequestAdmin()
     {
+
         $index = User::where('is_request', 1)->get();
         return response()->json(['data' => $index]);
     }
     public function getRequestCoach()
     {
-        $index = User::where('is_request', 2)->get();
+        if (Auth::user()->specialization) {
+            $index = User::where('is_request', 2)->where('specialization', Auth::user()->specialization)->get();
+        } else {
+            $index = User::where('is_request', 2)->get();
+        }
         return response()->json(['data' => $index]);
+    }
+    public function activeCoach($id)
+    {
+        $user = User::find($id);
+        $user->assignRole('coach');
+        $user->update([
+            'is_request' => 0
+        ]);
+        return response()->json(['data' => 'successfully!']);
+    }
+
+    public function notActiveCoachAndAdmin($id)
+    {
+        $user = User::find($id);
+        $user->update([
+            'is_request' => 0
+        ]);
+        return response()->json(['data' => 'successfully!']);
+    }
+
+    public function activeAdmin($id)
+    {
+        $user = User::find($id);
+        $user->assignRole('admin');
+        $user->update([
+            'is_request' => 0
+        ]);
+        return response()->json(['data' => 'successfully!']);
     }
     public function showUser($id)
     {
@@ -109,6 +143,7 @@ class UserController extends Controller
         $profile = User::where('id', $id)->with(['goalPlan' => function ($q) {
             $q->where('active', 1);
         }, 'goalPlan.goals', 'date'])->first();
+        $roles = $profile->getRoleNames();
         $today = Carbon::today();
         //get exercise 
         $CountGetdate = Target::where('user_id', $id)->whereHas('goalPlan.plan', function ($q) {
@@ -311,6 +346,7 @@ class UserController extends Controller
         $user = User::where('id', auth()->id())->first();
         $user->update([
             'is_request' => 1,
+            'specialization' => $request->specialization,
             'description' => $request->description,
             'why_admin' => $request->why_admin,
         ]);
@@ -328,6 +364,7 @@ class UserController extends Controller
         $user = User::where('id', auth()->id())->first();
         $user->update([
             'is_request' => 2,
+            'specialization' => $request->specialization,
             'description' => $request->description,
             'communication' => $request->communication,
             'analysis' => $request->analysis,
@@ -354,8 +391,18 @@ class UserController extends Controller
         $countCoach = User::role('coach')->count();
         //get count chat session
         $countChatSession = Chat::count();
+        // chat start
         //get count chat session coach
         $countChatCoachSession = Chat::where("type", '!=', 'bot')->count();
+        //get count chat session coach for coach
+        $countChatCoachSessionForCoach = Chat::where("type", '!=', 'bot')->whereHas('user', function ($q) {
+            $q->where('users.id', auth()->id());
+        })->count();
+        //get request
+        $countRequestGoal = User::where('is_request', 1)->count();
+        //get request coach
+        $countRequestCoach = User::where('is_request', 2)->count();
+        //chat end 
         //get count chat session bot
         $countChatBotSession = Chat::where("type", 'bot')->count();
         //get drink user water rate
@@ -367,7 +414,31 @@ class UserController extends Controller
             ->whereDate('updated_at', $today)
             ->first();
         $drinkUserWaterTotal = intval(($drinkUserWater->y / $countUserSginUp));
+        //get totle for not super
+        $drinkUserWaterForNotCoach =  Target::selectRaw('SUM(water) as y')
+            ->whereHas('goalPlan.plan', function ($q) {
+                $q->where('type', 'water');
+            })
+            ->whereHas('goalPlan.goals', function ($q) {
+                $q->where('goals.id', Auth::user()->specialization);
+            })
+            ->where('check', '!=', 0)
+            ->whereDate('updated_at', $today)
+            ->first();
+        $drinkUserWaterTotalForNotCoach = intval(($drinkUserWaterForNotCoach->y / $countUserSginUp));
         //get user sleep rate
+        // for not coach
+        $drinkUserSleepForNotCoach =  Target::selectRaw('SUM(sleep) as y')
+            ->whereHas('goalPlan.plan', function ($q) {
+                $q->where('type', 'sleep');
+            })
+            ->whereHas('goalPlan.goals', function ($q) {
+                $q->where('goals.id', Auth::user()->specialization);
+            })
+            ->where('check', '!=', 0)
+            ->whereDate('updated_at', $today)
+            ->first();
+        $drinkUserSleepTotalForNotCoach = intval(($drinkUserSleepForNotCoach->y / $countUserSginUp));
         $drinkUserSleep =  Target::selectRaw('SUM(sleep) as y')
             ->whereHas('goalPlan.plan', function ($q) {
                 $q->where('type', 'sleep');
@@ -392,6 +463,18 @@ class UserController extends Controller
             ->whereDate('updated_at', $today)
             ->first();
         $TotalCaloriesRate = intval(($totalCalroies->y / $countUserSginUp));
+        //for coach
+        $totalCalroiesForNotCoach =  Target::selectRaw('SUM(calories) as y')
+            ->whereHas('goalPlan.plan', function ($q) {
+                $q->where('type', '!=', 'food');
+            })
+            ->whereHas('goalPlan.goals', function ($q) {
+                $q->where('goals.id', Auth::user()->specialization);
+            })
+            ->where('check', '!=', 0)
+            ->whereDate('updated_at', $today)
+            ->first();
+        $TotalCaloriesRateForNotCoach = intval(($totalCalroiesForNotCoach->y / $countUserSginUp));
 
 
         //drow
@@ -427,8 +510,8 @@ class UserController extends Controller
             ->get();
 
         $dates_water = collect(range(0, 6))->mapWithKeys(function ($daysAgo) {
-            $date = Carbon::today()->subDays($daysAgo)->toDateString();
-            return [$date => ['date' => $date, 'total_water' => 0]];
+            $date_ww = Carbon::today()->subDays($daysAgo)->toDateString();
+            return [$date_ww => ['date' => $date_ww, 'total_water' => 0]];
         });
         $dates_water = $dates_water->map(function ($item) use ($waters) {
             $match = $waters->firstWhere('date', $item['date']);
@@ -439,7 +522,29 @@ class UserController extends Controller
         });
 
         $totalWater = $dates_water->sortBy('x')->values();
+        //get water tatal for not coach
+        $watersForNotCoach = DB::table('targets')
+            ->selectRaw('DATE(targets.created_at) as date, SUM(water) as total_water')
+            ->join('goal_plans', 'goal_plans.id', '=', 'targets.goal_plan_id')
+            ->where('goal_plans.goal_id', Auth::user()->specialization)
+            ->where('targets.created_at', '>=', $today->copy()->subDays(6))
+            ->groupBy('date')
+            ->orderBy('date', 'ASC')
+            ->get();
 
+        $dates_water_for_not_coach = collect(range(0, 6))->mapWithKeys(function ($daysAgo) {
+            $date_w = Carbon::today()->subDays($daysAgo)->toDateString();
+            return [$date_w => ['date' => $date_w, 'total_water' => 0]];
+        });
+        $dates_water_for_not_coach = $dates_water_for_not_coach->map(function ($item) use ($watersForNotCoach) {
+            $match = $watersForNotCoach->firstWhere('date', $item['date']);
+            return [
+                'x' => $item['date'],
+                'y' => $match ? $match->total_water : 0
+            ];
+        });
+
+        $totalWaterForNotCoach = $dates_water_for_not_coach->sortBy('x')->values();
         //get sleep tatal
         $sleeps = DB::table('targets')
             ->selectRaw('DATE(created_at) as date, SUM(sleep) as total_sleep')
@@ -449,8 +554,8 @@ class UserController extends Controller
             ->get();
 
         $dates_sleep = collect(range(0, 6))->mapWithKeys(function ($daysAgo) {
-            $date = Carbon::today()->subDays($daysAgo)->toDateString();
-            return [$date => ['date' => $date, 'total_sleep' => 0]];
+            $date_ss = Carbon::today()->subDays($daysAgo)->toDateString();
+            return [$date_ss => ['date' => $date_ss, 'total_sleep' => 0]];
         });
         $dates_sleep = $dates_sleep->map(function ($item) use ($sleeps) {
             $match = $sleeps->firstWhere('date', $item['date']);
@@ -461,6 +566,29 @@ class UserController extends Controller
         });
 
         $totalSleep = $dates_sleep->sortBy('x')->values();
+        //get sleep tatal for coach
+        $sleepsForCoach = DB::table('targets')
+            ->selectRaw('DATE(targets.created_at) as date, SUM(sleep) as total_sleep')
+            ->join('goal_plans', 'goal_plans.id', '=', 'targets.goal_plan_id')
+            ->where('goal_plans.goal_id', Auth::user()->specialization)
+            ->where('targets.created_at', '>=', $today->copy()->subDays(6))
+            ->groupBy('date')
+            ->orderBy('date', 'ASC')
+            ->get();
+
+        $dates_sleep_for_not_coach = collect(range(0, 6))->mapWithKeys(function ($daysAgo) {
+            $date_s = Carbon::today()->subDays($daysAgo)->toDateString();
+            return [$date_s => ['date' => $date_s, 'total_sleep' => 0]];
+        });
+        $dates_sleep_for_not_coach = $dates_sleep_for_not_coach->map(function ($item) use ($sleepsForCoach) {
+            $match = $sleepsForCoach->firstWhere('date', $item['date']);
+            return [
+                'x' => $item['date'],
+                'y' => $match ? $match->total_sleep : 0
+            ];
+        });
+
+        $totalSleepForNotCoach = $dates_sleep_for_not_coach->sortBy('x')->values();
 
         //get calories tatal
         $calories =   Target::selectRaw('DATE(created_at) as date, SUM(calories) as total_calories')
@@ -473,8 +601,8 @@ class UserController extends Controller
             ->get();
 
         $dates_calories = collect(range(0, 6))->mapWithKeys(function ($daysAgo) {
-            $date = Carbon::today()->subDays($daysAgo)->toDateString();
-            return [$date => ['date' => $date, 'total_calories' => 0]];
+            $date_c = Carbon::today()->subDays($daysAgo)->toDateString();
+            return [$date_c => ['date' => $date_c, 'total_calories' => 0]];
         });
         $dates_calories = $dates_calories->map(function ($item) use ($calories) {
             $match = $calories->firstWhere('date', $item['date']);
@@ -485,14 +613,47 @@ class UserController extends Controller
         });
 
         $totalCalories = $dates_calories->sortBy('x')->values();
+        //get calories tatal for not coach
+        $caloriesForNotCoach =   Target::selectRaw('DATE(created_at) as date, SUM(calories) as total_calories')
+            ->whereHas('goalPlan.plan', function ($q) {
+                $q->where('type', '!=', 'food');
+            })
+            ->whereHas('goalPlan', function ($q) {
+                $q->where('goal_id', Auth::user()->specialization);
+            })
+            ->where('check', '!=', 0)
+            ->where('created_at', '>=', $today->copy()->subDays(6))
+            ->groupBy('date')
+            ->get();
+
+        $dates_calories_for_not_coach = collect(range(0, 6))->mapWithKeys(function ($daysAgo) {
+            $date_for_coach = Carbon::today()->subDays($daysAgo)->toDateString();
+            return [$date_for_coach => ['date' => $date_for_coach, 'total_calories' => 0]];
+        });
+        $dates_calories_for_not_coach = $dates_calories_for_not_coach->map(function ($item) use ($caloriesForNotCoach) {
+            $match = $caloriesForNotCoach->firstWhere('date', $item['date']);
+            return [
+                'x' => $item['date'],
+                'y' => $match ? $match->total_calories : 0
+            ];
+        });
+
+        $totalCaloriesForNotCoach = $dates_calories->sortBy('x')->values();
 
         //get progress bot 
 
         //count chat with bot today
 
         $countChatWithBotToday = Chat::where("type", 'bot')->whereDate('updated_at', $today)->count();
-        //count coach with bot today
+        $countChatWithBotTodayRate = intval(($countChatWithBotToday / $countChatSession) * 100);
+        //count coach  today
         $countChatWithCaochToday = Chat::where("type", '!=', 'bot')->whereDate('updated_at', $today)->count();
+        $countChatWithCaochTodayRate = intval(($countChatWithCaochToday / $countChatSession) * 100);
+        //count my chat today
+        $countChatWithCaochTodayForNotCoach = Chat::where("type", '!=', 'bot')->whereHas('user', function ($q) {
+            $q->where('users.id', auth()->id());
+        })->whereDate('updated_at', $today)->count();
+        $countChatWithCaochTodayRateForNotCoach = intval(($countChatWithCaochTodayForNotCoach / $countChatSession) * 100);
 
         // get progress food
 
@@ -519,6 +680,33 @@ class UserController extends Controller
         });
 
         $totalCaloriesFood = $dates_calories_food->sortBy('x')->values();
+
+        //get total calories for not coach
+        $calories_food_for_not_coach =   Target::selectRaw('DATE(created_at) as date, SUM(calories) as total_calories_food')
+            ->whereHas('goalPlan.plan', function ($q) {
+                $q->where('type', 'food');
+            })
+            ->whereHas('goalPlan', function ($q) {
+                $q->where('goal_id', Auth::user()->specialization);
+            })
+            ->where('check', '!=', 0)
+            ->where('created_at', '>=', $today->copy()->subDays(6))
+            ->groupBy('date')
+            ->get();
+
+        $dates_calories_food_for_not_coach = collect(range(0, 6))->mapWithKeys(function ($daysAgo) {
+            $date_xx = Carbon::today()->subDays($daysAgo)->toDateString();
+            return [$date_xx => ['date' => $date_xx, 'total_calories_food' => 0]];
+        });
+        $dates_calories_food_for_not_coach = $dates_calories_food_for_not_coach->map(function ($item) use ($calories_food_for_not_coach) {
+            $match = $calories_food_for_not_coach->firstWhere('date', $item['date']);
+            return [
+                'x' => $item['date'],
+                'y' => $match ? $match->total_calories_food : 0
+            ];
+        });
+
+        $totalCaloriesFoodForNotCoach = $dates_calories_food_for_not_coach->sortBy('x')->values();
 
         //progress payment and service
 
@@ -560,20 +748,32 @@ class UserController extends Controller
 
         foreach ($data as $d) {
             $d->countUserSginUp = $countUserSginUp;
-            $d->countCoach = $countCoach;
+            $d->countCoach = intval($countCoach);
             $d->countChatSession = $countChatSession;
+            $d->countRequestCoach = $countRequestCoach;
+            $d->countRequestGoal = $countRequestGoal;
+            $d->countChatWithCaochTodayRateForNotCoach = $countChatWithCaochTodayRateForNotCoach;
+            $d->totalWaterForNotCoach = $totalWaterForNotCoach;
+            $d->countChatCoachSessionForCoach = $countChatCoachSessionForCoach;
             $d->countChatCoachSession = $countChatCoachSession;
+            $d->TotalCaloriesRateForNotCoach = $TotalCaloriesRateForNotCoach;
             $d->countChatBotSession = $countChatBotSession;
             $d->drinkUserWaterTotal = $drinkUserWaterTotal;
+            $d->totalCaloriesForNotCoach = $totalCaloriesForNotCoach;
+            $d->drinkUserWaterTotalForNotCoach = $drinkUserWaterTotalForNotCoach;
             $d->drinkUserSleepTotal = $drinkUserSleepTotal;
+            $d->drinkUserSleepTotalForNotCoach = $drinkUserSleepTotalForNotCoach;
             $d->countUserExercice = $countUserExercice;
             $d->TotalCaloriesRate = $TotalCaloriesRate;
             $d->getLastUserLogin = $getLastUserLogin;
+            $d->totalSleepForNotCoach = $totalSleepForNotCoach;
             $d->totalWater = $totalWater;
             $d->totalSleep = $totalSleep;
+            $d->countChatWithBotTodayRate = $countChatWithBotTodayRate;
             $d->totalCalories = $totalCalories;
             $d->countChatWithBotToday = $countChatWithBotToday;
-            $d->countChatWithCaochToday = $countChatWithCaochToday;
+            $d->countChatWithCaochTodayRate = $countChatWithCaochTodayRate;
+            $d->totalCaloriesFoodForNotCoach = $totalCaloriesFoodForNotCoach;
             $d->totalCaloriesFood = $totalCaloriesFood;
             $d->totalRevenue = $totalRevenue;
             $d->newSubscribers = $newSubscribers;

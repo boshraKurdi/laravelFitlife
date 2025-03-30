@@ -129,6 +129,9 @@ Route::group(['prefix' => 'dashboard'], function () {
         Route::get('getRequestGoals', [TargetController::class, 'getRequestGoals']);
         Route::get('getRequestAdmin', [UserController::class, 'getRequestAdmin']);
         Route::get('getRequestCoach', [UserController::class, 'getRequestCoach']);
+        Route::get('activeCoach/{id}', [UserController::class, 'activeCoach']);
+        Route::get('activeAdmin/{id}', [UserController::class, 'activeAdmin']);
+        Route::get('notActiveCoachAndAdmin/{id}', [UserController::class, 'notActiveCoachAndAdmin']);
     });
     Route::group(['prefix' => 'goal'], function () {
         Route::get('index/{id?}', [GoalController::class, 'index']);
@@ -139,7 +142,7 @@ Route::group(['prefix' => 'dashboard'], function () {
         Route::delete('{goal}/destroy', [GoalController::class, 'destroy']);
     });
     Route::group(['prefix' => 'plan'], function () {
-        Route::get('{PlanLevel}/exercises', [PlanController::class, 'getExerciseForPlan']);
+        Route::get('{Plan}/exercises', [PlanController::class, 'getExerciseForPlan']);
         Route::get('index/{id?}', [PlanController::class, 'index']);
         // Route::get('{planLevel}/show', [PlanLevelController::class, 'showPlan']);
         Route::get('{plan}/showPlan', [PlanController::class, 'show']);

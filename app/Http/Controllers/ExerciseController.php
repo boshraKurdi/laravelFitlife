@@ -6,6 +6,7 @@ use App\Models\Exercise;
 use App\Http\Requests\StoreExerciseRequest;
 use App\Http\Requests\UpdateExerciseRequest;
 use App\Models\Step;
+use Illuminate\Support\Facades\Auth;
 
 class ExerciseController extends Controller
 {
@@ -85,16 +86,25 @@ class ExerciseController extends Controller
             $exercise->addMediaFromRequest('media')->toMediaCollection('exercises');
         }
         if ($request->has('steps')) {
-            Step::where('exercise_id', $exercise->id)->delete();
             foreach ($request->steps as $index => $stepData) {
+                // إنشاء أو تحديث الخطوة
+                $step = Step::updateOrCreate(
+                    [
+                        'exercise_id' => $exercise->id, // البحث عن السجل حسب التمرين
+                        'id' => $stepData['id'] ?? null, // تحديث إذا كان هناك ID، وإلا يتم الإنشاء
+                    ],
+                    [
+                        'content' => $stepData['content'],
+                        'content_ar' => $stepData['content_ar'],
+                    ]
+                );
 
-
-                $step = Step::create([
-                    'exercise_id' => $exercise->id,
-                    'content' => $stepData['content'],
-                    'content_ar' => $stepData['content_ar'],
-                ]);
+                // التحقق مما إذا تم رفع صورة جديدة
                 if ($request->hasFile("media_steps.$index")) {
+                    // حذف الصورة القديمة (إذا كانت موجودة)
+                    $step->clearMediaCollection('steps');
+
+                    // إضافة الصورة الجديدة
                     $step->addMediaFromRequest("media_steps.$index")->toMediaCollection('steps');
                 }
             }

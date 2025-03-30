@@ -25,6 +25,7 @@ class PlanController extends Controller
     public function index($id = null)
     {
         $index = Plan::with(['media', 'exercise'])->get();
+
         if ($id) {
             $index = Plan::where('id', $id)->with(['media'])->get();
         }

@@ -63,6 +63,7 @@ class AuthController extends Controller
         }
 
         $user = Auth::user();
+        $user->role;
 
 
         if (!$user->hasRole('admin') && !$user->hasRole('coach')) {

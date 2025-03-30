@@ -36,6 +36,7 @@ return new class extends Migration
             $table->string('gender')->nullable();
             $table->integer('is_request')->default(0);
             $table->text('days')->nullable();
+            $table->integer('specialization')->nullable();
             $table->dateTime('last_login_at')->useCurrent();
             $table->rememberToken();
             $table->timestamps();

@@ -44,6 +44,9 @@ class GymController extends Controller
             'description_ar' => $request->description_ar,
             'description' => $request->description,
             'type' => $request->type,
+            'address' => $request->address,
+            'lat' => $request->lat,
+            'lon' => $request->lon,
             'open' => $request->open,
             'price' => $request->price,
             'close' => $request->close
@@ -86,6 +89,8 @@ class GymController extends Controller
             'description_ar' => $request->description_ar,
             'description' => $request->description,
             'address' => $request->address,
+            'lat' => $request->lat,
+            'lon' => $request->lon,
             'type' => $request->type,
             'open' => $request->open,
             'price' => $request->price,

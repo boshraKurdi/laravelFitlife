@@ -385,7 +385,16 @@ class TargetController extends Controller
 
     public function getRequestGoals()
     {
-        $index = Target::selectRaw('user_id as id  , user_id as user_id, MAX(goal_plan_id) as goal_plan_id')->where('active', 0)->with(['users', 'goalPlan.goals'])->groupBy(['user_id'])->get();
+        if (Auth::user()->specialization) {
+            $index = Target::selectRaw('user_id as id  , user_id as user_id, MAX(goal_plan_id) as goal_plan_id')
+                ->join('goal_plans', 'goal_plans.id', '=', 'targets.goal_plan_id')
+                ->where('goal_plans.goal_id', Auth::user()->specialization)
+                ->where('active', 0)
+                ->with(['users', 'goalPlan.goals'])
+                ->groupBy(['user_id'])->get();
+        } else {
+            $index = Target::selectRaw('user_id as id  , user_id as user_id, MAX(goal_plan_id) as goal_plan_id')->where('active', 0)->with(['users', 'goalPlan.goals'])->groupBy(['user_id'])->get();
+        }
         return response()->json(['data' => $index]);
     }
 

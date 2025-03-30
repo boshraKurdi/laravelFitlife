@@ -14,7 +14,9 @@ class MealController extends Controller
      */
     public function index($id = null)
     {
+
         $index = Meal::query()->with(['media', 'category'])->get();
+
         if ($id) {
             $index = Meal::query()->where('id', $id)->with(['media', 'category'])->get();
         }
@@ -55,8 +57,8 @@ class MealController extends Controller
                     'name_ar' => $stepData['name_ar'],
                     'num' => $stepData['num'],
                 ]);
-                if ($request->hasFile("media_ingredients.$index")) {
-                    $step->addMediaFromRequest("media_ingredients.$index")->toMediaCollection('ingredients');
+                if ($request->hasFile("media_ingredients") && isset($request->file('media_ingredients')[$index])) {
+                    $step->addMedia($request->file('media_ingredients')[$index])->toMediaCollection('ingredients');
                 }
             }
         }
@@ -102,18 +104,17 @@ class MealController extends Controller
         }
 
         if ($request->has('ingredients')) {
-            Ingredient::where('meal_id',  $meal->id)->delete();
             foreach ($request->ingredients as $index => $stepData) {
-
-                $i = Ingredient::create([
-                    'meal_id' => $meal->id,
-                    'name' => $stepData['name'],
-                    'name_ar' => $stepData['name_ar'],
-                    'num' => $stepData['num'],
-                ]);
-
+                $i = Ingredient::updateOrCreate(
+                    ['meal_id' => $meal->id, 'name' => $stepData['name']],
+                    [
+                        'name_ar' => $stepData['name_ar'],
+                        'num' => $stepData['num'],
+                    ]
+                );
 
                 if ($request->hasFile("media_ingredients.$index")) {
+                    $i->clearMediaCollection('ingredients');
                     $i->addMediaFromRequest("media_ingredients.$index")->toMediaCollection('ingredients');
                 }
             }
