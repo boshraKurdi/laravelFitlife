@@ -30,7 +30,7 @@ class GoalPlanController extends Controller
         $date = [];
         $type = 'success';
         $message = '';
-        $CountGetdate = Target::where('user_id', auth()->id())->count();
+        $CountGetdate = Target::where('user_id', auth()->id())->where('active', '!=', 2)->count();
         if ($CountGetdate) {
             $CountGetdateActive = Target::where('user_id', auth()->id())->where('active', 1)->count();
             if ($CountGetdateActive) {
@@ -63,7 +63,7 @@ class GoalPlanController extends Controller
         $targets = array();
         $message = '';
         $type = 'error';
-        $CountGetdate = Target::where('user_id', auth()->id())->count();
+        $CountGetdate = Target::where('user_id', auth()->id())->where('active', '!=', 2)->count();
         if ($CountGetdate) {
             $target = GoalPlan::whereHas('targets', function ($q) {
                 $q->where('active', 1)->where('user_id', auth()->id());
@@ -104,7 +104,7 @@ class GoalPlanController extends Controller
         $message = '';
         $type = 'error';
 
-        $CountGetdate = Target::where('user_id', auth()->id())->count();
+        $CountGetdate = Target::where('user_id', auth()->id())->where('active', '!=', 2)->count();
 
         if ($CountGetdate) {
             $target = GoalPlan::whereHas('targets', function ($q) {
@@ -152,9 +152,8 @@ class GoalPlanController extends Controller
         foreach ($GoalPlan as $g) {
             array_push($ids, $g->id);
         }
-        $checkAll = Target::where('user_id', auth()->id())->count();
-
-        $check = Target::where('user_id', auth()->id())->whereIn('goal_plan_id', $ids)->count();
+        $checkAll = Target::where('user_id', auth()->id())->where('active', "!=", 2)->count();
+        $check = Target::where('user_id', auth()->id())->where('active', '!=', 2)->whereIn('goal_plan_id', $ids)->count();
         $message = app()->getLocale() == 'en' ? 'you have already registered for this goal.😊' : 'لقد قمت بالتسجيل بالفعل لهذا الهدف.😊';
         if (!$check) {
             if (!$checkAll) {
@@ -165,8 +164,6 @@ class GoalPlanController extends Controller
                 $observer->update();
                 $message = app()->getLocale() == 'en'  ? 'Your journey has just started, one mile journey starts with one step 🤩🤩' : 'رحلتك بدأت للتو، رحلة الميل الواحد تبدأ بخطوة واحدة 🤩🤩';
                 $type = 'success';
-            } else {
-                $message = app()->getLocale() == 'en'  ? 'you have already registered , plaese finsh your goal.😊' : 'لقد قمت بالتسجيل بالفعل، يرجى إكمال هدفك.😊';
             }
         }
 
@@ -180,7 +177,7 @@ class GoalPlanController extends Controller
     public function getDateGoal()
     {
         $date = '';
-        $check = Target::where('user_id', auth()->id())->get();
+        $check = Target::where('user_id', auth()->id())->where('active', '!=', 2)->get();
         if (count($check)) {
             $date = $check[0]->created_at;
         }

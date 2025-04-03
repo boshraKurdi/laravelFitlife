@@ -58,9 +58,11 @@ Route::group(['prefix' => 'chat'], function () {
         Route::get('index', [ChatController::class, 'index']);
         Route::get('show/{chat}', [ChatController::class, 'show']);
         Route::post('store', [ChatController::class, 'store']);
+        Route::post('storeAi', [ChatController::class, 'storeAi']);
         Route::post('CreateGroup', [ChatController::class, 'CreateGroup']);
         Route::get('messages/{id}', [MessageController::class, 'index']);
         Route::post('sendMessage', [MessageController::class, 'sendMessage']);
+        Route::post('sendMessageAi', [MessageController::class, 'sendMessageAi']);
     });
 });
 Route::group(['prefix' => 'goal'], function () {
@@ -75,12 +77,12 @@ Route::group(['prefix' => 'plan'], function () {
     Route::get('plansForGoal/{ids}', [GoalPlanController::class, 'getPlanForGoals']);
     Route::group(['middleware' => 'auth:api'], function () {
         Route::get('index', [PlanController::class, 'index']);
-        Route::post('{PlanLevel}/{day}/{week}/exercises', [PlanController::class, 'exercise']);
+        Route::post('{PlanLevel}/exercises', [PlanController::class, 'exercise']);
         Route::get('sleep', [PlanController::class, 'getSleep']);
         Route::get('water', [PlanController::class, 'getWater']);
-        Route::post('{day}/{week}/meals', [PlanController::class, 'meal']);
+        Route::post('meals', [PlanController::class, 'meal']);
         Route::post('{plan}/update', [PlanController::class, 'update']);
-        Route::post('{id}/{day}/{week}/show', [PlanController::class, 'showPlan']);
+        Route::post('{id}/show', [PlanController::class, 'showPlan']);
     });
 });
 Route::group(['prefix' => 'exercise'], function () {
@@ -101,12 +103,13 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::get('plans', [GoalPlanController::class, 'getPlanForGoalsWithMuscle']);
         Route::get('plansL', [GoalPlanController::class, 'getPlanForGoalsWithMuscleL']);
         Route::get('insert/{id}', [GoalPlanController::class, 'insert']);
-        Route::get('progress/{day}/{week}', [PlanController::class, 'progress']);
+        Route::get('progress', [PlanController::class, 'progress']);
         Route::get('getDateGoal', [GoalPlanController::class, 'getDateGoal']);
         Route::post('store', [TargetController::class, 'store']);
         Route::post('storeSleep', [TargetController::class, 'storeSleep']);
         Route::post('storeWater', [TargetController::class, 'storeWater']);
         Route::get('addDay', [TargetController::class, 'addDay']);
+        Route::get('notAddDay', [TargetController::class, 'notAddDay']);
         Route::post('storeExersice', [TargetController::class, 'storeE']);
     });
     Route::group(['prefix' => 'gym'], function () {

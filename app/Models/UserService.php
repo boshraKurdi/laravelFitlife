@@ -17,7 +17,8 @@ class UserService extends Model
         'cvc',
         'number',
         'month',
-        'year'
+        'year',
+        'status'
     ];
 
     public function service()

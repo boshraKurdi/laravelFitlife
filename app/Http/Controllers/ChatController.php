@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StoreChatRequest;
 use App\Http\Requests\UpdateChatRequest;
 use App\Models\Group;
+use App\Models\Message;
 use App\Models\User;
 
 class ChatController extends Controller
@@ -21,11 +22,18 @@ class ChatController extends Controller
         foreach ($ids as $id) {
             array_push($arr, $id->chat_id);
         }
-        $chats = Chat::query()->whereIn('id', $arr)->with(['user'  => function ($q) {
+        $chats = Chat::query()->whereIn('id', $arr)->where('type', '!=', 'bot')->with(['user'  => function ($q) {
             $q->where('user_id', '!=', auth()->id());
         }, 'user.media'])->get();
+        $newChats = $chats->map(function ($chat) {
+            $countMessageIsNotSeen = Message::where('isSeen', 0)->whereHas('group', function ($q) use ($chat) {
+                $q->where('chat_id', $chat->id)->where('user_id', '!=', auth()->id());
+            })->count();
+            $chat->countMessageIsNotSeen = $countMessageIsNotSeen;
+            return $chat;
+        });
         $users = User::where('id', '!=', auth()->id())->get();
-        return response()->json(['chats' => $chats, 'users' => $users]);
+        return response()->json(['chats' => $newChats, 'users' => $users]);
     }
 
     /**
@@ -40,7 +48,7 @@ class ChatController extends Controller
         }
         $count = Group::query()->whereIn('chat_id', $arr)->where('user_id', $request->id)->count();
         if ($count > 0) {
-            $check = Chat::query()->whereIn('id', $arr)->with(['user', 'user.media'])->first();
+            $check = Chat::query()->where('type', '!=', 'bot')->whereIn('id', $arr)->with(['user', 'user.media'])->first();
         } else {
             $check = 0;
         }
@@ -57,6 +65,34 @@ class ChatController extends Controller
                 $chat->user()->attach($request->id);
                 $chat->user()->attach(auth()->id());
             }
+        }
+
+        return response()->json($chat->load(['user', 'user.media']));
+    }
+    public function storeAi(StoreChatRequest $request)
+    {
+
+        $count = Chat::query()->whereHas('user', function ($q) {
+            $q->where('users.id', auth()->id());
+        })->where('type', 'bot')->count();
+        if ($count > 0) {
+            $check = Chat::query()->whereHas('user', function ($q) {
+                $q->where('users.id', auth()->id());
+            })->where('type', 'bot')->first();
+        } else {
+            $check = 0;
+        }
+
+        if ($check) {
+            $chat = $check;
+        } else {
+            $chat = Chat::create([
+                'name' => '',
+                'type' => 'bot',
+                'lastMessage' => ''
+            ]);
+
+            $chat->user()->attach(auth()->id());
         }
 
         return response()->json($chat->load(['user', 'user.media']));

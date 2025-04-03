@@ -29,7 +29,7 @@ class TargetController extends Controller
      */
     public function store(StoreTargetRequest $request)
     {
-        $goal_id = Target::where('user_id', auth()->id())->whereHas('goalPlan.plan', function ($q) {
+        $goal_id = Target::where('user_id', auth()->id())->where('active', '!=', 2)->whereHas('goalPlan.plan', function ($q) {
             $q->where('type', 'food');
         })->WhereHas('goalPlan', function ($q) use ($request) {
             $q->where('plan_id', $request->plan_id);
@@ -68,7 +68,7 @@ class TargetController extends Controller
     }
     public function storeSleep(StoreTargetSleepRequest $request)
     {
-        $goal_id = Target::where('user_id', auth()->id())->WhereHas('goalPlan', function ($q) {
+        $goal_id = Target::where('user_id', auth()->id())->where('active', '!=', 2)->WhereHas('goalPlan', function ($q) {
             $q->where('plan_id', 14);
         })->with('goalPLan')->first();
         $message = '';
@@ -104,7 +104,7 @@ class TargetController extends Controller
     }
     public function storeWater(StoreTargetWaterRequest $request)
     {
-        $goal_id = Target::where('user_id', auth()->id())->WhereHas('goalPlan', function ($q) {
+        $goal_id = Target::where('user_id', auth()->id())->where('active', '!=', 2)->WhereHas('goalPlan', function ($q) {
             $q->where('plan_id', 15);
         })->with('goalPLan')->first();
         $data = 'error';
@@ -143,7 +143,7 @@ class TargetController extends Controller
         $currentDate = Carbon::now();
         $message = '';
         $data = 'error';
-        $count = Target::where('user_id', auth()->id())->whereHas('goalPlan', function ($q) use ($request) {
+        $count = Target::where('user_id', auth()->id())->where('active', '!=', 2)->whereHas('goalPlan', function ($q) use ($request) {
             $q->where('plan_id', $request->plan_id);
         })
             ->whereHas('goalPlan.plan', function ($q) use ($request) {
@@ -206,48 +206,64 @@ class TargetController extends Controller
     public function addDay(UpdateTargetRequest $request, Target $target)
     {
         $dates = [];
-        $dates_meal = [];
+        $holiday = [];
+        $message = app()->getLocale() == 'en' ? 'Target acceptance failed try again 😢' : 'فشل قبول التمديد حاول مرة أخرى 😢';
+        $type = 'error';
         $user = User::where('id', auth()->id())->first();
-        $days = $user->days ? json_decode($user->days, true) : '{"sunday":true,"tuesday":true,"monday":true,"wednesday":true,"thrusday":true,"friday":true,"saturday":true}';
-        $currentDate = Carbon::now();
-        $acceptedCount = 0;
+        $days = $user ? json_decode($user->days, true) : "";
+        if ($days != '') {
+            $currentDate = Carbon::now();
 
-        while ($acceptedCount < 14) {
-            $dayOfWeek = (int)$currentDate->format('w');
+            for ($i = 0; $i < 14; $i++) {
+                $dayOfWeek = (int)$currentDate->format('w');
 
-            $dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thrusday', 'friday', 'saturday'];
-            $currentDayName = $dayNames[$dayOfWeek];
+                $dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thrusday', 'friday', 'saturday'];
+                $currentDayName = $dayNames[$dayOfWeek];
 
-            if ($days[$currentDayName] === true) {
+                if ($days[$currentDayName] === true) {
+                    $holiday[] = 0;
+                } else {
+                    $holiday[] = 1;
+                }
                 $dates[] = $currentDate->format('Y-m-d');
-                $acceptedCount++;
+                $currentDate->modify('+1 day');
             }
-            $dates_meal[] = $currentDate->format('Y-m-d');
-            $currentDate->modify('+1 day');
+
+            for ($i = 0; $i < 14; $i++) {
+                Date::create([
+                    'user_id' => auth()->id(),
+                    'date' => $dates[$i],
+                    'is_holiday' => $holiday[$i]
+                ]);
+            }
+            $observer = new GoalPlanObserver();
+            $observer->update();
+
+            $type = "success";
+            $message = app()->getLocale() == 'en' ? 'The target has been successfully accepted🔥' : "تم قبول الهدف بنجاح🔥";
         }
 
-        // $checkAll = Target::where('user_id', auth()->id())->count();
-
-        // $check = Target::where('user_id', auth()->id())->whereIn('goal_plan_id', $ids)->count();
-        // if (!$check) {
-        //     if (!$checkAll) {
-        for ($i = 0; $i < 14; $i++) {
-            Date::create([
-                'user_id' => auth()->id(),
-                'date' => $dates[$i],
-                'date_meal' => $dates_meal[$i]
+        return response()->json(['data' =>  $user, 'message' => $message, 'type' => $type]);
+    }
+    public function notAddDay(UpdateTargetRequest $request, Target $target)
+    {
+        $message = app()->getLocale() == 'en' ? 'Target acceptance failed try again 😢' : 'فشل قبول الطلب حاول مرة أخرى 😢';
+        $type = 'error';
+        $user = User::where('id', auth()->id())->first();
+        $days = json_decode($user->days, true);
+        if ($days) {
+            Date::where('user_id', auth()->id())->delete();
+            Target::where('user_id', auth()->id())->update([
+                'active' => 2
             ]);
+            $observer = new GoalPlanObserver();
+            $observer->update();
+
+            $type = "success";
+            $message = app()->getLocale() == 'en' ? 'The request has been successfully accepted🔥' : "تم قبول الطلب بنجاح🔥";
         }
-        $observer = new GoalPlanObserver();
-        $observer->update();
-        //     }
-        // }
 
-        Target::where('user_id', auth()->id())
-            ->update([
-                'active' => true
-            ]);
-        return response()->json(['data' => 'succ']);
+        return response()->json(['data' =>  $user, 'message' => $message, 'type' => $type]);
     }
 
     public function update(UpdateTargetRequest $request, Target $target)
@@ -294,7 +310,7 @@ class TargetController extends Controller
             //     }
             // }
 
-            $t = Target::where('user_id', $request->user_id)
+            $t = Target::where('active', '!=', 2)->where('user_id', $request->user_id)
                 ->update([
                     'active' => true
                 ]);

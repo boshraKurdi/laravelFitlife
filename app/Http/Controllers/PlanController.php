@@ -12,6 +12,7 @@ use App\Models\PlanExercise;
 use App\Models\PlanMeal;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Target;
+use App\Services\GetDate;
 use App\Services\IsHoliday;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -171,11 +172,9 @@ class PlanController extends Controller
         return response()->json('delete');
     }
 
-    public function exercise(Request $request, $plan, $day, $week)
+    public function exercise(Request $request, $plan)
     {
         $arr = [];
-
-
         $x = [0];
         $y = [0];
         $date = [];
@@ -184,12 +183,15 @@ class PlanController extends Controller
         $type = "error";
         $firstWeek = [];
         $secondWeek = [];
-        $CountGetdate = Target::where('user_id', auth()->id())->whereHas('goalPlan', function ($q) use ($plan) {
+        $CountGetdate = Target::where('user_id', auth()->id())->where('active', '!=', 2)->whereHas('goalPlan', function ($q) use ($plan) {
             $q->where('plan_id', $plan);
         })->count();
         if ($CountGetdate) {
             $CountGetdateActive = Target::where('user_id', auth()->id())->where('active', 1)->count();
             if ($CountGetdateActive) {
+                $dayd = GetDate::GetDate(2);
+                $day = $dayd['day'];
+                $week = $dayd['week'];
                 $Getdate = Target::where('user_id', auth()->id())->with('users.date')->first();
                 $date = $Getdate->users->date;
                 $firstWeek = [$date[0], $date[1], $date[2], $date[3], $date[4], $date[5], $date[6]];
@@ -295,7 +297,7 @@ class PlanController extends Controller
         $arrDay = [];
 
         $type = 'error';
-        $check = Target::where('user_id', auth()->id())->count();
+        $check = Target::where('user_id', auth()->id())->where('active', '!=', 2)->count();
         if ($check) {
             $checkAtice = Target::where('user_id', auth()->id())->where('active', 1)->count();
             if ($checkAtice) {
@@ -334,7 +336,7 @@ class PlanController extends Controller
         $water = '';
         $arrDay = [];
         $type = 'error';
-        $check = Target::where('user_id', auth()->id())->count();
+        $check = Target::where('user_id', auth()->id())->where('active', '!=', 2)->count();
         if ($check) {
             $checkAtice = Target::where('user_id', auth()->id())->where('active', 1)->count();
             if ($checkAtice) {
@@ -373,7 +375,7 @@ class PlanController extends Controller
     }
 
 
-    public function meal($day, $week, GetMealRequest $request)
+    public function meal(GetMealRequest $request)
     {
         $exe = [];
         $today = Carbon::now();
@@ -381,8 +383,10 @@ class PlanController extends Controller
         $arrDay = [];
         $plan_id = 0;
         $type = 'error';
-        $check = Target::where('user_id', auth()->id())->count();
+        $target = null;
+        $check = Target::where('user_id', auth()->id())->where('active', '!=', 2)->count();
         if ($check) {
+
             $target = Target::where('user_id', auth()->id())->where('active', 1)->with(['goalPlan', 'users.date'])->first();
             if ($target) {
                 $plan_id = Plan::whereHas('goals', function ($q) use ($target) {
@@ -390,6 +394,9 @@ class PlanController extends Controller
                 })
                     ->where('type', 'food')
                     ->first();
+                $dayd = GetDate::GetDate(2);
+                $day = $dayd['day'];
+                $week = $dayd['week'];
                 $allMeals =  Plan::where('id', $plan_id->id)->with(['meal' => function ($q) use ($day, $week) {
                     $q->where('day', $day)->where('week', $week);
                 }, 'meal.media'])->get();
@@ -439,16 +446,16 @@ class PlanController extends Controller
 
         return response()->json([
             'data' => $exe,
-            'date' => $target->users->date,
+            'date' => $target ? $target->users->date : null,
             'id' => $plan_id ? $plan_id->id : 0,
             'type' => $type,
             'message' => $message
         ]);
     }
 
-    public function progress($day, $week)
+    public function progress()
     {
-        $CountGetdate = Target::where('user_id', auth()->id())->count();
+        $CountGetdate = Target::where('user_id', auth()->id())->where('active', '!=', 2)->count();
         $message = '';
         $data[] = (object) ['myGoal' => null, 'plans' => null, 'meals' => null, 'water' => null, 'sleep' => null];
         $type = 'error';
@@ -458,6 +465,9 @@ class PlanController extends Controller
             if ($CountGetdateWithActive) {
                 $type = 'success';
                 // get rate
+                $dayd = GetDate::GetDate(2);
+                $day = $dayd['day'];
+                $week = $dayd['week'];
                 $c = Target::where('user_id', auth()->id())->whereHas('goalPlan.plan', function ($q) {
                     $q->where('type', '!=', 'food')->where('type', '!=', 'sleep')->where('type', '!=', 'water');
                 })->where('active', 1)->get();
@@ -535,6 +545,7 @@ class PlanController extends Controller
                     $d->water = $water;
                     $d->sleep = $sleep;
                     $d->date = Auth::user()->date;
+                    $d->status = $dayd;
                 }
             } else {
                 $message =  app()->getLocale() == 'en' ? 'please wait to processing the goal' : 'الرجاء الانتظار حتى معالجة طلبك';
@@ -551,13 +562,13 @@ class PlanController extends Controller
         $message = '';
         $newIndex = [];
         $type = 'error';
-        $CountGetdate = Target::where('user_id', auth()->id())->count();
+        $CountGetdate = Target::where('user_id', auth()->id())->where('active', '!=', 2)->count();
         if ($CountGetdate) {
             $CountGetdateWithActive = Target::where('user_id', auth()->id())->where('active', 1)->count();
             if ($CountGetdateWithActive) {
                 $plans = Plan::query()
                     ->whereHas('targets', function ($q) {
-                        $q->where('user_id', auth()->id())->where('check', '!=', 0);
+                        $q->where('user_id', auth()->id())->where('check', '!=', 0)->where('active', 1);
                     })
                     ->where('type', '!=', 'food')
                     ->where('type', '!=', 'sleep')
@@ -594,7 +605,7 @@ class PlanController extends Controller
     }
 
 
-    public function showPlan(Request $request, $id, $day, $week)
+    public function showPlan(Request $request, $id)
     {
         $arr = [];
         $arrDay = [];
@@ -606,12 +617,15 @@ class PlanController extends Controller
         $message = '';
         $today = Carbon::today();
         $show = [];
-        $CountGetdate = Target::where('user_id', auth()->id())->whereHas('goalPlan', function ($q) use ($id) {
+        $CountGetdate = Target::where('user_id', auth()->id())->where('active', '!=', 2)->whereHas('goalPlan', function ($q) use ($id) {
             $q->where('plan_id', $id);
         })->count();
         if ($CountGetdate) {
             $CountGetdateActive = Target::where('user_id', auth()->id())->where('active', 1)->count();
             if ($CountGetdateActive) {
+                $dayd = GetDate::GetDate(2);
+                $day = $dayd['day'];
+                $week = $dayd['week'];
                 $Getdate = Target::where('user_id', auth()->id())->with('users.date')->first();
                 $date = $Getdate->users->date;
 

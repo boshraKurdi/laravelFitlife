@@ -24,4 +24,10 @@ class Group extends Model
     {
         return $this->belongsTo(User::class, 'coach_id');
     }
+    public function messages()
+    {
+        return $this->hasMany(
+            Message::class,
+        );
+    }
 }
