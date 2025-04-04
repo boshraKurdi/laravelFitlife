@@ -74,6 +74,7 @@ Route::group(['prefix' => 'goal'], function () {
     });
 });
 Route::group(['prefix' => 'plan'], function () {
+    Route::post('meals_linda', [PlanController::class, 'meal_linda']);
     Route::get('plansForGoal/{ids}', [GoalPlanController::class, 'getPlanForGoals']);
     Route::group(['middleware' => 'auth:api'], function () {
         Route::get('index', [PlanController::class, 'index']);

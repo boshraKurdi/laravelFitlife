@@ -374,7 +374,40 @@ class PlanController extends Controller
         return response()->json(['data' => $exe]);
     }
 
+    public function meal_linda(GetMealRequest $request)
+    {
+        $exe = [];
+        $message = '';
+        $arrDay = [];
+        $type = 'error';
+        $allMeals =  Plan::where('id', 10)->with(['meal' => function ($q) {
+            $q->where('day', 1)->where('week', 1);
+        }, 'meal.media'])->get();
+        if ($request->breakfast) {
+            $exe =  Plan::where('id', 10)->with(['meal' => function ($q) {
+                $q->where('day', 1)->where('week', 1)->where('breakfast', 1);
+            }, 'meal.media'])->get();
+        } else if ($request->lunch) {
+            $exe =  Plan::where('id', 10)->with(['meal' => function ($q) {
+                $q->where('day', 1)->where('week', 1)->where('lunch', 1);
+            }, 'meal.media'])->get();
+        } else {
+            $exe =  Plan::where('id', 10)->with(['meal' => function ($q) {
+                $q->where('day', 1)->where('week', 1)->where('dinner', 1);
+            }, 'meal.media'])->get();
+        }
 
+        $exe[0]->allMeals = $allMeals;
+        $exe[0]->arrDay = $arrDay;
+        $type = 'success';
+
+
+        return response()->json([
+            'data' => $exe,
+            'type' => $type,
+            'message' => $message
+        ]);
+    }
     public function meal(GetMealRequest $request)
     {
         $exe = [];
