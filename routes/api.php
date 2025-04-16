@@ -36,6 +36,7 @@ Route::group(['prefix' => 'user'], function () {
     Route::get('coachs', [UserController::class, 'coachs']);
     Route::group(['middleware' => 'auth:api'], function () {
         Route::get('profile', [UserController::class, 'profile']);
+        Route::get('progressGoal/{id}/{index}', [UserController::class, 'progressGoal']);
         Route::get('deleteAccount', [UserController::class, 'deleteAccount']);
         Route::post('editProfile', [UserController::class, 'editProfile']);
         Route::post('update', [UserController::class, 'update']);

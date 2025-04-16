@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Chat;
+use App\Models\Goal;
 use App\Models\Group;
 use App\Models\Target;
 use App\Models\Update;
@@ -230,9 +231,22 @@ class UserController extends Controller
         $arrFood = [];
         $BMI = '';
         $arr = [];
-        $profile = User::where('id', auth()->id())->with(['goalPlan' => function ($q) {
-            $q->where('active', 1);
-        }, 'goalPlan.goals', 'date'])->first();
+        $profile = User::where('id', auth()->id())->with(['date'])->first();
+        $goals = DB::table('targets')
+            ->join('goal_plans', 'targets.goal_plan_id', '=', 'goal_plans.id')
+            ->join('goals', 'goal_plans.goal_id', '=', 'goals.id')
+            ->where('targets.user_id', auth()->id())
+            ->select('goal_plans.goal_id', 'goals.title_ar', 'goals.title', 'targets.active', DB::raw('count(*) as total'))
+            ->groupBy('goals.title_ar', 'targets.active', 'goals.title', 'goal_plans.goal_id')
+            ->get();
+        $mygoal = DB::table('targets')
+            ->join('goal_plans', 'targets.goal_plan_id', '=', 'goal_plans.id')
+            ->join('goals', 'goal_plans.goal_id', '=', 'goals.id')
+            ->where('targets.user_id', auth()->id())
+            ->where('active', 1)
+            ->select('goals.calories_max', 'goals.calories_min', 'goal_plans.goal_id', 'goals.title_ar', 'goals.title', 'targets.active', DB::raw('count(*) as total'))
+            ->groupBy('goals.calories_max', 'goals.calories_min', 'goals.title_ar', 'targets.active', 'goals.title', 'goal_plans.goal_id')
+            ->get();
         $today = Carbon::today();
         //get exercise 
         $CountGetdate = Target::where('user_id', auth()->id())->whereHas('goalPlan.plan', function ($q) {
@@ -282,7 +296,8 @@ class UserController extends Controller
             $profile->FoodForDay = $arrFood;
             $profile->xx = $xx;
             $profile->yy = $yy;
-            $profile->goal = $profile->goalPlan[0]->goals;
+            $profile->goals = $goals;
+            $profile->mygoal = $mygoal;
             //get water
             $WaterForDay = Target::where('user_id', auth()->id())->whereHas('goalPlan.plan', function ($q) {
                 $q->where('type', 'water');
@@ -333,6 +348,168 @@ class UserController extends Controller
         }
 
         return response()->json($profile);
+    }
+
+    public function progressGoal($id, $index)
+    {
+        $weekIndex = $index; // 0 للأسبوع الحالي، 1 للأسبوع السابق، 2 للأسبوع اللي قبله...
+
+        $startweek = $weekIndex * 7;
+        $endweek = $startweek + 6;
+        $today = Carbon::today();
+
+        //progress total 
+        $userId = auth()->id();
+
+        $exerciseCalories = DB::table('targets')
+            ->where('user_id', $userId)
+            ->join('goal_plans', 'targets.goal_plan_id', '=', 'goal_plans.id')
+            ->join('plans', 'goal_plans.plan_id', '=', 'plans.id')
+            ->where('goal_plans.goal_id', $id)
+            ->where('plans.type', '!=', 'food')
+            ->sum('targets.calories');
+
+        $mealCalories = DB::table('targets')
+            ->where('user_id', $userId)
+            ->join('goal_plans', 'targets.goal_plan_id', '=', 'goal_plans.id')
+            ->join('plans', 'goal_plans.plan_id', '=', 'plans.id')
+            ->where('goal_plans.goal_id', $id)
+            ->where('plans.type', '!=', 'food')
+            ->sum('targets.calories');
+
+        // صافي السعرات المحروقة = تمارين - وجبات
+        $netCaloriesBurned = $exerciseCalories - $mealCalories;
+
+        // بيانات الهدف
+        $goal = DB::table('goals')->where('id', $id)->first();
+
+        // النسبة المئوية
+        $percentage = 0;
+        $percentage = ($netCaloriesBurned / $goal->calories_max) * 100;
+
+        // حساب الوزن المتوقع بعد الهدف (بفرض 7700 سعرة = 1 كجم)
+        $weightLost = $netCaloriesBurned / 7700;
+        $finalWeight = Auth::user()->width - $weightLost;
+        //dorw
+
+        //food
+        $calories_food =   Target::selectRaw('DATE(created_at) as date, SUM(calories) as total_calories_food')
+            ->whereHas('goalPlan.plan', function ($q) {
+                $q->where('type', 'food');
+            })
+            ->whereHas('goalPlan', function ($q) use ($id) {
+                $q->where('goal_id', $id);
+            })
+            ->where('check', '!=', 0)
+            ->where('user_id', auth()->id())
+            ->where('created_at', '>=', $today->copy()->subDays(6))
+            ->groupBy('date')
+            ->get();
+
+        $dates_calories_food = collect(range($startweek, $endweek))->mapWithKeys(function ($daysAgo) {
+            $date = Carbon::today()->subDays($daysAgo)->toDateString();
+            return [$date => ['date' => $date, 'total_calories_food' => 0]];
+        });
+        $dates_calories_food = $dates_calories_food->map(function ($item) use ($calories_food) {
+            $match = $calories_food->firstWhere('date', $item['date']);
+            return [
+                'x' => $item['date'],
+                'y' => $match ? $match->total_calories_food : 0
+            ];
+        });
+        $datesCaloriesFood = $dates_calories_food->sortBy('x')->values();
+
+
+        //get calories tatal
+        $calories =   Target::selectRaw('DATE(created_at) as date, SUM(calories) as total_calories')
+            ->whereHas('goalPlan.plan', function ($q) {
+                $q->where('type', '!=', 'food');
+            })
+            ->whereHas('goalPlan', function ($q) use ($id) {
+                $q->where('goal_id', $id);
+            })
+            ->where('check', '!=', 0)
+            ->where('user_id', auth()->id())
+            ->where('created_at', '>=', $today->copy()->subDays(6))
+            ->groupBy('date')
+            ->get();
+
+        $dates_calories = collect(range($startweek, $endweek))->mapWithKeys(function ($daysAgo) {
+            $date_c = Carbon::today()->subDays($daysAgo)->toDateString();
+            return [$date_c => ['date' => $date_c, 'total_calories' => 0]];
+        });
+        $dates_calories = $dates_calories->map(function ($item) use ($calories) {
+            $match = $calories->firstWhere('date', $item['date']);
+            return [
+                'x' => $item['date'],
+                'y' => $match ? $match->total_calories : 0
+            ];
+        });
+        $totalcaloriesE = $dates_calories->sortBy('x')->values();
+
+
+        //get sleep tatal
+        $sleeps = DB::table('targets')
+            ->selectRaw('DATE(targets.created_at) as date, SUM(sleep) as total_sleep')
+            ->where('targets.created_at', '>=', $today->copy()->subDays(6))
+            ->join('goal_plans', 'targets.goal_plan_id', '=', 'goal_plans.id')
+            ->groupBy('date')
+            ->where('goal_plans.goal_id', $id)
+            ->where('user_id', auth()->id())
+            ->orderBy('date', 'ASC')
+            ->get();
+
+        $dates_sleep = collect(range($startweek, $endweek))->mapWithKeys(function ($daysAgo) {
+            $date_ss = Carbon::today()->subDays($daysAgo)->toDateString();
+            return [$date_ss => ['date' => $date_ss, 'total_sleep' => 0]];
+        });
+        $dates_sleep = $dates_sleep->map(function ($item) use ($sleeps) {
+            $match = $sleeps->firstWhere('date', $item['date']);
+            return [
+                'x' => $item['date'],
+                'y' => $match ? $match->total_sleep : 0
+            ];
+        });
+        $totalSleep = $dates_sleep->sortBy('x')->values();
+        $goal = Goal::find($id);
+        //get water tatal
+        $waters = DB::table('targets')
+            ->selectRaw('DATE(targets.created_at) as date, SUM(water) as total_water')
+            ->join('goal_plans', 'targets.goal_plan_id', '=', 'goal_plans.id')
+            ->groupBy('date')
+            ->where('goal_plans.goal_id', $id)
+            ->where('targets.created_at', '>=', $today->copy()->subDays(6))
+            ->where('user_id', auth()->id())
+            ->orderBy('date', 'ASC')
+            ->get();
+
+        $dates_water = collect(range($startweek, $endweek))->mapWithKeys(function ($daysAgo) {
+            $date_ww = Carbon::today()->subDays($daysAgo)->toDateString();
+            return [$date_ww => ['date' => $date_ww, 'total_water' => 0]];
+        });
+        $dates_water = $dates_water->map(function ($item) use ($waters) {
+            $match = $waters->firstWhere('date', $item['date']);
+            return [
+                'x' => $item['date'],
+                'y' => $match ? $match->total_water : 0
+            ];
+        });
+
+        $totalWater = $dates_water->sortBy('x')->values();
+
+        return response()->json([
+            "datesCaloriesFood" => $datesCaloriesFood,
+            "datesCaloriesE" => $totalcaloriesE,
+            "totalSleep" => $totalSleep,
+            "totalWater" => $totalWater,
+            'exercise_calories' => $exerciseCalories,
+            'meal_calories' => $mealCalories,
+            'net_burned' => $netCaloriesBurned,
+            'goal' => $goal,
+            'percentage' => round($percentage, 2),
+            'start_weight' =>  Auth::user()->width,
+            'final_weight' => round($finalWeight, 2),
+        ]);
     }
 
     public function deleteAccount()
