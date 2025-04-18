@@ -6,6 +6,8 @@ use App\Models\Meal;
 use App\Http\Requests\StoreMealRequest;
 use App\Http\Requests\UpdateMealRequest;
 use App\Models\Ingredient;
+use App\Models\PlanMeal;
+use App\Services\GetDate;
 
 class MealController extends Controller
 {
@@ -75,8 +77,13 @@ class MealController extends Controller
         $other = Meal::whereHas('category', function ($q) use ($meal) {
             $q->where('id', $meal->category->id);
         })->with('media')->get();
+        $dayd = GetDate::GetDate(2);
+        $day = $dayd['day'];
+        $week = $dayd['week'];
+        $time = PlanMeal::where('meal_id',  $show->id)->where('day', $day)->where('week', $week)->get();
         $show->other = $other;
-        return response()->json($show);
+        $show->time = $time;
+        return response()->json(['data' => $show]);
     }
 
     /**

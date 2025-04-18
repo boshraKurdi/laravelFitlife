@@ -12,6 +12,7 @@ use App\Models\PlanExercise;
 use App\Models\PlanMeal;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Target;
+use App\Observers\GoalPlanObserver;
 use App\Services\GetDate;
 use App\Services\IsHoliday;
 use Carbon\Carbon;
@@ -579,6 +580,10 @@ class PlanController extends Controller
                     $d->sleep = $sleep;
                     $d->date = Auth::user()->date;
                     $d->status = $dayd;
+                }
+                if ($day == -1) {
+                    $observer = new GoalPlanObserver();
+                    $observer->update();
                 }
             } else {
                 $message =  app()->getLocale() == 'en' ? 'please wait to processing the goal' : 'الرجاء الانتظار حتى معالجة طلبك';
