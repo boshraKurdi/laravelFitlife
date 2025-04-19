@@ -9,6 +9,7 @@ use App\Models\Date;
 use App\Models\Target;
 use App\Models\Update;
 use App\Observers\GoalPlanObserver;
+use App\Services\GetDate;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -65,22 +66,29 @@ class GoalPlanController extends Controller
         $type = 'error';
         $CountGetdate = Target::where('user_id', auth()->id())->where('active', '!=', 2)->count();
         if ($CountGetdate) {
-            $target = GoalPlan::whereHas('targets', function ($q) {
-                $q->where('active', 1)->where('user_id', auth()->id());
-            })
-                ->first();
-            if ($target) {
+            $dayd = GetDate::GetDate(2);
+            $day = $dayd['day'];
+            $week = $dayd['week'];
+            if ($day > 0) {
+                $target = GoalPlan::whereHas('targets', function ($q) {
+                    $q->where('active', 1)->where('user_id', auth()->id());
+                })
+                    ->first();
+                if ($target) {
 
-                foreach ($muscleGroups as $muscle) {
-                    $r = GoalPlan::where('goal_id', $target->goal_id)->whereHas('plan', function ($q) use ($muscle) {
-                        $q->where('type', $muscle);
-                    })
-                        ->with(['plan', 'plan.media', 'goals'])->get();
-                    count($r) ?  array_push($targets, $r) : '';
+                    foreach ($muscleGroups as $muscle) {
+                        $r = GoalPlan::where('goal_id', $target->goal_id)->whereHas('plan', function ($q) use ($muscle) {
+                            $q->where('type', $muscle);
+                        })
+                            ->with(['plan', 'plan.media', 'goals'])->get();
+                        count($r) ?  array_push($targets, $r) : '';
+                    }
+                    $type = 'success';
+                } else {
+                    $message = 'please wait to processing the goal';
                 }
-                $type = 'success';
             } else {
-                $message = 'please wait to processing the goal';
+                $message =  app()->getLocale() == 'en' ? 'Your goal has expired. You can extend the period or choose another goal.' : 'لقد انتهت مدة هدفك يمكنك تمديد المدة او اختيار هدف اخر';
             }
         } else {
             $message = "If you want to see more details please register with this goal and don't forget to check your email address 😉😉";
@@ -107,26 +115,32 @@ class GoalPlanController extends Controller
         $CountGetdate = Target::where('user_id', auth()->id())->where('active', '!=', 2)->count();
 
         if ($CountGetdate) {
-            $target = GoalPlan::whereHas('targets', function ($q) {
-                $q->where('active', 1)->where('user_id', auth()->id());
-            })->first();
+            $dayd = GetDate::GetDate(2);
+            $day = $dayd['day'];
+            if ($day > 0) {
+                $target = GoalPlan::whereHas('targets', function ($q) {
+                    $q->where('active', 1)->where('user_id', auth()->id());
+                })->first();
 
-            if ($target) {
-                foreach ($muscleGroups as $key => $muscle) {
-                    $plans = GoalPlan::where('goal_id', $target->goal_id)
-                        ->whereHas('plan', function ($q) use ($muscle) {
-                            $q->where('type', $muscle);
-                        })
-                        ->with(['plan', 'plan.media', 'goals'])
-                        ->get();
+                if ($target) {
+                    foreach ($muscleGroups as $key => $muscle) {
+                        $plans = GoalPlan::where('goal_id', $target->goal_id)
+                            ->whereHas('plan', function ($q) use ($muscle) {
+                                $q->where('type', $muscle);
+                            })
+                            ->with(['plan', 'plan.media', 'goals'])
+                            ->get();
 
-                    if (count($plans)) {
-                        $targets[$key] = $plans;
+                        if (count($plans)) {
+                            $targets[$key] = $plans;
+                        }
                     }
+                    $type = 'success';
+                } else {
+                    $message = 'please wait to processing the goal';
                 }
-                $type = 'success';
             } else {
-                $message = 'please wait to processing the goal';
+                $message =  app()->getLocale() == 'en' ? 'Your goal has expired. You can extend the period or choose another goal.' : 'لقد انتهت مدة هدفك يمكنك تمديد المدة او اختيار هدف اخر';
             }
         } else {
             $message = "If you want to see more details please register with this goal and don't forget to check your email address 😉😉";

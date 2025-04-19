@@ -11,6 +11,7 @@ use App\Models\Date;
 use App\Models\GoalPlan;
 use App\Models\User;
 use App\Observers\GoalPlanObserver;
+use App\Services\GetDate;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -40,22 +41,28 @@ class TargetController extends Controller
         if ($goal_id) {
             $countActive = Target::where('user_id', auth()->id())->where('active', 1)->count();
             if ($countActive) {
-                $countDay = Target::where('user_id', auth()->id())->where('goal_plan_id', $goal_id->goal_plan_id)->whereDate('created_at', $currentDate)->get();
-                if (count($countDay)) {
-                    Target::where('user_id', auth()->id())->where('goal_plan_id', $goal_id->goal_plan_id)->whereDate('created_at', $currentDate)->delete();
-                }
-                for ($i = 0; $i < count($request->check); $i++) {
-                    Target::create([
-                        'user_id' => auth()->id(),
-                        'goal_plan_id' => $goal_id->goal_plan_id,
-                        'calories' => $request->calories[$i],
-                        'check' => $request->check[$i],
-                        'active' => true,
-                    ]);
-                    $observer = new GoalPlanObserver();
-                    $observer->update();
-                    $data = 'success';
-                    $message = app()->getLocale() == 'en'  ? 'Your progress in the plan meals has been recorded. Keep going. 😎😍' : 'لقد تم تسجيل تقدمك في خطة الوجبات. استمر. 😎😍';
+                $dayd = GetDate::GetDate(2);
+                $day = $dayd['day'];
+                if ($day > 0) {
+                    $countDay = Target::where('user_id', auth()->id())->where('goal_plan_id', $goal_id->goal_plan_id)->whereDate('created_at', $currentDate)->get();
+                    if (count($countDay)) {
+                        Target::where('user_id', auth()->id())->where('goal_plan_id', $goal_id->goal_plan_id)->whereDate('created_at', $currentDate)->delete();
+                    }
+                    for ($i = 0; $i < count($request->check); $i++) {
+                        Target::create([
+                            'user_id' => auth()->id(),
+                            'goal_plan_id' => $goal_id->goal_plan_id,
+                            'calories' => $request->calories[$i],
+                            'check' => $request->check[$i],
+                            'active' => true,
+                        ]);
+                        $observer = new GoalPlanObserver();
+                        $observer->update();
+                        $data = 'success';
+                        $message = app()->getLocale() == 'en'  ? 'Your progress in the plan meals has been recorded. Keep going. 😎😍' : 'لقد تم تسجيل تقدمك في خطة الوجبات. استمر. 😎😍';
+                    }
+                } else {
+                    $message =  app()->getLocale() == 'en' ? 'Your goal has expired. You can extend the period or choose another goal.' : 'لقد انتهت مدة هدفك يمكنك تمديد المدة او اختيار هدف اخر';
                 }
             } else {
                 $message = app()->getLocale() == 'en'  ? 'please wait to processing the goal' : 'يرجى الانتظار لمعالجة الهدف';
@@ -79,20 +86,26 @@ class TargetController extends Controller
                 $q->where('plan_id', 14);
             })->where('active', 1)->count();
             if ($countActive) {
-                $countDay = Target::where('user_id', auth()->id())->where('goal_plan_id', $goal_id->goal_plan_id)->whereDate('created_at', $currentDate)->get();
-                if (count($countDay)) {
-                    Target::where('user_id', auth()->id())->where('goal_plan_id', $goal_id->goal_plan_id)->whereDate('created_at', $currentDate)->delete();
+                $dayd = GetDate::GetDate(2);
+                $day = $dayd['day'];
+                if ($day > 0) {
+                    $countDay = Target::where('user_id', auth()->id())->where('goal_plan_id', $goal_id->goal_plan_id)->whereDate('created_at', $currentDate)->get();
+                    if (count($countDay)) {
+                        Target::where('user_id', auth()->id())->where('goal_plan_id', $goal_id->goal_plan_id)->whereDate('created_at', $currentDate)->delete();
+                    }
+                    Target::create([
+                        'user_id' => auth()->id(),
+                        'goal_plan_id' => $goal_id->goal_plan_id,
+                        'sleep' => $request->hours,
+                        'active' => true,
+                    ]);
+                    $observer = new GoalPlanObserver();
+                    $observer->update();
+                    $data = 'success';
+                    $message = app()->getLocale() == 'en'  ? 'Your progress in the plan sleep has been recorded. Keep going. 😎😍' : 'لقد تم تسجيل تقدمك في خطة النوم، استمر. 😎😍';
+                } else {
+                    $message =  app()->getLocale() == 'en' ? 'Your goal has expired. You can extend the period or choose another goal.' : 'لقد انتهت مدة هدفك يمكنك تمديد المدة او اختيار هدف اخر';
                 }
-                Target::create([
-                    'user_id' => auth()->id(),
-                    'goal_plan_id' => $goal_id->goal_plan_id,
-                    'sleep' => $request->hours,
-                    'active' => true,
-                ]);
-                $observer = new GoalPlanObserver();
-                $observer->update();
-                $data = 'success';
-                $message = app()->getLocale() == 'en'  ? 'Your progress in the plan sleep has been recorded. Keep going. 😎😍' : 'لقد تم تسجيل تقدمك في خطة النوم، استمر. 😎😍';
             } else {
                 $message = app()->getLocale() == 'en'  ? 'please wait to processing the goal' : 'يرجى الانتظار لمعالجة الهدف';
             }
@@ -115,20 +128,26 @@ class TargetController extends Controller
                 $q->where('plan_id', 14);
             })->where('active', 1)->count();
             if ($countActive) {
-                $countDay = Target::where('user_id', auth()->id())->where('goal_plan_id', $goal_id->goal_plan_id)->whereDate('created_at', $currentDate)->get();
-                if (count($countDay)) {
-                    Target::where('user_id', auth()->id())->where('goal_plan_id', $goal_id->goal_plan_id)->whereDate('created_at', $currentDate)->delete();
+                $dayd = GetDate::GetDate(2);
+                $day = $dayd['day'];
+                if ($day > 0) {
+                    $countDay = Target::where('user_id', auth()->id())->where('goal_plan_id', $goal_id->goal_plan_id)->whereDate('created_at', $currentDate)->get();
+                    if (count($countDay)) {
+                        Target::where('user_id', auth()->id())->where('goal_plan_id', $goal_id->goal_plan_id)->whereDate('created_at', $currentDate)->delete();
+                    }
+                    Target::create([
+                        'user_id' => auth()->id(),
+                        'goal_plan_id' => $goal_id->goal_plan_id,
+                        'water' => $request->water,
+                        'active' => true,
+                    ]);
+                    $observer = new GoalPlanObserver();
+                    $observer->update();
+                    $message = app()->getLocale() == 'en' ? 'Your progress in the drink water has been recorded. Keep going. 😎😍' : 'لقد تم تسجيل تقدمك في شرب الماء، استمر. 😎😍';
+                    $data = 'success';
+                } else {
+                    $message =  app()->getLocale() == 'en' ? 'Your goal has expired. You can extend the period or choose another goal.' : 'لقد انتهت مدة هدفك يمكنك تمديد المدة او اختيار هدف اخر';
                 }
-                Target::create([
-                    'user_id' => auth()->id(),
-                    'goal_plan_id' => $goal_id->goal_plan_id,
-                    'water' => $request->water,
-                    'active' => true,
-                ]);
-                $observer = new GoalPlanObserver();
-                $observer->update();
-                $message = app()->getLocale() == 'en' ? 'Your progress in the drink water has been recorded. Keep going. 😎😍' : 'لقد تم تسجيل تقدمك في شرب الماء، استمر. 😎😍';
-                $data = 'success';
             } else {
                 $message = app()->getLocale() == 'en'  ? 'please wait to processing the goal' : 'يرجى الانتظار لمعالجة الهدف';
             }
@@ -155,33 +174,39 @@ class TargetController extends Controller
                 $q->where('plan_id', $request->plan_id);
             })->where('user_id', auth()->id())->where('active', 1)->first();
             if ($goal_plan_id) {
-                $check = Target::where('user_id', auth()->id())
-                    ->where('goal_plan_id', $goal_plan_id->goal_plan_id)
-                    ->whereDate('created_at', $currentDate)
-                    ->where('check', $request->check)
-                    ->first();
-                if ($check) {
-                    $check
-                        ->update([
+                $dayd = GetDate::GetDate(2);
+                $day = $dayd['day'];
+                if ($day > 0) {
+                    $check = Target::where('user_id', auth()->id())
+                        ->where('goal_plan_id', $goal_plan_id->goal_plan_id)
+                        ->whereDate('created_at', $currentDate)
+                        ->where('check', $request->check)
+                        ->first();
+                    if ($check) {
+                        $check
+                            ->update([
+                                'user_id' => auth()->id(),
+                                'goal_plan_id' => $goal_plan_id->goal_plan_id,
+                                'calories' => $request->calories,
+                                'check' > $check->check,
+                                'active' => true
+                            ]);
+                    } else {
+                        Target::create([
                             'user_id' => auth()->id(),
                             'goal_plan_id' => $goal_plan_id->goal_plan_id,
                             'calories' => $request->calories,
-                            'check' > $check->check,
+                            'check' => $request->check,
                             'active' => true
                         ]);
+                    }
+                    $observer = new GoalPlanObserver();
+                    $observer->update();
+                    $message = app()->getLocale() == 'en'  ? 'Your progress in the exercises has been recorded. Keep going. 😎😍' : 'لقد تم تسجيل تقدمك في التمارين، استمر. 😎😍';
+                    $data = 'success';
                 } else {
-                    Target::create([
-                        'user_id' => auth()->id(),
-                        'goal_plan_id' => $goal_plan_id->goal_plan_id,
-                        'calories' => $request->calories,
-                        'check' => $request->check,
-                        'active' => true
-                    ]);
+                    $message =  app()->getLocale() == 'en' ? 'Your goal has expired. You can extend the period or choose another goal.' : 'لقد انتهت مدة هدفك يمكنك تمديد المدة او اختيار هدف اخر';
                 }
-                $observer = new GoalPlanObserver();
-                $observer->update();
-                $message = app()->getLocale() == 'en'  ? 'Your progress in the exercises has been recorded. Keep going. 😎😍' : 'لقد تم تسجيل تقدمك في التمارين، استمر. 😎😍';
-                $data = 'success';
             } else {
                 $message = app()->getLocale() == 'en'  ? 'please wait to processing the goal' : 'يرجى الانتظار لمعالجة الهدف';
             }

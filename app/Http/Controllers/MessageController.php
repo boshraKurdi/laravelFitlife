@@ -19,16 +19,28 @@ class MessageController extends Controller
     public function index($id)
     {
         $meesage = '';
-        $check = UserService::where('user_id', auth()->id())->with('service')->first();
-        if ($check) {
-            $date1 = Carbon::parse($check->created_at);
-            $date2 = Carbon::now();
-            $differenceInDays = $date1->diffInDays($date2);
-            if (intval($differenceInDays) > ($check->service->duration * 7)) {
-                $meesage = app()->getLocale() == 'en' ? 'Your service period has expired. Please renew your subscription to one of the services to be able to communicate with the trainers.😊😊' : "انتهت مدة خدمتك. يُرجى تجديد اشتراكك في إحدى الخدمات لتتمكن من التواصل مع المدربين.😊😊";
+        $messages = [];
+        $checks = UserService::where('user_id', auth()->id())->where('status', 'active')->with('service')->get();
+        foreach ($checks as $check) {
+            if ($check) {
+                $date1 = Carbon::parse($check->created_at);
+                $date2 = Carbon::now();
+                $differenceInDays = $date1->diffInDays($date2);
+                if (intval($differenceInDays) > ($check->service->duration * 7)) {
+                    $meesage = app()->getLocale() == 'en' ? 'Your service period has expired. Please renew your subscription to one of the services to be able to communicate with the trainers.😊😊' : "انتهت مدة خدمتك. يُرجى تجديد اشتراكك في إحدى الخدمات لتتمكن من التواصل مع المدربين.😊😊";
+                    $check->update([
+                        'status' => 'finsh'
+                    ]);
+                }
             }
-        } else {
+        }
+        if (count($checks)) {
+
             $meesage =  app()->getLocale() == 'en' ? 'Please subscribe to one of the services to be able to communicate😊😊' : "الرجاء الاشتراك في إحدى الخدمات لتتمكن من التواصل😊😊";
+        }
+        $checkcount = UserService::where('user_id', auth()->id())->where('status', 'active')->count();
+        if ($checkcount) {
+            $message = '';
         }
         Message::whereHas('group', function ($q) use ($id) {
             $q->where('chat_id', $id)->where('user_id', '!=', auth()->id());
@@ -39,6 +51,8 @@ class MessageController extends Controller
         $messages = Message::query()->whereHas('group', function ($q) use ($id) {
             $q->where('chat_id', $id);
         })->with('group.user', 'media')->orderBy('messages.created_at')->get();
+
+
         return response()->json(['data' => $messages, 'message' => $meesage]);
     }
 
@@ -77,32 +91,40 @@ class MessageController extends Controller
             $aiResponse = null;
 
             if ($request->hasFile('file')) {
-                // حفظ الصورة باستخدام spatie media library
                 $message = new Message();
                 $message->group_id = $group->id;
                 $message->isCoach = 0;
                 $message->text = '';
                 $message->isSeen = 0;
                 $message->save();
-                $message->addMediaFromRequest('file')->toMediaCollection('messages');
 
-                // التأكد من أن الملف تم تحميله بشكل صحيح
-                $uploadedFile = $request->file;
-                $fileContent = fopen($uploadedFile->path(), 'r');
+                // أضف هذا أولاً قبل محاولة قراءة الملف
+                $uploadedFile = $request->file('file');
 
-                // إرسال الصورة إلى خدمة Python
+                // طريقة آمنة لقراءة الملف
+                $fileContent = $uploadedFile->getContent(); // الطريقة الموصى بها في Laravel 8+
+
+                // أو استخدم هذه الطريقة إذا لم تعمل السابقة
+                // $fileContent = file_get_contents($uploadedFile->getRealPath());
+                if (!$uploadedFile->isValid()) {
+                    return response()->json(['error' => 'File upload failed'], 400);
+                }
+
+                if (!file_exists($uploadedFile->getRealPath())) {
+                    return response()->json(['error' => 'Temp file not found'], 400);
+                }
+
                 $response = $client->post('http://127.0.0.1:8001/analyze_image/', [
                     'multipart' => [
                         [
-                            'name'     => 'file',
+                            'name' => 'file',
                             'contents' => $fileContent,
-                            'filename' => $uploadedFile->getClientOriginalName(),
+                            'filename' => $uploadedFile->getClientOriginalName()
                         ]
                     ]
                 ]);
-
                 $data = json_decode($response->getBody()->getContents(), true);
-                $aiResponse = $data['fitness_advice']; // الرد من API
+                $aiResponse = $data['fitness_advice'];
             } elseif ($request->has('text')) {
                 // إرسال النص إلى خدمة Python
                 $response = $client->post("http://127.0.0.1:8001/chat/?user_input=" . $request->input('text'), [

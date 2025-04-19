@@ -79,7 +79,7 @@ Route::group(['prefix' => 'plan'], function () {
     Route::get('plansForGoal/{ids}', [GoalPlanController::class, 'getPlanForGoals']);
     Route::group(['middleware' => 'auth:api'], function () {
         Route::get('index', [PlanController::class, 'index']);
-        Route::post('{PlanLevel}/exercises', [PlanController::class, 'exercise']);
+        Route::post('{Plan}/exercises', [PlanController::class, 'exercise']);
         Route::get('sleep', [PlanController::class, 'getSleep']);
         Route::get('water', [PlanController::class, 'getWater']);
         Route::post('meals', [PlanController::class, 'meal']);

@@ -193,93 +193,97 @@ class PlanController extends Controller
                 $dayd = GetDate::GetDate(2);
                 $day = $dayd['day'];
                 $week = $dayd['week'];
-                $Getdate = Target::where('user_id', auth()->id())->with('users.date')->first();
-                $date = $Getdate->users->date;
-                $firstWeek = [$date[0], $date[1], $date[2], $date[3], $date[4], $date[5], $date[6]];
-                $secondWeek = [$date[7], $date[8], $date[9], $date[10], $date[11], $date[12], $date[13]];
-                $today = Carbon::today();
-                //get count target plan and user
-                $count = Target::where('user_id', auth()->id())
-                    ->whereHas('goalPlan', function ($q) use ($plan) {
-                        $q->where('plan_id', $plan);
-                    })->where('check', '!=', 0)->count();
-                $totalRate = intval(($count / 42) * 100);
-                $countWeekOne = Target::where('user_id', auth()->id())
-                    ->whereHas('goalPlan', function ($q) use ($plan) {
-                        $q->where('plan_id', $plan);
-                    })->where('check', '!=', 0)->where(function ($query) use ($firstWeek) {
-                        foreach ($firstWeek as $d) {
-                            $query->orWhereDate('updated_at', '=', Carbon::parse($d->date));
-                        }
-                    })
-                    ->count();
+                if ($day > 0) {
+                    $Getdate = Target::where('user_id', auth()->id())->with('users.date')->first();
+                    $date = $Getdate->users->date;
+                    $firstWeek = [$date[0], $date[1], $date[2], $date[3], $date[4], $date[5], $date[6]];
+                    $secondWeek = [$date[7], $date[8], $date[9], $date[10], $date[11], $date[12], $date[13]];
+                    $today = Carbon::today();
+                    //get count target plan and user
+                    $count = Target::where('user_id', auth()->id())
+                        ->whereHas('goalPlan', function ($q) use ($plan) {
+                            $q->where('plan_id', $plan);
+                        })->where('check', '!=', 0)->count();
+                    $totalRate = intval(($count / 42) * 100);
+                    $countWeekOne = Target::where('user_id', auth()->id())
+                        ->whereHas('goalPlan', function ($q) use ($plan) {
+                            $q->where('plan_id', $plan);
+                        })->where('check', '!=', 0)->where(function ($query) use ($firstWeek) {
+                            foreach ($firstWeek as $d) {
+                                $query->orWhereDate('updated_at', '=', Carbon::parse($d->date));
+                            }
+                        })
+                        ->count();
 
-                $totalRateWeekOne = intval(($countWeekOne / 21) * 100);
-                $countWeekTwo = Target::where('user_id', auth()->id())
-                    ->whereHas('goalPlan', function ($q) use ($plan) {
-                        $q->where('plan_id', $plan);
-                    })->where('check', '!=', 0)->where(function ($query) use ($secondWeek) {
-                        foreach ($secondWeek as $d) {
-                            $query->WhereDate('updated_at', '=', Carbon::parse($d->date));
-                        }
-                    })
-                    ->count();
+                    $totalRateWeekOne = intval(($countWeekOne / 21) * 100);
+                    $countWeekTwo = Target::where('user_id', auth()->id())
+                        ->whereHas('goalPlan', function ($q) use ($plan) {
+                            $q->where('plan_id', $plan);
+                        })->where('check', '!=', 0)->where(function ($query) use ($secondWeek) {
+                            foreach ($secondWeek as $d) {
+                                $query->WhereDate('updated_at', '=', Carbon::parse($d->date));
+                            }
+                        })
+                        ->count();
 
-                $totalRateWeekTwo = intval(($countWeekTwo / 21) * 100);
-                $countDay = Target::where('user_id', auth()->id())
-                    ->whereHas('goalPlan', function ($q) use ($plan) {
-                        $q->where('plan_id', $plan);
-                    })->where('check', '!=', 0)->whereDate('updated_at', $today)
-                    ->count();
+                    $totalRateWeekTwo = intval(($countWeekTwo / 21) * 100);
+                    $countDay = Target::where('user_id', auth()->id())
+                        ->whereHas('goalPlan', function ($q) use ($plan) {
+                            $q->where('plan_id', $plan);
+                        })->where('check', '!=', 0)->whereDate('updated_at', $today)
+                        ->count();
 
-                $totalRateDay = intval(($countDay / 3) * 100);
-                if ($request->type) {
-                    if ($request->type === 'weekly') {
-                        if ($request->number_week == 1) {
-                            $arr = $firstWeek;
-                        } else if ($request->number_week == 2) {
-                            $arr = $secondWeek;
+                    $totalRateDay = intval(($countDay / 3) * 100);
+                    if ($request->type) {
+                        if ($request->type === 'weekly') {
+                            if ($request->number_week == 1) {
+                                $arr = $firstWeek;
+                            } else if ($request->number_week == 2) {
+                                $arr = $secondWeek;
+                            }
+                            foreach ($arr as $d) {
+                                $countDayTotal = Target::where('user_id', auth()->id())
+                                    ->whereHas('goalPlan', function ($q) use ($plan) {
+                                        $q->where('plan_id', $plan);
+                                    })->where('check', '!=', 0)->whereDate('updated_at', $d->date) > count();
+                                $totalRateDayTotal = intval(($countDayTotal / 3) * 100);
+                                array_push($x,  $d->date);
+                                array_push($y, $totalRateDayTotal);
+                            }
+                        } else {
+                            array_push($x, 1);
+                            array_push($y, $totalRateWeekOne);
+                            array_push($x, 2);
+                            array_push($y, $totalRateWeekTwo);
                         }
-                        foreach ($arr as $d) {
-                            $countDayTotal = Target::where('user_id', auth()->id())
-                                ->whereHas('goalPlan', function ($q) use ($plan) {
-                                    $q->where('plan_id', $plan);
-                                })->where('check', '!=', 0)->whereDate('updated_at', $d->date) > count();
-                            $totalRateDayTotal = intval(($countDayTotal / 3) * 100);
-                            array_push($x,  $d->date);
-                            array_push($y, $totalRateDayTotal);
-                        }
-                    } else {
-                        array_push($x, 1);
-                        array_push($y, $totalRateWeekOne);
-                        array_push($x, 2);
-                        array_push($y, $totalRateWeekTwo);
                     }
-                }
-                //get exe
-                $is = IsHoliday::IsHoliday();
+                    //get exe
+                    $is = IsHoliday::IsHoliday();
 
-                if (!$is) {
-                    $exe =  Plan::where('id', $plan)->with(['exercise' => function ($q) use ($day, $week) {
-                        $q->where('day', $day)->where('week', $week);
-                    }, 'exercise.media', 'targets' => function ($q) use ($today) {
-                        $q->where('user_id', auth()->id())->where('check', '!=', 0)->whereDate('targets.created_at', $today);
-                    }, 'targets.users', 'targets.users.date'])->first();
+                    if (!$is) {
+                        $exe =  Plan::where('id', $plan)->with(['exercise' => function ($q) use ($day, $week) {
+                            $q->where('day', $day)->where('week', $week);
+                        }, 'exercise.media', 'targets' => function ($q) use ($today) {
+                            $q->where('user_id', auth()->id())->where('check', '!=', 0)->whereDate('targets.created_at', $today);
+                        }, 'targets.users', 'targets.users.date'])->first();
+                    } else {
+                        $exe =  Plan::where('id', $plan)->with(['targets' => function ($q) use ($today) {
+                            $q->where('user_id', auth()->id())->where('check', '!=', 0)->whereDate('targets.created_at', $today);
+                        }, 'targets.users', 'targets.users.date'])->first();
+                        $e = Exercise::where('type', 'holiday')->with('media')->get();
+                        $exe->exercise = $e;
+                    }
+
+                    $exe->totalRate =   $totalRate;
+                    $exe->totalRateDay =   $totalRateDay;
+                    $exe->totalRateWeekOne =   $totalRateWeekOne;
+                    $exe->totalRateWeekTwo =   $totalRateWeekTwo;
+                    $exe->x = $x;
+                    $exe->y = $y;
+                    $type = "success";
                 } else {
-                    $exe =  Plan::where('id', $plan)->with(['targets' => function ($q) use ($today) {
-                        $q->where('user_id', auth()->id())->where('check', '!=', 0)->whereDate('targets.created_at', $today);
-                    }, 'targets.users', 'targets.users.date'])->first();
-                    $e = Exercise::where('type', 'holiday')->with('media')->get();
-                    $exe->exercise = $e;
+                    $message =  app()->getLocale() == 'en' ? 'Your goal has expired. You can extend the period or choose another goal.' : 'لقد انتهت مدة هدفك يمكنك تمديد المدة او اختيار هدف اخر';
                 }
-
-                $exe->totalRate =   $totalRate;
-                $exe->totalRateDay =   $totalRateDay;
-                $exe->totalRateWeekOne =   $totalRateWeekOne;
-                $exe->totalRateWeekTwo =   $totalRateWeekTwo;
-                $exe->x = $x;
-                $exe->y = $y;
-                $type = "success";
             } else {
                 $message = app()->getLocale() == 'en' ? 'please wait to processing the goal' : 'الرجاء الانتظار حتى معالجة طلبك';
             }
@@ -302,23 +306,29 @@ class PlanController extends Controller
         if ($check) {
             $checkAtice = Target::where('user_id', auth()->id())->where('active', 1)->count();
             if ($checkAtice) {
-                $sleep =  Plan::where('id', 14)->with(['targets' => function ($q) use ($today) {
-                    $q->where('user_id', auth()->id())->where('sleep', '!=', null)->whereDate('targets.created_at', $today);
-                }])->first();
+                $dayd = GetDate::GetDate(2);
+                $day = $dayd['day'];
+                if ($day > 0) {
+                    $sleep =  Plan::where('id', 14)->with(['targets' => function ($q) use ($today) {
+                        $q->where('user_id', auth()->id())->where('sleep', '!=', null)->whereDate('targets.created_at', $today);
+                    }])->first();
 
-                $SleepForDay = Target::selectRaw('DATE(created_at) as x, SUM(sleep) as y')
-                    ->whereHas('goalPlan.plan', function ($q) {
-                        $q->where('type', 'sleep');
-                    })
-                    ->where('user_id', auth()->id())
-                    ->groupBy('x')
-                    ->get();
+                    $SleepForDay = Target::selectRaw('DATE(created_at) as x, SUM(sleep) as y')
+                        ->whereHas('goalPlan.plan', function ($q) {
+                            $q->where('type', 'sleep');
+                        })
+                        ->where('user_id', auth()->id())
+                        ->groupBy('x')
+                        ->get();
 
-                foreach ($SleepForDay as $data) {
-                    array_push($arrDay, ['x' => $data->x, 'y' => intval($data->y)]);
+                    foreach ($SleepForDay as $data) {
+                        array_push($arrDay, ['x' => $data->x, 'y' => intval($data->y)]);
+                    }
+                    $sleep->arrDay = $arrDay;
+                    $type = 'success';
+                } else {
+                    $message =  app()->getLocale() == 'en' ? 'Your goal has expired. You can extend the period or choose another goal.' : 'لقد انتهت مدة هدفك يمكنك تمديد المدة او اختيار هدف اخر';
                 }
-                $sleep->arrDay = $arrDay;
-                $type = 'success';
             } else {
                 $message = app()->getLocale() == 'en' ? 'please wait to processing the goal' : 'الرجاء الانتظار حتى معالجة طلبك';
             }
@@ -341,23 +351,30 @@ class PlanController extends Controller
         if ($check) {
             $checkAtice = Target::where('user_id', auth()->id())->where('active', 1)->count();
             if ($checkAtice) {
-                $water =  Plan::where('id', 15)->with(['targets' => function ($q) use ($today) {
-                    $q->where('user_id', auth()->id())->where('water', '!=', null)->whereDate('targets.created_at', $today);
-                }])->first();
+                $dayd = GetDate::GetDate(2);
+                $day = $dayd['day'];
+                $week = $dayd['week'];
+                if ($day > 0) {
+                    $water =  Plan::where('id', 15)->with(['targets' => function ($q) use ($today) {
+                        $q->where('user_id', auth()->id())->where('water', '!=', null)->whereDate('targets.created_at', $today);
+                    }])->first();
 
-                $WaterForDay = Target::selectRaw('DATE(created_at) as x, SUM(water) as y')
-                    ->whereHas('goalPlan.plan', function ($q) {
-                        $q->where('type', 'water');
-                    })
-                    ->where('user_id', auth()->id())
-                    ->groupBy('x')
-                    ->get();
+                    $WaterForDay = Target::selectRaw('DATE(created_at) as x, SUM(water) as y')
+                        ->whereHas('goalPlan.plan', function ($q) {
+                            $q->where('type', 'water');
+                        })
+                        ->where('user_id', auth()->id())
+                        ->groupBy('x')
+                        ->get();
 
-                foreach ($WaterForDay as $data) {
-                    array_push($arrDay, ['x' => $data->x, 'y' => intval($data->y)]);
+                    foreach ($WaterForDay as $data) {
+                        array_push($arrDay, ['x' => $data->x, 'y' => intval($data->y)]);
+                    }
+                    $water->arrDay = $arrDay;
+                    $type = 'success';
+                } else {
+                    $message =  app()->getLocale() == 'en' ? 'Your goal has expired. You can extend the period or choose another goal.' : 'لقد انتهت مدة هدفك يمكنك تمديد المدة او اختيار هدف اخر';
                 }
-                $water->arrDay = $arrDay;
-                $type = 'success';
             } else {
                 $message = app()->getLocale() == 'en' ? 'please wait to processing the goal' : 'الرجاء الانتظار حتى معالجة طلبك';
             }
@@ -423,54 +440,59 @@ class PlanController extends Controller
 
             $target = Target::where('user_id', auth()->id())->where('active', 1)->with(['goalPlan', 'users.date'])->first();
             if ($target) {
-                $plan_id = Plan::whereHas('goals', function ($q) use ($target) {
-                    $q->where('goal_id', $target->goalPlan->goal_id);
-                })
-                    ->where('type', 'food')
-                    ->first();
+
                 $dayd = GetDate::GetDate(2);
                 $day = $dayd['day'];
                 $week = $dayd['week'];
-                $allMeals =  Plan::where('id', $plan_id->id)->with(['meal' => function ($q) use ($day, $week) {
-                    $q->where('day', $day)->where('week', $week);
-                }, 'meal.media'])->get();
-                if ($request->breakfast) {
-                    $exe =  Plan::where('id', $plan_id->id)->with(['targets' => function ($q) use ($today) {
-                        $q->where('user_id', auth()->id())->where('check', '!=', 0)->whereDate('targets.created_at', $today);
-                    }, 'targets.users', 'meal' => function ($q) use ($day, $week) {
-                        $q->where('day', $day)->where('week', $week)->where('breakfast', 1);
-                    }, 'meal.media'])->get();
-                } else if ($request->lunch) {
-                    $exe =  Plan::where('id', $plan_id->id)->with(['targets' => function ($q) use ($today) {
-                        $q->where('user_id', auth()->id())->where('check', '!=', 0)->whereDate('targets.created_at', $today);
-                    }, 'targets.users', 'meal' => function ($q) use ($day, $week) {
-                        $q->where('day', $day)->where('week', $week)->where('lunch', 1);
-                    }, 'meal.media'])->get();
-                } else {
-                    $exe =  Plan::where('id', $plan_id->id)->with(['targets' => function ($q) use ($today) {
-                        $q->where('user_id', auth()->id())->where('check', '!=', 0)->whereDate('targets.created_at', $today);
-                    }, 'targets.users', 'meal' => function ($q) use ($day, $week) {
-                        $q->where('day', $day)->where('week', $week)->where('dinner', 1);
-                    }, 'meal.media'])->get();
-                }
-
-                //get meal bars
-                $FoodForDay = Target::selectRaw('DATE(created_at) as x, SUM(calories) as y')
-                    ->whereHas('goalPlan.plan', function ($q) {
-                        $q->where('type', 'food');
+                if ($day > 0) {
+                    $plan_id = Plan::whereHas('goals', function ($q) use ($target) {
+                        $q->where('goal_id', $target->goalPlan->goal_id);
                     })
-                    ->where('user_id', auth()->id())
-                    ->groupBy('x')
-                    ->get();
+                        ->where('type', 'food')
+                        ->first();
+                    $allMeals =  Plan::where('id', $plan_id->id)->with(['meal' => function ($q) use ($day, $week) {
+                        $q->where('day', $day)->where('week', $week);
+                    }, 'meal.media'])->get();
+                    if ($request->breakfast) {
+                        $exe =  Plan::where('id', $plan_id->id)->with(['targets' => function ($q) use ($today) {
+                            $q->where('user_id', auth()->id())->where('check', '!=', 0)->whereDate('targets.created_at', $today);
+                        }, 'targets.users', 'meal' => function ($q) use ($day, $week) {
+                            $q->where('day', $day)->where('week', $week)->where('breakfast', 1);
+                        }, 'meal.media'])->get();
+                    } else if ($request->lunch) {
+                        $exe =  Plan::where('id', $plan_id->id)->with(['targets' => function ($q) use ($today) {
+                            $q->where('user_id', auth()->id())->where('check', '!=', 0)->whereDate('targets.created_at', $today);
+                        }, 'targets.users', 'meal' => function ($q) use ($day, $week) {
+                            $q->where('day', $day)->where('week', $week)->where('lunch', 1);
+                        }, 'meal.media'])->get();
+                    } else {
+                        $exe =  Plan::where('id', $plan_id->id)->with(['targets' => function ($q) use ($today) {
+                            $q->where('user_id', auth()->id())->where('check', '!=', 0)->whereDate('targets.created_at', $today);
+                        }, 'targets.users', 'meal' => function ($q) use ($day, $week) {
+                            $q->where('day', $day)->where('week', $week)->where('dinner', 1);
+                        }, 'meal.media'])->get();
+                    }
 
-                foreach ($FoodForDay as $data) {
-                    array_push($arrDay, ['x' => $data->x, 'y' => intval($data->y)]);
+                    //get meal bars
+                    $FoodForDay = Target::selectRaw('DATE(created_at) as x, SUM(calories) as y')
+                        ->whereHas('goalPlan.plan', function ($q) {
+                            $q->where('type', 'food');
+                        })
+                        ->where('user_id', auth()->id())
+                        ->groupBy('x')
+                        ->get();
+
+                    foreach ($FoodForDay as $data) {
+                        array_push($arrDay, ['x' => $data->x, 'y' => intval($data->y)]);
+                    }
+
+
+                    $exe[0]->allMeals = $allMeals;
+                    $exe[0]->arrDay = $arrDay;
+                    $type = 'success';
+                } else {
+                    $message =  app()->getLocale() == 'en' ? 'Your goal has expired. You can extend the period or choose another goal.' : 'لقد انتهت مدة هدفك يمكنك تمديد المدة او اختيار هدف اخر';
                 }
-
-
-                $exe[0]->allMeals = $allMeals;
-                $exe[0]->arrDay = $arrDay;
-                $type = 'success';
             } else {
                 $message = app()->getLocale() == 'en' ? 'please wait to processing the goal' : 'الرجاء الانتظار حتى معالجة طلبك';
             }
@@ -497,11 +519,10 @@ class PlanController extends Controller
         if ($CountGetdate) {
             $CountGetdateWithActive = Target::where('user_id', auth()->id())->where('active', 1)->count();
             if ($CountGetdateWithActive) {
+
                 $type = 'success';
                 // get rate
-                $dayd = GetDate::GetDate(2);
-                $day = $dayd['day'];
-                $week = $dayd['week'];
+
                 $c = Target::where('user_id', auth()->id())->whereHas('goalPlan.plan', function ($q) {
                     $q->where('type', '!=', 'food')->where('type', '!=', 'sleep')->where('type', '!=', 'water');
                 })->where('active', 1)->get();
@@ -524,64 +545,70 @@ class PlanController extends Controller
                 $totalRate = ($sumCalories / $goal->goalPlan->goals->calories_max) * 100;
                 $goal->goalPlan->goals->totalRate = intval($totalRate);
                 $goal->goalPlan->goals->exercise = $cc;
+
+                $dayd = GetDate::GetDate($goal->duration);
+                $day = $dayd['day'];
+                $week = $dayd['week'];
                 // get target plan
-                $plans = Plan::query()
-                    ->whereHas('targets', function ($q) {
-                        $q->where('user_id', auth()->id())->where('check', '!=', 0);
-                    })
-                    ->where('type', '!=', 'food')
-                    ->where('type', '!=', 'sleep')
-                    ->where('type', '!=', 'water')
+                if ($day > 0) {
+                    $plans = Plan::query()
+                        ->whereHas('targets', function ($q) {
+                            $q->where('user_id', auth()->id())->where('check', '!=', 0);
+                        })
+                        ->where('type', '!=', 'food')
+                        ->where('type', '!=', 'sleep')
+                        ->where('type', '!=', 'water')
 
-                    ->with(['targets' => function ($query) {
-                        $query->where('user_id', auth()->id())->where('check', '!=', 0);
-                    }, 'media', 'targets.goalPlan', 'exercise' => function ($query) use ($day, $week) {
-                        $query->where('day', $day)->where('week', $week);
-                    }, 'exercise.media'])
-                    ->get();
-                // get food
-                $food = Plan::query()
-                    ->whereHas('targets', function ($q) {
-                        $q->where('user_id', auth()->id());
-                    })
-                    ->where('type', 'food')
-                    ->with(['targets' => function ($query) {
-                        $query->where('user_id', auth()->id())->where('check', '!=', 0);
-                    }, 'media', 'targets.goalPlan', 'meal' => function ($query) use ($day, $week) {
-                        $query->where('day', $day)->where('week', $week);
-                    }, 'meal.media'])
-                    ->get();
-                // get water
-                $water = Plan::query()
-                    ->whereHas('targets', function ($q) {
-                        $q->where('user_id', auth()->id());
-                    })
-                    ->where('type', 'water')
+                        ->with(['targets' => function ($query) {
+                            $query->where('user_id', auth()->id())->where('check', '!=', 0);
+                        }, 'media', 'targets.goalPlan', 'exercise' => function ($query) use ($day, $week) {
+                            $query->where('day', $day)->where('week', $week);
+                        }, 'exercise.media'])
+                        ->get();
+                    // get food
+                    $food = Plan::query()
+                        ->whereHas('targets', function ($q) {
+                            $q->where('user_id', auth()->id());
+                        })
+                        ->where('type', 'food')
+                        ->with(['targets' => function ($query) {
+                            $query->where('user_id', auth()->id())->where('check', '!=', 0);
+                        }, 'media', 'targets.goalPlan', 'meal' => function ($query) use ($day, $week) {
+                            $query->where('day', $day)->where('week', $week);
+                        }, 'meal.media'])
+                        ->get();
+                    // get water
+                    $water = Plan::query()
+                        ->whereHas('targets', function ($q) {
+                            $q->where('user_id', auth()->id());
+                        })
+                        ->where('type', 'water')
 
-                    ->with(['targets' => function ($query) use ($today) {
-                        $query->where('user_id', auth()->id())->where('water', '!=', null)->whereDate('targets.created_at', $today);
-                    }, 'media', 'targets.goalPlan'])
-                    ->get();
-                // get sleep
-                $sleep = Plan::query()
-                    ->whereHas('targets', function ($q) {
-                        $q->where('user_id', auth()->id());
-                    })
-                    ->where('type', 'sleep')
-                    ->with(['targets' => function ($query) use ($today) {
-                        $query->where('user_id', auth()->id())->where('sleep', '!=', null)->whereDate('targets.created_at', $today);
-                    }, 'media', 'targets.goalPlan'])
-                    ->get();
-                foreach ($data as $d) {
-                    $d->myGoal = $goal->goalPlan->goals;
-                    $d->plans = $plans;
-                    $d->meals = $food;
-                    $d->water = $water;
-                    $d->sleep = $sleep;
-                    $d->date = Auth::user()->date;
-                    $d->status = $dayd;
-                }
-                if ($day == -1) {
+                        ->with(['targets' => function ($query) use ($today) {
+                            $query->where('user_id', auth()->id())->where('water', '!=', null)->whereDate('targets.created_at', $today);
+                        }, 'media', 'targets.goalPlan'])
+                        ->get();
+                    // get sleep
+                    $sleep = Plan::query()
+                        ->whereHas('targets', function ($q) {
+                            $q->where('user_id', auth()->id());
+                        })
+                        ->where('type', 'sleep')
+                        ->with(['targets' => function ($query) use ($today) {
+                            $query->where('user_id', auth()->id())->where('sleep', '!=', null)->whereDate('targets.created_at', $today);
+                        }, 'media', 'targets.goalPlan'])
+                        ->get();
+                    foreach ($data as $d) {
+                        $d->myGoal = $goal->goalPlan->goals;
+                        $d->plans = $plans;
+                        $d->meals = $food;
+                        $d->water = $water;
+                        $d->sleep = $sleep;
+                        $d->date = Auth::user()->date;
+                        $d->status = $dayd;
+                    }
+                } else {
+                    $message =  app()->getLocale() == 'en' ? 'Your goal has expired. You can extend the period or choose another goal.' : 'لقد انتهت مدة هدفك يمكنك تمديد المدة او اختيار هدف اخر';
                     $observer = new GoalPlanObserver();
                     $observer->update();
                 }
@@ -604,31 +631,38 @@ class PlanController extends Controller
         if ($CountGetdate) {
             $CountGetdateWithActive = Target::where('user_id', auth()->id())->where('active', 1)->count();
             if ($CountGetdateWithActive) {
-                $plans = Plan::query()
-                    ->whereHas('targets', function ($q) {
-                        $q->where('user_id', auth()->id())->where('check', '!=', 0)->where('active', 1);
-                    })
-                    ->where('type', '!=', 'food')
-                    ->where('type', '!=', 'sleep')
-                    ->where('type', '!=', 'water')
+                $dayd = GetDate::GetDate(2);
+                $day = $dayd['day'];
+                $week = $dayd['week'];
+                if ($day > 0) {
+                    $plans = Plan::query()
+                        ->whereHas('targets', function ($q) {
+                            $q->where('user_id', auth()->id())->where('check', '!=', 0)->where('active', 1);
+                        })
+                        ->where('type', '!=', 'food')
+                        ->where('type', '!=', 'sleep')
+                        ->where('type', '!=', 'water')
 
-                    ->with(['targets' => function ($query) {
-                        $query->where('user_id', auth()->id())->where('check', '!=', 0);
-                    }, 'media', 'targets.goalPlan'])
-                    ->get();
-                if ($plans) {
-                    $newIndex = $plans->map(function ($i) {
-                        $count = Target::where('user_id', auth()->id())
-                            ->whereHas('goalPlan', function ($q) use ($i) {
-                                $q->where('plan_id', $i->id);
-                            })->where('check', '!=', 0)
-                            ->count();
-                        $totalRate = intval(($count / 21) * 100);
-                        $i->totalRate = $totalRate;
-                        return $i;
-                    });
+                        ->with(['targets' => function ($query) {
+                            $query->where('user_id', auth()->id())->where('check', '!=', 0);
+                        }, 'media', 'targets.goalPlan'])
+                        ->get();
+                    if ($plans) {
+                        $newIndex = $plans->map(function ($i) {
+                            $count = Target::where('user_id', auth()->id())
+                                ->whereHas('goalPlan', function ($q) use ($i) {
+                                    $q->where('plan_id', $i->id);
+                                })->where('check', '!=', 0)
+                                ->count();
+                            $totalRate = intval(($count / 21) * 100);
+                            $i->totalRate = $totalRate;
+                            return $i;
+                        });
+                    } else {
+                        $message = app()->getLocale() == 'en' ? "Don't you want to burn the fat? 💪💪What your waiting for start your first plan with us now 🔥🔥" : 'ألا تريد حرق الدهون؟ 💪💪ما الذي تنتظره؟ ابدأ خطتك الأولى معنا الآن 🔥🔥';
+                    }
                 } else {
-                    $message = app()->getLocale() == 'en' ? "Don't you want to burn the fat? 💪💪What your waiting for start your first plan with us now 🔥🔥" : 'ألا تريد حرق الدهون؟ 💪💪ما الذي تنتظره؟ ابدأ خطتك الأولى معنا الآن 🔥🔥';
+                    $message =  app()->getLocale() == 'en' ? 'Your goal has expired. You can extend the period or choose another goal.' : 'لقد انتهت مدة هدفك يمكنك تمديد المدة او اختيار هدف اخر';
                 }
 
                 $type = 'success';
@@ -664,93 +698,97 @@ class PlanController extends Controller
                 $dayd = GetDate::GetDate(2);
                 $day = $dayd['day'];
                 $week = $dayd['week'];
-                $Getdate = Target::where('user_id', auth()->id())->with('users.date')->first();
-                $date = $Getdate->users->date;
+                if ($day > 0) {
+                    $Getdate = Target::where('user_id', auth()->id())->with('users.date')->first();
+                    $date = $Getdate->users->date;
 
-                //count exerice with gender 
-                $count = Target::where('user_id', auth()->id())
-                    ->whereHas('goalPlan', function ($q) use ($id) {
-                        $q->where('plan_id', $id);
-                    })
-                    ->whereIn('check', $ar)->count();
-                $dates = $Getdate->users->date;
-
-
-                $weeks = collect($dates)->chunk(7)->values();
-
-                $results = [];
-                //progress week rate 
-                foreach ($weeks as $index => $weekDays) {
-
-                    $weekDates = collect($weekDays)->map(function ($d) {
-                        return Carbon::parse($d->date)->toDateString();
-                    });
-
-                    $countWeekIndex = Target::where('user_id', auth()->id())
+                    //count exerice with gender 
+                    $count = Target::where('user_id', auth()->id())
                         ->whereHas('goalPlan', function ($q) use ($id) {
                             $q->where('plan_id', $id);
                         })
-                        ->where('check', '!=', 0)
-                        ->whereIn(DB::raw('DATE(updated_at)'), $weekDates)
+                        ->whereIn('check', $ar)->count();
+                    $dates = $Getdate->users->date;
+
+
+                    $weeks = collect($dates)->chunk(7)->values();
+
+                    $results = [];
+                    //progress week rate 
+                    foreach ($weeks as $index => $weekDays) {
+
+                        $weekDates = collect($weekDays)->map(function ($d) {
+                            return Carbon::parse($d->date)->toDateString();
+                        });
+
+                        $countWeekIndex = Target::where('user_id', auth()->id())
+                            ->whereHas('goalPlan', function ($q) use ($id) {
+                                $q->where('plan_id', $id);
+                            })
+                            ->where('check', '!=', 0)
+                            ->whereIn(DB::raw('DATE(updated_at)'), $weekDates)
+                            ->count();
+
+                        $totalRate = intval(($countWeekIndex / 21) * 100); // عدل الرقم حسب النظام عندك
+
+                        $results[] = [
+                            'week' => $index + 1,
+                            'rate'  => $totalRate
+                        ];
+                    }
+                    $totalRate = intval(($count / 21) * 100);
+
+
+                    $countDay = Target::where('user_id', auth()->id())
+                        ->whereHas('goalPlan', function ($q) use ($id) {
+                            $q->where('plan_id', $id);
+                        })->where('check', '!=', 0)->WhereDate('updated_at', $today)->count();
+
+                    $countx = PlanExercise::where('day', $day)->where('week', $week)
+                        ->whereIn('exercise_id', $ar)->where('plan_id', $id)
                         ->count();
+                    $countE = $countx ? $countx : 1;
+                    $totalRateDay = intval(($countDay / $countE) * 100);
 
-                    $totalRate = intval(($countWeekIndex / 21) * 100); // عدل الرقم حسب النظام عندك
 
-                    $results[] = [
-                        'week' => $index + 1,
-                        'rate'  => $totalRate
-                    ];
+                    // drow proggres day rate
+                    $AllDayTotal = Target::selectRaw('DATE(created_at) as x, SUM(calories) as y')->where('user_id', auth()->id())
+                        ->whereHas('goalPlan', function ($q) use ($id) {
+                            $q->where('plan_id', $id);
+                        })->where('check', '!=', 0)->groupBy('x')->get();
+
+                    foreach ($AllDayTotal as $data) {
+                        $totalRateDayTotal = intval((count($AllDayTotal) / $countE) * 100);
+                        array_push($arrDay, ['x' => $data->x, 'y' => $totalRateDayTotal]);
+                    }
+
+                    // progress claories
+                    $CalroiesForDay = Target::selectRaw('DATE(created_at) as x, SUM(calories) as y')
+                        ->whereHas('goalPlan.plan', function ($q) {
+                            $q->where('type', "!=", 'food')->where('type', "!=", 'water')->where('type', "!=", 'sleep');
+                        })
+                        ->where('user_id', auth()->id())
+                        ->groupBy('x')
+                        ->get();
+                    foreach ($CalroiesForDay as $data) {
+                        array_push($arrCal, ['x' => $data->x, 'y' => intval($data->y)]);
+                    }
+
+                    $show = Plan::where('id', $id)
+                        ->with(['targets' => function ($q) use ($today) {
+                            $q->where('user_id', auth()->id())->whereDate('targets.created_at', $today)->where('check', '!=', 0);
+                        }, 'targets.users', 'targets.users.date', 'media'])
+                        ->first();
+                    $show->date =   $date;
+                    $show->totalRate =   $totalRate;
+                    $show->arrCal =   $arrCal;
+                    $show->totalRateDay =   $totalRateDay;
+                    $show->totalRateWeekOne =   $results;
+                    $show->arrDay = $arrDay;
+                    $type = 'success';
+                } else {
+                    $message =  app()->getLocale() == 'en' ? 'Your goal has expired. You can extend the period or choose another goal.' : 'لقد انتهت مدة هدفك يمكنك تمديد المدة او اختيار هدف اخر';
                 }
-                $totalRate = intval(($count / 21) * 100);
-
-
-                $countDay = Target::where('user_id', auth()->id())
-                    ->whereHas('goalPlan', function ($q) use ($id) {
-                        $q->where('plan_id', $id);
-                    })->where('check', '!=', 0)->WhereDate('updated_at', $today)->count();
-
-                $countx = PlanExercise::where('day', $day)->where('week', $week)
-                    ->whereIn('exercise_id', $ar)->where('plan_id', $id)
-                    ->count();
-                $countE = $countx ? $countx : 1;
-                $totalRateDay = intval(($countDay / $countE) * 100);
-
-
-                // drow proggres day rate
-                $AllDayTotal = Target::selectRaw('DATE(created_at) as x, SUM(calories) as y')->where('user_id', auth()->id())
-                    ->whereHas('goalPlan', function ($q) use ($id) {
-                        $q->where('plan_id', $id);
-                    })->where('check', '!=', 0)->groupBy('x')->get();
-
-                foreach ($AllDayTotal as $data) {
-                    $totalRateDayTotal = intval((count($AllDayTotal) / $countE) * 100);
-                    array_push($arrDay, ['x' => $data->x, 'y' => $totalRateDayTotal]);
-                }
-
-                // progress claories
-                $CalroiesForDay = Target::selectRaw('DATE(created_at) as x, SUM(calories) as y')
-                    ->whereHas('goalPlan.plan', function ($q) {
-                        $q->where('type', "!=", 'food')->where('type', "!=", 'water')->where('type', "!=", 'sleep');
-                    })
-                    ->where('user_id', auth()->id())
-                    ->groupBy('x')
-                    ->get();
-                foreach ($CalroiesForDay as $data) {
-                    array_push($arrCal, ['x' => $data->x, 'y' => intval($data->y)]);
-                }
-
-                $show = Plan::where('id', $id)
-                    ->with(['targets' => function ($q) use ($today) {
-                        $q->where('user_id', auth()->id())->whereDate('targets.created_at', $today)->where('check', '!=', 0);
-                    }, 'targets.users', 'targets.users.date', 'media'])
-                    ->first();
-                $show->date =   $date;
-                $show->totalRate =   $totalRate;
-                $show->arrCal =   $arrCal;
-                $show->totalRateDay =   $totalRateDay;
-                $show->totalRateWeekOne =   $results;
-                $show->arrDay = $arrDay;
-                $type = 'success';
             } else {
                 $message = app()->getLocale() == 'en' ? 'please wait to processing the goal' : 'الرجاء الانتظار حتى معالجة طلبك';
             }
