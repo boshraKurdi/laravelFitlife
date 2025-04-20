@@ -8,6 +8,7 @@ use App\Models\Group;
 use App\Models\Target;
 use App\Models\Update;
 use App\Models\User;
+use App\Services\GetDate;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -348,6 +349,19 @@ class UserController extends Controller
         }
 
         return response()->json($profile);
+    }
+    public function getStatus()
+    {
+        $day = -1;
+        $week = -1;
+        $check = Target::where('user_id', auth()->id())->where('active', 1)->count();
+        if ($check) {
+            $dayd = GetDate::GetDate(2);
+            $day = $dayd['day'];
+            $week = $dayd['week'];
+        }
+
+        return response()->json(['day' => $day, 'week' => $week]);
     }
 
     public function progressGoal($id, $index)

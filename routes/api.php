@@ -42,6 +42,7 @@ Route::group(['prefix' => 'user'], function () {
         Route::post('update', [UserController::class, 'update']);
         Route::post('editScheduling', [TargetController::class, 'editScheduling']);
         Route::get('show/{user}', [UserController::class, 'show']);
+        Route::get('getStatus', [UserController::class, 'getStatus']);
         Route::post('send_request_coach', [UserController::class, 'send_request_coach']);
         Route::post('send_request_admin', [UserController::class, 'send_request_admin']);
     });
