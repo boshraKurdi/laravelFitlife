@@ -20,6 +20,7 @@ class MessageController extends Controller
     {
         $meesage = '';
         $messages = [];
+        $messageAi = '';
         $checks = UserService::where('user_id', auth()->id())->where('status', 'active')->with('service')->get();
         foreach ($checks as $check) {
             if ($check) {
@@ -34,14 +35,12 @@ class MessageController extends Controller
                 }
             }
         }
-        if (count($checks)) {
 
+        $checkcount = UserService::where('user_id', auth()->id())->where('status', 'active')->count();
+        if (!$checkcount) {
             $meesage =  app()->getLocale() == 'en' ? 'Please subscribe to one of the services to be able to communicate😊😊' : "الرجاء الاشتراك في إحدى الخدمات لتتمكن من التواصل😊😊";
         }
-        $checkcount = UserService::where('user_id', auth()->id())->where('status', 'active')->count();
-        if ($checkcount) {
-            $message = '';
-        }
+
         Message::whereHas('group', function ($q) use ($id) {
             $q->where('chat_id', $id)->where('user_id', '!=', auth()->id());
         })->update([

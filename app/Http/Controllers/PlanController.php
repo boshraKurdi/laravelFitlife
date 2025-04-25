@@ -546,7 +546,7 @@ class PlanController extends Controller
                 $goal->goalPlan->goals->totalRate = intval($totalRate);
                 $goal->goalPlan->goals->exercise = $cc;
 
-                $dayd = GetDate::GetDate($goal->duration);
+                $dayd = GetDate::GetDate($goal->goalPlan->goals->duration);
                 $day = $dayd['day'];
                 $week = $dayd['week'];
                 // get target plan
