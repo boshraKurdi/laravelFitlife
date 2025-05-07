@@ -24,8 +24,8 @@ class StoreTargetRequest extends FormRequest
         return [
             // 'user_id' => 'required|exists:users,id',
             'plan_id' => 'required|exists:plans,id',
-            'calories' => 'required',
-            'check' => 'required',
+            // 'calories' => 'required',
+            // 'check' => 'required',
         ];
     }
 }

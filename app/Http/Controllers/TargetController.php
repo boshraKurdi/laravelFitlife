@@ -56,11 +56,11 @@ class TargetController extends Controller
                             'check' => $request->check[$i],
                             'active' => true,
                         ]);
-                        $observer = new GoalPlanObserver();
-                        $observer->update();
-                        $data = 'success';
-                        $message = app()->getLocale() == 'en'  ? 'Your progress in the plan meals has been recorded. Keep going. 😎😍' : 'لقد تم تسجيل تقدمك في خطة الوجبات. استمر. 😎😍';
                     }
+                    $observer = new GoalPlanObserver();
+                    $observer->update();
+                    $data = 'success';
+                    $message = app()->getLocale() == 'en'  ? 'Your progress in the plan meals has been recorded. Keep going. 😎😍' : 'لقد تم تسجيل تقدمك في خطة الوجبات. استمر. 😎😍';
                 } else {
                     $message =  app()->getLocale() == 'en' ? 'Your goal has expired. You can extend the period or choose another goal.' : 'لقد انتهت مدة هدفك يمكنك تمديد المدة او اختيار هدف اخر';
                 }

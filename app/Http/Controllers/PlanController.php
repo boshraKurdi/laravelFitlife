@@ -549,6 +549,18 @@ class PlanController extends Controller
                 $dayd = GetDate::GetDate($goal->goalPlan->goals->duration);
                 $day = $dayd['day'];
                 $week = $dayd['week'];
+                $Getdate = Target::where('user_id', auth()->id())->with('users.date')->first();
+                $dates = $Getdate->users->date;
+
+                $weeks = collect($dates)->chunk(7)->values();
+
+                $currentDate = Carbon::today()->toDateString();
+                $currentWeekNumber = $weeks->search(function ($weekDays) use ($currentDate) {
+                    return collect($weekDays)->contains(function ($d) use ($currentDate) {
+                        return Carbon::parse($d->date)->toDateString() === $currentDate;
+                    });
+                });
+
                 // get target plan
                 if ($day > 0) {
                     $plans = Plan::query()
@@ -605,7 +617,7 @@ class PlanController extends Controller
                         $d->water = $water;
                         $d->sleep = $sleep;
                         $d->date = Auth::user()->date;
-                        $d->status = $dayd;
+                        $d->status = ['week' => $currentWeekNumber + 1, 'day' => $day];
                     }
                 } else {
                     $message =  app()->getLocale() == 'en' ? 'Your goal has expired. You can extend the period or choose another goal.' : 'لقد انتهت مدة هدفك يمكنك تمديد المدة او اختيار هدف اخر';
@@ -699,6 +711,7 @@ class PlanController extends Controller
                 $day = $dayd['day'];
                 $week = $dayd['week'];
                 if ($day > 0) {
+                    $countExe = PlanExercise::where('plan_id', $id)->whereIn('exercise_id', $ar)->where('week', $week)->count();
                     $Getdate = Target::where('user_id', auth()->id())->with('users.date')->first();
                     $date = $Getdate->users->date;
 
@@ -708,35 +721,39 @@ class PlanController extends Controller
                             $q->where('plan_id', $id);
                         })
                         ->whereIn('check', $ar)->count();
-                    $dates = $Getdate->users->date;
 
+                    $dates = $Getdate->users->date;
 
                     $weeks = collect($dates)->chunk(7)->values();
 
-                    $results = [];
-                    //progress week rate 
-                    foreach ($weeks as $index => $weekDays) {
+                    $currentDate = Carbon::today()->toDateString();
+                    $currentWeekNumber = $weeks->search(function ($weekDays) use ($currentDate) {
+                        return collect($weekDays)->contains(function ($d) use ($currentDate) {
+                            return Carbon::parse($d->date)->toDateString() === $currentDate;
+                        });
+                    });
 
-                        $weekDates = collect($weekDays)->map(function ($d) {
+                    $totalRate = 0;
+
+                    if ($currentWeekNumber !== false) {
+                        $weekDates = collect($weeks[$currentWeekNumber])->map(function ($d) {
                             return Carbon::parse($d->date)->toDateString();
                         });
 
-                        $countWeekIndex = Target::where('user_id', auth()->id())
+                        $countWeek = Target::where('user_id', auth()->id())
                             ->whereHas('goalPlan', function ($q) use ($id) {
                                 $q->where('plan_id', $id);
                             })
-                            ->where('check', '!=', 0)
+                            ->whereIn('check', $ar)
                             ->whereIn(DB::raw('DATE(updated_at)'), $weekDates)
                             ->count();
 
-                        $totalRate = intval(($countWeekIndex / 21) * 100); // عدل الرقم حسب النظام عندك
-
-                        $results[] = [
-                            'week' => $index + 1,
+                        $totalRate = intval(($countWeek / $countExe) * 100);
+                        $results = [
+                            'week' =>  $currentWeekNumber + 1,
                             'rate'  => $totalRate
                         ];
                     }
-                    $totalRate = intval(($count / 21) * 100);
 
 
                     $countDay = Target::where('user_id', auth()->id())
@@ -785,6 +802,7 @@ class PlanController extends Controller
                     $show->totalRateDay =   $totalRateDay;
                     $show->totalRateWeekOne =   $results;
                     $show->arrDay = $arrDay;
+                    $show->countE_week = $countExe;
                     $type = 'success';
                 } else {
                     $message =  app()->getLocale() == 'en' ? 'Your goal has expired. You can extend the period or choose another goal.' : 'لقد انتهت مدة هدفك يمكنك تمديد المدة او اختيار هدف اخر';
