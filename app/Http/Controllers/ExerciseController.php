@@ -40,6 +40,12 @@ class ExerciseController extends Controller
         if ($request->media) {
             $exercise->addMediaFromRequest('media')->toMediaCollection('exercises');
         }
+        if ($request->video) {
+            $exercise->addMediaFromRequest('video')->toMediaCollection('exercises');
+        }
+        if ($request->svg) {
+            $exercise->addMediaFromRequest('svg')->toMediaCollection('exercises');
+        }
         if ($request->has('steps')) {
             foreach ($request->steps as $index => $stepData) {
 

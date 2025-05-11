@@ -223,10 +223,7 @@ class UserController extends Controller
     }
     public function profile()
     {
-        $x = [];
-        $y = [];
-        $xx = [];
-        $yy = [];
+
         $arrWater = [];
         $arrSleep = [];
         $arrFood = [];
@@ -267,16 +264,11 @@ class UserController extends Controller
                 ->where('user_id', auth()->id())
                 ->groupBy('x')
                 ->get();
-            foreach ($caloriesForDay as $data) {
-                array_push($x, $data->x);
-                array_push($y, $data->y);
-            }
+
             foreach ($caloriesForDay as $data) {
                 array_push($arr, ['x' => $data->x, 'y' => intval($data->y)]);
             }
             $profile->caloriesForDay = $arr;
-            $profile->x = $x;
-            $profile->y = $y;
             //get meal
             $FoodForDay = Target::selectRaw('DATE(created_at) as x, SUM(calories) as y')
                 ->whereHas('goalPlan.plan', function ($q) {
@@ -287,16 +279,12 @@ class UserController extends Controller
                 ->get();
 
             foreach ($FoodForDay as $data) {
-                array_push($xx, $data->x);
-                array_push($yy, $data->y);
                 array_push($arrFood, ['x' => $data->x, 'y' => intval($data->y)]);
             }
             foreach ($caloriesForDay as $data) {
                 array_push($arr, ['x' => $data->x, 'y' => intval($data->y)]);
             }
             $profile->FoodForDay = $arrFood;
-            $profile->xx = $xx;
-            $profile->yy = $yy;
             $profile->goals = $goals;
             $profile->mygoal = $mygoal;
             //get water

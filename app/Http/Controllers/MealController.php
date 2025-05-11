@@ -71,6 +71,15 @@ class MealController extends Controller
     /**
      * Display the specified resource.
      */
+    public function showPlanMeal(Meal $meal)
+    {
+        $show = $meal->load(['media', 'category', 'ingredients', 'ingredients.media']);
+        $other = Meal::whereHas('category', function ($q) use ($meal) {
+            $q->where('id', $meal->category->id);
+        })->with('media')->get();
+        $show->other = $other;
+        return response()->json($show);
+    }
     public function show(Meal $meal)
     {
         $show = $meal->load(['media', 'category', 'ingredients', 'ingredients.media']);

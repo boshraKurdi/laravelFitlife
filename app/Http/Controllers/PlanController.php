@@ -572,7 +572,7 @@ class PlanController extends Controller
                         ->where('type', '!=', 'water')
 
                         ->with(['targets' => function ($query) {
-                            $query->where('user_id', auth()->id())->where('check', '!=', 0);
+                            $query->where('user_id', auth()->id())->where('check', '!=', 0)->whereDate('targets.created_at', Carbon::today());
                         }, 'media', 'targets.goalPlan', 'exercise' => function ($query) use ($day, $week) {
                             $query->where('day', $day)->where('week', $week);
                         }, 'exercise.media'])
@@ -584,7 +584,7 @@ class PlanController extends Controller
                         })
                         ->where('type', 'food')
                         ->with(['targets' => function ($query) {
-                            $query->where('user_id', auth()->id())->where('check', '!=', 0);
+                            $query->where('user_id', auth()->id())->where('check', '!=', 0)->whereDate('targets.created_at', Carbon::today());
                         }, 'media', 'targets.goalPlan', 'meal' => function ($query) use ($day, $week) {
                             $query->where('day', $day)->where('week', $week);
                         }, 'meal.media'])

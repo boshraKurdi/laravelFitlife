@@ -182,7 +182,7 @@ Route::group(['prefix' => 'dashboard'], function () {
         Route::get('index/{id?}', [MealController::class, 'index']);
         Route::post('store', [MealController::class, 'store']);
         Route::post('{meal}/update', [MealController::class, 'update']);
-        Route::get('{meal}/show', [MealController::class, 'show']);
+        Route::get('{meal}/show', [MealController::class, 'showPlanMeal']);
         Route::delete('{meal}/destroy', [MealController::class, 'destroy']);
     });
     Route::group(['prefix' => 'gym'], function () {
