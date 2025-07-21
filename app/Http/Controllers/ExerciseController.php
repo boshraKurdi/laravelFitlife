@@ -36,6 +36,7 @@ class ExerciseController extends Controller
             'counter' => $request->counter,
             'type' => $request->type,
             'calories' => $request->calories
+
         ]);
         if ($request->media) {
             $exercise->addMediaFromRequest('media')->toMediaCollection('exercises');

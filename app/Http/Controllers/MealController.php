@@ -43,7 +43,12 @@ class MealController extends Controller
             'fats' => $request->fats,
             'calories' => $request->calories,
             'prepare_ar' => $request->prepare_ar,
-            'category_id' => $request->category_id
+            'category_id' => $request->category_id,
+            'breakfast' => $request->period == 'breakfast' ? 1 : 0,
+            'dinner' => $request->period == 'dinner' ? 1 : 0,
+            'lunch' => $request->period == 'lunch' ? 1 : 0,
+            'snacks' => $request->period == 'snacks' ? 1 : 0,
+
         ]);
         if ($request->hasFile("media")) {
             $meal->addMediaFromRequest("media")->toMediaCollection('meals');
@@ -91,6 +96,7 @@ class MealController extends Controller
         $week = $dayd['week'];
         $time = PlanMeal::where('meal_id',  $show->id)->where('day', $day)->where('week', $week)->get();
         $show->other = $other;
+        $show->pivot = ['breakfast' => $show->breakfast, 'lunch' => $show->lunch];
         $show->time = $time;
         return response()->json(['data' => $show]);
     }
@@ -113,7 +119,11 @@ class MealController extends Controller
             'fats' => $request->fats,
             'calories' => $request->calories,
             'prepare_ar' => $request->prepare_ar,
-            'category_id' => $request->category_id
+            'category_id' => $request->category_id,
+            'breakfast' => $request->period == 'breakfast' ? 1 : 0,
+            'dinner' => $request->period == 'dinner' ? 1 : 0,
+            'lunch' => $request->period == 'lunch' ? 1 : 0,
+            'snacks' => $request->period == 'snacks' ? 1 : 0,
         ]);
         if ($request->hasFile("media")) {
             $meal->addMediaFromRequest("media")->toMediaCollection('meals');

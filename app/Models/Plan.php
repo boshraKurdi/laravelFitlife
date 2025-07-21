@@ -56,7 +56,7 @@ class Plan extends Model implements HasMedia
             'plan_meals',
             'plan_id',
             'meal_id',
-        )->withPivot(['breakfast', 'lunch', 'dinner', 'snacks']);
+        )->withPivot(['day', 'week', "breakfast"]);
     }
     public function registerMediaCollections(): void
     {

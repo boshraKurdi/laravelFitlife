@@ -21,7 +21,11 @@ class Meal extends Model implements HasMedia
         'fats',
         'proteins',
         'prepare_ar',
-        'category_id'
+        'category_id',
+        'breakfast',
+        'lunch',
+        'dinner',
+        'snacks'
     ];
     public function plan()
     {

@@ -15,9 +15,6 @@ class PlanMeal extends Model
         'meal_id',
         'day',
         'week',
-        'breakfast',
-        'lunch',
-        'dinner',
-        'snacks'
+        'breakfast'
     ];
 }

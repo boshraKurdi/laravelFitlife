@@ -107,7 +107,7 @@ class User extends Authenticatable implements JWTSubject, HasMedia
 
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection('users')->singleFile();
+        $this->addMediaCollection('users');
     }
     public function getJWTIdentifier()
     {

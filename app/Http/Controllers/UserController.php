@@ -102,7 +102,7 @@ class UserController extends Controller
         } else {
             $index = User::where('is_request', 2)->get();
         }
-        return response()->json(['data' => $index]);
+        return response()->json(['data' => $index->load("media")]);
     }
     public function activeCoach($id)
     {
@@ -144,7 +144,7 @@ class UserController extends Controller
         $arr = [];
         $profile = User::where('id', $id)->with(['goalPlan' => function ($q) {
             $q->where('active', 1);
-        }, 'goalPlan.goals', 'date'])->first();
+        }, 'goalPlan.goals', 'date', 'media'])->first();
         $roles = $profile->getRoleNames();
         $today = Carbon::today();
         //get exercise 

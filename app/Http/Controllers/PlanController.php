@@ -57,8 +57,8 @@ class PlanController extends Controller
             'title_ar' => $request->title_ar,
             'description' => $request->description,
             'description_ar' => $request->description_ar,
-            'muscle' => $request->muscle,
-            'muscle_ar' => $request->muscle_ar,
+            'muscle' => $request->muscle ? $request->muscle : "a",
+            'muscle_ar' => $request->muscle_ar ? $request->muscle_ar : "a",
             'duration' => $request->duration,
             'water' => $request->water,
             'sleep' => $request->sleep,
@@ -67,17 +67,13 @@ class PlanController extends Controller
         ]);
         $allDays = json_decode($request->a, true);
         if ($request->type === 'food') {
-            foreach ($allDays as $index => $meal_ids) {
-                foreach ($meal_ids as $id) {
+            foreach ($allDays as $index => $meals) {
+                foreach ($meals as $id) {
                     PlanMeal::create([
                         'meal_id' => $id,
                         'plan_id' => $plan->id,
                         'day' => ($index % 7) + 1,
                         'week' => intval($index / 7) + 1,
-                        'breakfast' => 0,
-                        'dinner' => 0,
-                        'lunch' => 0,
-                        'snacks' => 1
                     ]);
                 }
             }
@@ -87,7 +83,7 @@ class PlanController extends Controller
             foreach ($allDays as $index => $exercise_ids) {
                 foreach ($exercise_ids as $id) {
                     PlanExercise::create([
-                        'exercise_id' => $id,
+                        'exercise_id' => $id['key'],
                         'plan_id' => $plan->id,
                         'day' => ($index % 7) + 1,
                         'week' => intval($index / 7) + 1,
@@ -106,7 +102,7 @@ class PlanController extends Controller
      */
     public function show(Plan $plan)
     {
-        $show = $plan->load(['media', 'exercise', 'exercise.media']);
+        $show = $plan->load(['media', 'exercise', 'exercise.media', 'meal']);
         return response()->json($show);
     }
 
@@ -138,10 +134,6 @@ class PlanController extends Controller
                         'plan_id' => $plan->id,
                         'day' => ($index % 7) + 1,
                         'week' => intval($index / 7) + 1,
-                        'breakfast' => 0,
-                        'dinner' => 0,
-                        'lunch' => 0,
-                        'snacks' => 1
                     ]);
                 }
             }
@@ -450,14 +442,14 @@ class PlanController extends Controller
                     })
                         ->where('type', 'food')
                         ->first();
-                    $allMeals =  Plan::where('id', $plan_id->id)->with(['meal' => function ($q) use ($day, $week) {
+                    $allMeals =  Plan::where('id', 10)->with(['meal' => function ($q) use ($day, $week) {
                         $q->where('day', $day)->where('week', $week);
                     }, 'meal.media'])->get();
                     if ($request->breakfast) {
                         $exe =  Plan::where('id', $plan_id->id)->with(['targets' => function ($q) use ($today) {
                             $q->where('user_id', auth()->id())->where('check', '!=', 0)->whereDate('targets.created_at', $today);
                         }, 'targets.users', 'meal' => function ($q) use ($day, $week) {
-                            $q->where('day', $day)->where('week', $week)->where('breakfast', 1);
+                            $q->where('day', $day)->where('week', $week)->where('meals.breakfast', 1);
                         }, 'meal.media'])->get();
                     } else if ($request->lunch) {
                         $exe =  Plan::where('id', $plan_id->id)->with(['targets' => function ($q) use ($today) {
@@ -489,6 +481,19 @@ class PlanController extends Controller
 
                     $exe[0]->allMeals = $allMeals;
                     $exe[0]->arrDay = $arrDay;
+                    foreach ($exe[0]->allMeals[0]->meal as $meal) {
+                        $meal->pivot->breakfast = $meal->breakfast;
+                        $meal->pivot->lunch = $meal->lunch;
+                        $meal->pivot->dinner = $meal->dinner;
+                        $meal->pivot->snacks = $meal->snacks;
+                    }
+                    foreach ($exe[0]->meal as $meal) {
+                        $meal->pivot->breakfast = $meal->breakfast;
+                        $meal->pivot->lunch = $meal->lunch;
+                        $meal->pivot->dinner = $meal->dinner;
+                        $meal->pivot->snacks = $meal->snacks;
+                    }
+
                     $type = 'success';
                 } else {
                     $message =  app()->getLocale() == 'en' ? 'Your goal has expired. You can extend the period or choose another goal.' : 'لقد انتهت مدة هدفك يمكنك تمديد المدة او اختيار هدف اخر';
