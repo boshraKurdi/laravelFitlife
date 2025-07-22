@@ -455,13 +455,13 @@ class PlanController extends Controller
                         $exe =  Plan::where('id', $plan_id->id)->with(['targets' => function ($q) use ($today) {
                             $q->where('user_id', auth()->id())->where('check', '!=', 0)->whereDate('targets.created_at', $today);
                         }, 'targets.users', 'meal' => function ($q) use ($day, $week) {
-                            $q->where('day', $day)->where('week', $week)->where('lunch', 1);
+                            $q->where('day', $day)->where('week', $week)->where('meals.lunch', 1);
                         }, 'meal.media'])->get();
                     } else {
                         $exe =  Plan::where('id', $plan_id->id)->with(['targets' => function ($q) use ($today) {
                             $q->where('user_id', auth()->id())->where('check', '!=', 0)->whereDate('targets.created_at', $today);
                         }, 'targets.users', 'meal' => function ($q) use ($day, $week) {
-                            $q->where('day', $day)->where('week', $week)->where('dinner', 1);
+                            $q->where('day', $day)->where('week', $week)->where('meals.dinner', 1);
                         }, 'meal.media'])->get();
                     }
 
@@ -753,7 +753,7 @@ class PlanController extends Controller
                             ->whereIn(DB::raw('DATE(updated_at)'), $weekDates)
                             ->count();
 
-                        $totalRate = intval(($countWeek / $countExe) * 100);
+                        $totalRate = $countExe > 0 ? intval(($countWeek / $countExe) * 100) : 0;
                         $results = [
                             'week' =>  $currentWeekNumber + 1,
                             'rate'  => $totalRate
