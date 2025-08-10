@@ -58,6 +58,7 @@ Route::group(['prefix' => 'userService'], function () {
 Route::group(['prefix' => 'chat'], function () {
     Route::group(['middleware' => 'auth:api'], function () {
         Route::get('index', [ChatController::class, 'index']);
+        Route::post('update/{chat]', [ChatController::class, 'update']);
         Route::get('show/{chat}', [ChatController::class, 'show']);
         Route::post('store', [ChatController::class, 'store']);
         Route::post('storeAi', [ChatController::class, 'storeAi']);
@@ -124,6 +125,7 @@ Route::group(['prefix' => 'dashboard'], function () {
     Route::group(['prefix' => 'auth'], function () {
         Route::post('login', [AuthController::class, 'loginPanel']);
     });
+    Route::post('chat/update/{chat}', [ChatController::class, 'update']);
     Route::group(['prefix' => 'user'], function () {
         Route::get('index/{id?}', [UserController::class, 'index']);
         Route::get('progress', [UserController::class, 'progressAdmin']);

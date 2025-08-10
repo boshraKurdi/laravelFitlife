@@ -36,6 +36,8 @@ class ChatController extends Controller
         return response()->json(['chats' => $newChats, 'users' => $users]);
     }
 
+
+
     /**
      * Store a newly created resource in storage.
      */
@@ -125,7 +127,12 @@ class ChatController extends Controller
      */
     public function update(UpdateChatRequest $request, Chat $chat)
     {
-        //
+        $chat->update([
+            'day' => $request->day,
+            'start_time' => $request->start_time,
+            "end_time" => $request->end_time
+        ]);
+        return response()->json(['message' => "update chat successfully!"]);
     }
 
     /**

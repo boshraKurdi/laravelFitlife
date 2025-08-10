@@ -15,4 +15,8 @@ class PlanExercise extends Model
         'day',
         'week'
     ];
+    public function exercises()
+    {
+        return $this->belongsTo(Exercise::class, 'exercise_id');
+    }
 }

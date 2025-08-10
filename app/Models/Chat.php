@@ -12,6 +12,9 @@ class Chat extends Model
         'name',
         'type',
         'lastMessage',
+        "start_time",
+        "end_time",
+        "day"
     ];
     public function user()
     {

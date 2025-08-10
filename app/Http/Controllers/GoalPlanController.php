@@ -31,18 +31,27 @@ class GoalPlanController extends Controller
         $date = [];
         $type = 'success';
         $message = '';
-        $CountGetdate = Target::where('user_id', auth()->id())->where('active', '!=', 2)->count();
+        $CountGetdate = Target::where('user_id', auth()->id())->where('active', '!=', 2)->whereHas('goalPlan', function ($q) use ($id) {
+            $q->where('goal_id', $id);
+        })->count();
         if ($CountGetdate) {
             $CountGetdateActive = Target::where('user_id', auth()->id())->where('active', 1)->count();
             if ($CountGetdateActive) {
-                $Getdate = Target::where('user_id', auth()->id())->whereHas('goalPlan', function ($q) use ($id) {
-                    $q->where('goal_id', $id);
-                })->with('users.date')->first();
-                if (!$Getdate) {
-                    $message = 'Finish your first goal and then you can start another one to be the person you want to be ✌️👊';
-                    $type = 'error';
+                $dayd = GetDate::GetDate(2);
+                $day = $dayd['day'];
+                $week = $dayd['week'];
+                if ($day > 0) {
+                    $Getdate = Target::where('user_id', auth()->id())->whereHas('goalPlan', function ($q) use ($id) {
+                        $q->where('goal_id', $id);
+                    })->with('users.date')->first();
+                    if (!$Getdate) {
+                        $message = 'Finish your first goal and then you can start another one to be the person you want to be ✌️👊';
+                        $type = 'error';
+                    }
+                    $date = $Getdate ? $Getdate->users->date : [];
+                } else {
+                    $message =  app()->getLocale() == 'en' ? 'Your goal has expired. You can extend the period or choose another goal.' : 'لقد انتهت مدة هدفك يمكنك تمديد المدة او اختيار هدف اخر';
                 }
-                $date = $Getdate ? $Getdate->users->date : [];
             } else {
                 $message = 'please wait to processing the goal';
                 $type = 'error';

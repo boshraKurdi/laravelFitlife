@@ -648,6 +648,7 @@ class PlanController extends Controller
         if ($CountGetdate) {
             $CountGetdateWithActive = Target::where('user_id', auth()->id())->where('active', 1)->count();
             if ($CountGetdateWithActive) {
+
                 $dayd = GetDate::GetDate(2);
                 $day = $dayd['day'];
                 $week = $dayd['week'];
@@ -665,13 +666,18 @@ class PlanController extends Controller
                         }, 'media', 'targets.goalPlan'])
                         ->get();
                     if ($plans) {
-                        $newIndex = $plans->map(function ($i) {
+                        $ar = Exercise::where('type', Auth::user()->gender)->pluck('id')->toArray();
+                        $newIndex = $plans->map(function ($i) use ($ar) {
                             $count = Target::where('user_id', auth()->id())
+                                ->whereIn('check', $ar)
                                 ->whereHas('goalPlan', function ($q) use ($i) {
                                     $q->where('plan_id', $i->id);
-                                })->where('check', '!=', 0)
+                                })
                                 ->count();
-                            $totalRate = intval(($count / 21) * 100);
+                            $countExe = PlanExercise::where('plan_id', $i->id)->whereHas('exercises', function ($q) {
+                                $q->where('exercises.type', Auth::user()->gender);
+                            })->count();
+                            $totalRate = intval(($count /  $countExe) * 100);
                             $i->totalRate = $totalRate;
                             return $i;
                         });
@@ -701,7 +707,7 @@ class PlanController extends Controller
         $arrCal = [];
         $date = [];
         $gender = Auth::user()->gender;
-        $ar = $gender === 'male' ? array(6, 7, 8, 9, 10) : array(1, 2, 3, 4, 5);
+        $ar = Exercise::where('type', Auth::user()->gender)->pluck('id')->toArray();
         $type = 'error';
         $message = '';
         $today = Carbon::today();
@@ -716,7 +722,12 @@ class PlanController extends Controller
                 $day = $dayd['day'];
                 $week = $dayd['week'];
                 if ($day > 0) {
-                    $countExe = PlanExercise::where('plan_id', $id)->whereIn('exercise_id', $ar)->where('week', $week)->count();
+                    $countExeForWeek = PlanExercise::where('plan_id', $id)->whereHas('exercises', function ($q) {
+                        $q->where('exercises.type', Auth::user()->gender);
+                    })->where('week', $week)->count();
+                    $countExe = PlanExercise::where('plan_id', $id)->whereHas('exercises', function ($q) {
+                        $q->where('exercises.type', Auth::user()->gender);
+                    })->count();
                     $Getdate = Target::where('user_id', auth()->id())->with('users.date')->first();
                     $date = $Getdate->users->date;
 
@@ -749,13 +760,23 @@ class PlanController extends Controller
                             ->whereHas('goalPlan', function ($q) use ($id) {
                                 $q->where('plan_id', $id);
                             })
-                            ->whereIn('check', $ar)
                             ->whereIn(DB::raw('DATE(updated_at)'), $weekDates)
+                            ->whereIn('check', $ar)
                             ->count();
 
-                        $totalRate = $countExe > 0 ? intval(($countWeek / $countExe) * 100) : 0;
+                        $countTotal = Target::where('user_id', auth()->id())
+                            ->whereHas('goalPlan', function ($q) use ($id) {
+                                $q->where('plan_id', $id);
+                            })
+                            ->whereIn('check', $ar)
+
+                            ->count();
+                        $totalRateForAllPlan = $countTotal > 0 ? intval(($countTotal / $countExe) * 100) : 0;
+
+                        $totalRate = $countWeek > 0 ? intval(($countWeek / $countExeForWeek) * 100) : 0;
                         $results = [
                             'week' =>  $currentWeekNumber + 1,
+                            'day' =>   $day + 1,
                             'rate'  => $totalRate
                         ];
                     }
@@ -764,7 +785,7 @@ class PlanController extends Controller
                     $countDay = Target::where('user_id', auth()->id())
                         ->whereHas('goalPlan', function ($q) use ($id) {
                             $q->where('plan_id', $id);
-                        })->where('check', '!=', 0)->WhereDate('updated_at', $today)->count();
+                        })->whereIn('check', $ar)->WhereDate('updated_at', $today)->count();
 
                     $countx = PlanExercise::where('day', $day)->where('week', $week)
                         ->whereIn('exercise_id', $ar)->where('plan_id', $id)
@@ -777,7 +798,7 @@ class PlanController extends Controller
                     $AllDayTotal = Target::selectRaw('DATE(created_at) as x, SUM(calories) as y')->where('user_id', auth()->id())
                         ->whereHas('goalPlan', function ($q) use ($id) {
                             $q->where('plan_id', $id);
-                        })->where('check', '!=', 0)->groupBy('x')->get();
+                        })->whereIn('check', $ar)->groupBy('x')->get();
 
                     foreach ($AllDayTotal as $data) {
                         $totalRateDayTotal = intval((count($AllDayTotal) / $countE) * 100);
@@ -789,6 +810,7 @@ class PlanController extends Controller
                         ->whereHas('goalPlan.plan', function ($q) {
                             $q->where('type', "!=", 'food')->where('type', "!=", 'water')->where('type', "!=", 'sleep');
                         })
+                        ->whereIn('check', $ar)
                         ->where('user_id', auth()->id())
                         ->groupBy('x')
                         ->get();
@@ -802,7 +824,7 @@ class PlanController extends Controller
                         }, 'targets.users', 'targets.users.date', 'media'])
                         ->first();
                     $show->date =   $date;
-                    $show->totalRate =   $totalRate;
+                    $show->totalRate =   $totalRateForAllPlan;
                     $show->arrCal =   $arrCal;
                     $show->totalRateDay =   $totalRateDay;
                     $show->totalRateWeekOne =   $results;
