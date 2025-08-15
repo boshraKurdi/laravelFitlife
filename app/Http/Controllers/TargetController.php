@@ -9,6 +9,7 @@ use App\Http\Requests\StoreTargetWaterRequest;
 use App\Http\Requests\UpdateTargetRequest;
 use App\Models\Date;
 use App\Models\GoalPlan;
+use App\Models\Plan;
 use App\Models\User;
 use App\Observers\GoalPlanObserver;
 use App\Services\GetDate;
@@ -75,27 +76,27 @@ class TargetController extends Controller
     }
     public function storeSleep(StoreTargetSleepRequest $request)
     {
-        $goal_id = Target::where('user_id', auth()->id())->where('active', '!=', 2)->WhereHas('goalPlan', function ($q) {
-            $q->where('plan_id', 14);
-        })->with('goalPLan')->first();
+        $plan = Plan::where("type", 'sleep')->first();
+        $goal_id = Target::where('user_id', auth()->id())->where('active', 1)->with('goalPLan')->first();
+        $goal_plan = GoalPlan::where('goal_id', $goal_id->goalPLan->goal_id)->where("plan_id", $plan->id)->first();
         $message = '';
         $data = 'error';
         $currentDate = Carbon::now();
         if ($goal_id) {
-            $countActive = Target::where('user_id', auth()->id())->WhereHas('goalPlan', function ($q) {
-                $q->where('plan_id', 14);
+            $countActive = Target::where('user_id', auth()->id())->WhereHas('goalPlan', function ($q) use ($plan) {
+                $q->where('plan_id', $plan->id);
             })->where('active', 1)->count();
             if ($countActive) {
                 $dayd = GetDate::GetDate(2);
                 $day = $dayd['day'];
                 if ($day > 0) {
-                    $countDay = Target::where('user_id', auth()->id())->where('goal_plan_id', $goal_id->goal_plan_id)->whereDate('created_at', $currentDate)->get();
+                    $countDay = Target::where('user_id', auth()->id())->where('goal_plan_id', $goal_plan->id)->whereDate('created_at', $currentDate)->get();
                     if (count($countDay)) {
-                        Target::where('user_id', auth()->id())->where('goal_plan_id', $goal_id->goal_plan_id)->whereDate('created_at', $currentDate)->delete();
+                        Target::where('user_id', auth()->id())->where('goal_plan_id',  $goal_plan->id)->whereDate('created_at', $currentDate)->delete();
                     }
                     Target::create([
                         'user_id' => auth()->id(),
-                        'goal_plan_id' => $goal_id->goal_plan_id,
+                        'goal_plan_id' =>  $goal_plan->id,
                         'sleep' => $request->hours,
                         'active' => true,
                     ]);
@@ -117,15 +118,16 @@ class TargetController extends Controller
     }
     public function storeWater(StoreTargetWaterRequest $request)
     {
-        $goal_id = Target::where('user_id', auth()->id())->where('active', '!=', 2)->WhereHas('goalPlan', function ($q) {
-            $q->where('plan_id', 15);
+        $plan = Plan::where("type", "water")->first();
+        $goal_id = Target::where('user_id', auth()->id())->where('active', '!=', 2)->WhereHas('goalPlan', function ($q) use ($plan) {
+            $q->where('plan_id', $plan->id);
         })->with('goalPLan')->first();
         $data = 'error';
         $message = '';
         $currentDate = Carbon::now();
         if ($goal_id) {
-            $countActive = Target::where('user_id', auth()->id())->WhereHas('goalPlan', function ($q) {
-                $q->where('plan_id', 14);
+            $countActive = Target::where('user_id', auth()->id())->WhereHas('goalPlan', function ($q) use ($plan) {
+                $q->where('plan_id', $plan->id);
             })->where('active', 1)->count();
             if ($countActive) {
                 $dayd = GetDate::GetDate(2);

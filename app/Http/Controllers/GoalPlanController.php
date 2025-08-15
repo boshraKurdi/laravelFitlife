@@ -51,6 +51,7 @@ class GoalPlanController extends Controller
                     $date = $Getdate ? $Getdate->users->date : [];
                 } else {
                     $message =  app()->getLocale() == 'en' ? 'Your goal has expired. You can extend the period or choose another goal.' : 'لقد انتهت مدة هدفك يمكنك تمديد المدة او اختيار هدف اخر';
+                    $type = 'expire';
                 }
             } else {
                 $message = 'please wait to processing the goal';
