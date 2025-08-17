@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Chat;
 use App\Models\Goal;
+use App\Models\GoalPlan;
 use App\Models\Group;
 use App\Models\Target;
 use App\Models\Update;
@@ -200,12 +201,13 @@ class UserController extends Controller
             $WaterForDay = Target::where('user_id', $id)->whereHas('goalPlan.plan', function ($q) {
                 $q->where('type', 'water');
             })->whereDate('updated_at', $today)->where('active', 1)->first();
-            $profile->waterForDay = $WaterForDay ? $WaterForDay->water : 0;
+            $profile->waterForDay = (int) ($WaterForDay->water ?? 0);
+
             //get sleep
             $SleepForDay = Target::where('user_id', $id)->whereHas('goalPlan.plan', function ($q) {
                 $q->where('type', 'sleep');
             })->whereDate('updated_at', $today)->where('active', 1)->first();
-            $profile->sleepForDay = $SleepForDay ? $SleepForDay->sleep : 0;
+            $profile->sleepForDay = $SleepForDay ? $SleepForDay->sleep : "0";
             $num = $profile->width /  pow($profile->height / 100, 2);
             if ($num < 18.5) {
                 $BMI = 'نقص الوزن';
@@ -291,7 +293,8 @@ class UserController extends Controller
             $WaterForDay = Target::where('user_id', auth()->id())->whereHas('goalPlan.plan', function ($q) {
                 $q->where('type', 'water');
             })->whereDate('updated_at', $today)->where('active', 1)->first();
-            $profile->waterForDay = $WaterForDay ? $WaterForDay->water : 0;
+            $profile->waterForDay = (int) ($WaterForDay->water ?? 0);
+
             //get water every day
             $WaterForEveryDay = Target::selectRaw('DATE(created_at) as x, SUM(water) as y')
                 ->whereHas('goalPlan.plan', function ($q) {
@@ -322,7 +325,7 @@ class UserController extends Controller
             }
             $profile->WaterForEveryDay = $arrWater;
             $profile->SleepForEveryDay = $arrSleep;
-            $profile->sleepForDay = $SleepForDay ? $SleepForDay->sleep : 0;
+            $profile->sleepForDay = (int) ($SleepForDay->sleep ?? 0);
             $num = $profile->width /  pow($profile->height / 100, 2);
             if ($num < 18.5) {
                 $BMI = 'نقص الوزن';
@@ -342,14 +345,25 @@ class UserController extends Controller
     {
         $day = -1;
         $week = -1;
+        $status = "non subscription";
         $check = Target::where('user_id', auth()->id())->where('active', 1)->count();
+        $goal_name = '';
         if ($check) {
+            $target = Target::where('user_id', auth()->id())->where('active', 1)->first();
+            $goal_id = GoalPlan::where('id', $target->goal_plan_id)->first();
+            $goal = Goal::find($goal_id->goal_id);
+            $goal_name = $goal->title;
             $dayd = GetDate::GetDate(2);
             $day = $dayd['day'];
             $week = $dayd['week'];
+            if ($day > 0) {
+                $status = "subscription";
+            } else {
+                $status = "expire";
+            }
         }
 
-        return response()->json(['day' => $day, 'week' => $week]);
+        return response()->json(['day' => $day, 'week' => $week, 'status' => $status, 'goal_name' => $goal_name]);
     }
 
     public function progressGoal($id, $index)
