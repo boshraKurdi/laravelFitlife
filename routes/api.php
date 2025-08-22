@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\ExerciseController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\GoalPlanController;
@@ -30,6 +31,8 @@ Route::group(['prefix' => 'auth'], function () {
         Route::post('logout', [AuthController::class, 'logout']);
         Route::get('user', [AuthController::class, 'user']);
         Route::post('update', [AuthController::class, 'update']);
+        Route::post('/email/send-code', [EmailVerificationController::class, 'send']);
+        Route::post('/email/verify-code', [EmailVerificationController::class, 'verify']);
     });
 });
 Route::group(['prefix' => 'user'], function () {

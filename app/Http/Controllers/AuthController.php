@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AuthUpdateRequest;
+use App\Mail\VerifyEmailCodeMail;
+use App\Models\EmailVerificationCode;
 use App\Models\User;
 use App\Observers\GoalPlanObserver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -105,9 +108,18 @@ class AuthController extends Controller
         $observer->update();
 
         $token = Auth::login($user);
+        $code = (string) random_int(100000, 999999);
+        EmailVerificationCode::create([
+            'user_id' => $user->id,
+            'code' => $code,
+            'expires_at' => now()->addMinutes(10),
+        ]);
+
+        // إرسال الإيميل عبر Mailtrap
+        Mail::to($user->email)->send(new VerifyEmailCodeMail($user, $code));
         return response()->json([
             'status' => 'success',
-            'message' => 'User created successfully',
+            'message' => 'The account has been created. Check your email to confirm the account.',
             'user' => $user,
             'authorisation' => [
                 'token' => $token,

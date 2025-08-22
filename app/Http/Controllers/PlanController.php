@@ -795,13 +795,18 @@ class PlanController extends Controller
 
 
                     // drow proggres day rate
-                    $AllDayTotal = Target::selectRaw('DATE(created_at) as x, SUM(calories) as y')->where('user_id', auth()->id())
+                    $AllDayTotal = Target::selectRaw('DATE(created_at) as x, COUNT(calories) as y')->where('user_id', auth()->id())
                         ->whereHas('goalPlan', function ($q) use ($id) {
                             $q->where('plan_id', $id);
                         })->whereIn('check', $ar)->groupBy('x')->get();
 
                     foreach ($AllDayTotal as $data) {
-                        $totalRateDayTotal = intval((count($AllDayTotal) / $countE) * 100);
+                        $countexforday = PlanExercise::where("plan_id", $id)->where('day', $data->day)->where('week', $data->week)
+                            ->whereHas('exercises', function ($q) use ($ar) {
+                                $q->whereIn("type",  $ar);
+                            })
+                            ->count();
+                        $totalRateDayTotal = $countexforday > 0 ? intval($data->y /  $countexforday) * 100  : 0;
                         array_push($arrDay, ['x' => $data->x, 'y' => $totalRateDayTotal]);
                     }
 
@@ -815,7 +820,9 @@ class PlanController extends Controller
                         ->groupBy('x')
                         ->get();
                     foreach ($CalroiesForDay as $data) {
-                        array_push($arrCal, ['x' => $data->x, 'y' => intval($data->y)]);
+                        if ($data->x > 0) {
+                            array_push($arrCal, ['x' => $data->x, 'y' => intval($data->y)]);
+                        }
                     }
 
                     $show = Plan::where('id', $id)
