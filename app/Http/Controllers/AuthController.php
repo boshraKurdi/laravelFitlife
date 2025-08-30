@@ -115,8 +115,11 @@ class AuthController extends Controller
             'expires_at' => now()->addMinutes(10),
         ]);
 
-        // إرسال الإيميل عبر Mailtrap
-        Mail::to($user->email)->send(new VerifyEmailCodeMail($user, $code));
+        try {
+            Mail::to($user->email)->send(new VerifyEmailCodeMail($user, $code));
+        } catch (\Exception $e) {
+            \Log::error('Mail error: ' . $e->getMessage());
+        }
         return response()->json([
             'status' => 'success',
             'message' => 'The account has been created. Check your email to confirm the account.',
