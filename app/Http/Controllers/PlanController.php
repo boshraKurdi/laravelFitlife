@@ -626,6 +626,7 @@ class PlanController extends Controller
                     }
                 } else {
                     $message =  app()->getLocale() == 'en' ? 'Your goal has expired. You can extend the period or choose another goal.' : 'لقد انتهت مدة هدفك يمكنك تمديد المدة او اختيار هدف اخر';
+                    $type = 'expire';
                     $observer = new GoalPlanObserver();
                     $observer->update();
                 }
