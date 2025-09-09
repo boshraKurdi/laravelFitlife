@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Chat;
+use App\Models\Date;
 use App\Models\Goal;
 use App\Models\GoalPlan;
 use App\Models\Group;
 use App\Models\Target;
 use App\Models\Update;
 use App\Models\User;
+use App\Observers\GoalPlanObserver;
 use App\Services\GetDate;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -976,5 +978,68 @@ class UserController extends Controller
         }
 
         return response()->json(['data' => $data]);
+    }
+
+    public function editProfileUser(Request $request)
+    {
+        $start_day = User::query()->where('id', Auth::user()->id)->with('date')->first();
+        // $start_day->update([
+        //     'width' => $request->width,
+        //     'height' => $request->height,
+        //     'address' => $request->address,
+        //     'gender' => $request->gender,
+        //     'illness' => $request->illness,
+        //     'age' => $request->age,
+        //     'lat' => $request->lat,
+        //     'lon' => $request->lon,
+        //     'days' => $request->days
+        // ]);
+        $dates = [];
+        $dates_meal = [];
+        $type = 'error';
+        $message = '';
+        $days = json_decode($request->days, true);
+        if (count($start_day->date)) {
+            $currentDate = Carbon::parse($start_day->date[0]->date);
+            if ($days) {
+                Date::where('user_id', auth()->id())->delete();
+                $currentDate = Carbon::now();
+
+                for ($i = 0; $i < 14; $i++) {
+                    $dayOfWeek = (int)$currentDate->format('w');
+
+                    $dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thrusday', 'friday', 'saturday'];
+                    $currentDayName = $dayNames[$dayOfWeek];
+
+                    if ($days[$currentDayName] === true) {
+                        $holiday[] = 0;
+                    } else {
+                        $holiday[] = 1;
+                    }
+                    $dates[] = $currentDate->format('Y-m-d');
+                    $currentDate->modify('+1 day');
+                }
+
+
+                for ($i = 0; $i < 14; $i++) {
+                    Date::create([
+                        'user_id' => auth()->id(),
+                        'date' => $dates[$i],
+                        'is_holiday' => $holiday[$i]
+                    ]);
+                }
+                $observer = new GoalPlanObserver();
+                $observer->update();
+                //     }
+                // }
+
+                $type = "success";
+                $message = app()->getLocale() == 'en' ? 'update your scheduling. 😎' : "لقد تم تعديل جدولك بنجاح 😎";
+            }
+        } else {
+            $message = app()->getLocale() == 'en' ? 'faild update your scheduling , plaese try agen' : "فشل تعديل جدولك حاول مرة اخرى";
+        }
+
+        return response()->json(['data' => $start_day, 'message' => $message, 'type' => $type]);
     }
 }

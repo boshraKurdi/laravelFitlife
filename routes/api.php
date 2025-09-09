@@ -42,6 +42,7 @@ Route::group(['prefix' => 'user'], function () {
         Route::get('progressGoal/{id}/{index}', [UserController::class, 'progressGoal']);
         Route::get('deleteAccount', [UserController::class, 'deleteAccount']);
         Route::post('editProfile', [UserController::class, 'editProfile']);
+        Route::post('editProfileUser', [UserController::class, 'editProfileUser']);
         Route::post('update', [UserController::class, 'update']);
         Route::post('editScheduling', [TargetController::class, 'editScheduling']);
         Route::get('show/{user}', [UserController::class, 'show']);
