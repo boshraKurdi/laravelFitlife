@@ -819,8 +819,8 @@ class PlanController extends Controller
 
                     // progress claories
                     $CalroiesForDay = Target::selectRaw('DATE(created_at) as x, SUM(calories) as y')
-                        ->whereHas('goalPlan.plan', function ($q) {
-                            $q->where('type', "!=", 'food')->where('type', "!=", 'water')->where('type', "!=", 'sleep');
+                        ->whereHas('goalPlan', function ($q) use ($id) {
+                            $q->where('plan_id', $id);
                         })
                         ->whereIn('check', $ar)
                         ->where('user_id', auth()->id())

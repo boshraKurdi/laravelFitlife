@@ -128,8 +128,8 @@ class MealController extends Controller
         if ($request->hasFile("media")) {
             $meal->addMediaFromRequest("media")->toMediaCollection('meals');
         }
-
         if ($request->has('ingredients')) {
+            Ingredient::where("meal_id", $meal->id)->delete();
             foreach ($request->ingredients as $index => $stepData) {
                 $i = Ingredient::updateOrCreate(
                     ['meal_id' => $meal->id, 'name' => $stepData['name']],
