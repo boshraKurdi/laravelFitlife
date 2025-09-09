@@ -305,7 +305,7 @@ class UserController extends Controller
                 ->get();
 
             foreach ($WaterForEveryDay as $data) {
-                array_push($arrWater, ['x' => $data->x, 'y' => intval($data->y)]);
+                array_push($arrWater, ['x' => $data->x, 'y' => floatval($data->y)]);
             }
             //get sleep
             $SleepForDay = Target::where('user_id', auth()->id())->whereHas('goalPlan.plan', function ($q) {

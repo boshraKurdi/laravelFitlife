@@ -176,7 +176,7 @@ class AuthController extends Controller
         $observer->update();
         return response()->json([
             'data' => $user,
-            'message' => 'user has been updated successfully'
+            'message' => 'users has been updated successfully'
         ]);
     }
 }

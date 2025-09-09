@@ -360,7 +360,7 @@ class PlanController extends Controller
                         ->get();
 
                     foreach ($WaterForDay as $data) {
-                        array_push($arrDay, ['x' => $data->x, 'y' => intval($data->y)]);
+                        array_push($arrDay, ['x' => $data->x, 'y' => floatval($data->y)]);
                     }
                     $water->arrDay = $arrDay;
                     $type = 'success';
@@ -457,11 +457,17 @@ class PlanController extends Controller
                         }, 'targets.users', 'meal' => function ($q) use ($day, $week) {
                             $q->where('day', $day)->where('week', $week)->where('meals.lunch', 1);
                         }, 'meal.media'])->get();
-                    } else {
+                    } else if ($request->dinner) {
                         $exe =  Plan::where('id', $plan_id->id)->with(['targets' => function ($q) use ($today) {
                             $q->where('user_id', auth()->id())->where('check', '!=', 0)->whereDate('targets.created_at', $today);
                         }, 'targets.users', 'meal' => function ($q) use ($day, $week) {
                             $q->where('day', $day)->where('week', $week)->where('meals.dinner', 1);
+                        }, 'meal.media'])->get();
+                    } else {
+                        $exe =  Plan::where('id', $plan_id->id)->with(['targets' => function ($q) use ($today) {
+                            $q->where('user_id', auth()->id())->where('check', '!=', 0)->whereDate('targets.created_at', $today);
+                        }, 'targets.users', 'meal' => function ($q) use ($day, $week) {
+                            $q->where('day', $day)->where('week', $week)->where('meals.snacks', 1);
                         }, 'meal.media'])->get();
                     }
 

@@ -38,6 +38,8 @@ class Exercise extends Model implements HasMedia
 
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection('exercises');
+        $this->addMediaCollection('exercise_images')->singleFile();
+        $this->addMediaCollection('exercise_videos')->singleFile();
+        $this->addMediaCollection('exercise_svgs')->singleFile();
     }
 }

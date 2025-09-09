@@ -38,14 +38,16 @@ class ExerciseController extends Controller
             'calories' => $request->calories
 
         ]);
-        if ($request->media) {
-            $exercise->addMediaFromRequest('media')->toMediaCollection('exercises');
+        if ($request->hasFile('media')) {
+            $exercise->addMediaFromRequest('media')->toMediaCollection('exercise_images');
         }
-        if ($request->video) {
-            $exercise->addMediaFromRequest('video')->toMediaCollection('exercises');
+
+        if ($request->hasFile('video')) {
+            $exercise->addMediaFromRequest('video')->toMediaCollection('exercise_videos');
         }
-        if ($request->svg) {
-            $exercise->addMediaFromRequest('svg')->toMediaCollection('exercises');
+
+        if ($request->hasFile('svg')) {
+            $exercise->addMediaFromRequest('svg')->toMediaCollection('exercise_svgs');
         }
         if ($request->has('steps')) {
             foreach ($request->steps as $index => $stepData) {
@@ -89,9 +91,21 @@ class ExerciseController extends Controller
             'type' => $request->type,
             'calories' => $request->calories
         ]);
-        if ($request->media) {
-            $exercise->addMediaFromRequest('media')->toMediaCollection('exercises');
+        if ($request->hasFile('media')) {
+            $exercise->clearMediaCollection('exercise_images');
+            $exercise->addMediaFromRequest('media')->toMediaCollection('exercise_images');
         }
+
+        if ($request->hasFile('video')) {
+            $exercise->clearMediaCollection('exercise_videos');
+            $exercise->addMediaFromRequest('video')->toMediaCollection('exercise_videos');
+        }
+
+        if ($request->hasFile('svg')) {
+            $exercise->clearMediaCollection('exercise_svgs');
+            $exercise->addMediaFromRequest('svg')->toMediaCollection('exercise_svgs');
+        }
+
         if ($request->has('steps')) {
             foreach ($request->steps as $index => $stepData) {
                 // إنشاء أو تحديث الخطوة
