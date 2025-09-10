@@ -983,17 +983,17 @@ class UserController extends Controller
     public function editProfileUser(Request $request)
     {
         $start_day = User::query()->where('id', Auth::user()->id)->with('date')->first();
-        // $start_day->update([
-        //     'width' => $request->width,
-        //     'height' => $request->height,
-        //     'address' => $request->address,
-        //     'gender' => $request->gender,
-        //     'illness' => $request->illness,
-        //     'age' => $request->age,
-        //     'lat' => $request->lat,
-        //     'lon' => $request->lon,
-        //     'days' => $request->days
-        // ]);
+        $start_day->update([
+            'width' => $request->width,
+            'height' => $request->height,
+            'address' => $request->address,
+            'gender' => $request->gender,
+            'illness' => $request->illness,
+            'age' => $request->age,
+            'lat' => $request->lat,
+            'lon' => $request->lon,
+            'days' => $request->days
+        ]);
         $dates = [];
         $dates_meal = [];
         $type = 'error';
