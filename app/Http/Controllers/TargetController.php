@@ -7,6 +7,7 @@ use App\Http\Requests\StoreTargetRequest;
 use App\Http\Requests\StoreTargetSleepRequest;
 use App\Http\Requests\StoreTargetWaterRequest;
 use App\Http\Requests\UpdateTargetRequest;
+use App\Mail\SendMessageMail;
 use App\Models\Date;
 use App\Models\GoalPlan;
 use App\Models\Plan;
@@ -362,6 +363,11 @@ class TargetController extends Controller
             if ($t) {
                 $type = "success";
                 $message = app()->getLocale() == 'en' ? 'The target has been successfully unaccepted' : "تم رفض الهدف بنجاح🔥";
+                try {
+                    Mail::to($user->email)->send(new SendMessageMail());
+                } catch (\Exception $e) {
+                    \Log::error('Mail error: ' . $e->getMessage());
+                }
             }
             return response()->json(['data' =>  $user, 'message' => $message, 'type' => $type]);
         }

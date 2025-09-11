@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\SendMessageMail;
 use App\Models\Chat;
 use App\Models\Date;
+use App\Models\Exercise;
 use App\Models\Goal;
 use App\Models\GoalPlan;
 use App\Models\Group;
+use App\Models\Gym;
+use App\Models\Meal;
 use App\Models\Target;
 use App\Models\Update;
 use App\Models\User;
@@ -16,6 +20,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
@@ -123,6 +128,12 @@ class UserController extends Controller
         $user->update([
             'is_request' => 0
         ]);
+
+        try {
+            Mail::to($user->email)->send(new SendMessageMail());
+        } catch (\Exception $e) {
+            \Log::error('Mail error: ' . $e->getMessage());
+        }
         return response()->json(['data' => 'successfully!']);
     }
 
@@ -974,6 +985,10 @@ class UserController extends Controller
             $d->newSubscribers = $newSubscribers;
             $d->canceledSubscriptions = $canceledSubscriptions;
             $d->cancellationRate = $cancellationRate;
+
+            $d->countfood = Meal::count();
+            $d->countexe = Exercise::count();
+            $d->countgym = Gym::count();
             $d->topUsers = $topUsers;
         }
 
